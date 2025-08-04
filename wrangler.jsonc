@@ -1,0 +1,10 @@
+{
+  "name": "canopy-api-mcp",
+  "main": "./src/index.ts",
+  "compatibility_date": "2025-06-17",
+  "env": {
+    "production": {
+      "routes": [{ "pattern": "mcp.canopyapi.co", "custom_domain": true }]
+    }
+  }
+}
