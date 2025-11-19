@@ -111,6 +111,10 @@ export class CanopyApiClient {
   async getAmazonAuthor(params: QueryParams<"/api/amazon/author">) {
     return this.get("/api/amazon/author", params);
   }
+
+  async getAmazonDeals(params?: QueryParams<"/api/amazon/deals">) {
+    return this.get("/api/amazon/deals", params);
+  }
 }
 
 // Factory function to create client with current API key

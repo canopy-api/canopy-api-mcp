@@ -191,6 +191,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/amazon/deals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Amazon Deals
+         * @description Retrieve current deals from Amazon. Returns a paginated list of products currently on deal, including deal-specific information like discount percentages and deal badges.
+         */
+        get: operations["get_AmazonDeals"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -292,11 +312,14 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        error: {
-                            /** @default 401 */
+                        /** @enum {boolean} */
+                        success: false;
+                        errors: {
+                            /** @example 7003 */
                             code: number;
+                            /** @example Unauthorized */
                             message: string;
-                        };
+                        }[];
                     };
                 };
             };
@@ -385,11 +408,14 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        error: {
-                            /** @default 401 */
+                        /** @enum {boolean} */
+                        success: false;
+                        errors: {
+                            /** @example 7003 */
                             code: number;
+                            /** @example Unauthorized */
                             message: string;
-                        };
+                        }[];
                     };
                 };
             };
@@ -469,11 +495,14 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        error: {
-                            /** @default 401 */
+                        /** @enum {boolean} */
+                        success: false;
+                        errors: {
+                            /** @example 7003 */
                             code: number;
+                            /** @example Unauthorized */
                             message: string;
-                        };
+                        }[];
                     };
                 };
             };
@@ -552,11 +581,14 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        error: {
-                            /** @default 401 */
+                        /** @enum {boolean} */
+                        success: false;
+                        errors: {
+                            /** @example 7003 */
                             code: number;
+                            /** @example Unauthorized */
                             message: string;
-                        };
+                        }[];
                     };
                 };
             };
@@ -648,11 +680,14 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        error: {
-                            /** @default 401 */
+                        /** @enum {boolean} */
+                        success: false;
+                        errors: {
+                            /** @example 7003 */
                             code: number;
+                            /** @example Unauthorized */
                             message: string;
-                        };
+                        }[];
                     };
                 };
             };
@@ -766,11 +801,14 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        error: {
-                            /** @default 401 */
+                        /** @enum {boolean} */
+                        success: false;
+                        errors: {
+                            /** @example 7003 */
                             code: number;
+                            /** @example Unauthorized */
                             message: string;
-                        };
+                        }[];
                     };
                 };
             };
@@ -843,11 +881,14 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        error: {
-                            /** @default 401 */
+                        /** @enum {boolean} */
+                        success: false;
+                        errors: {
+                            /** @example 7003 */
                             code: number;
+                            /** @example Unauthorized */
                             message: string;
-                        };
+                        }[];
                     };
                 };
             };
@@ -919,11 +960,14 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        error: {
-                            /** @default 401 */
+                        /** @enum {boolean} */
+                        success: false;
+                        errors: {
+                            /** @example 7003 */
                             code: number;
+                            /** @example Unauthorized */
                             message: string;
-                        };
+                        }[];
                     };
                 };
             };
@@ -1031,11 +1075,14 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        error: {
-                            /** @default 401 */
+                        /** @enum {boolean} */
+                        success: false;
+                        errors: {
+                            /** @example 7003 */
                             code: number;
+                            /** @example Unauthorized */
                             message: string;
-                        };
+                        }[];
                     };
                 };
             };
@@ -1137,11 +1184,14 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        error: {
-                            /** @default 401 */
+                        /** @enum {boolean} */
+                        success: false;
+                        errors: {
+                            /** @example 7003 */
                             code: number;
+                            /** @example Unauthorized */
                             message: string;
-                        };
+                        }[];
                     };
                 };
             };
@@ -1245,11 +1295,119 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        error: {
-                            /** @default 401 */
+                        /** @enum {boolean} */
+                        success: false;
+                        errors: {
+                            /** @example 7003 */
                             code: number;
+                            /** @example Unauthorized */
                             message: string;
+                        }[];
+                    };
+                };
+            };
+            /** @description Internal Server Error - request failed */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    get_AmazonDeals: {
+        parameters: {
+            query?: {
+                /** @description The domain for fetching deals data, defaults to US. Supported values: US, UK, CA, DE, FR, IT, ES, AU, IN, MX, BR, JP */
+                domain?: string;
+                /** @description The page number requested for product results */
+                page?: number;
+                /** @description Optionally limit the products results. Typically between 20-40 results will be available per page if no limit is applied. */
+                limit?: number;
+            };
+            header: {
+                /** @description API key for accessing Canopy GraphQL endpoint */
+                "API-KEY": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Returns Amazon deals with product information */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            amazonDeals: {
+                                productResults?: {
+                                    results?: {
+                                        title?: string;
+                                        url?: string;
+                                        asin?: string;
+                                        price?: {
+                                            symbol: string;
+                                            value: number;
+                                            currency: string;
+                                            display: string;
+                                        };
+                                        recommendedRetailPrice?: {
+                                            symbol: string;
+                                            value: number;
+                                            currency: string;
+                                            display: string;
+                                        };
+                                        mainImageUrl?: string;
+                                    }[];
+                                    pageInfo?: {
+                                        currentPage?: number;
+                                        totalPages?: number;
+                                        hasNextPage?: boolean;
+                                        hasPrevPage?: boolean;
+                                    };
+                                };
+                            };
                         };
+                    };
+                };
+            };
+            /** @description Input Validation Error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {boolean} */
+                        success: false;
+                        errors: {
+                            /** @example 7001 */
+                            code: number;
+                            /** @example Input Validation Error */
+                            message: string;
+                            path: string[];
+                        }[];
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {boolean} */
+                        success: false;
+                        errors: {
+                            /** @example 7003 */
+                            code: number;
+                            /** @example Unauthorized */
+                            message: string;
+                        }[];
                     };
                 };
             };

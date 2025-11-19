@@ -525,4 +525,43 @@ server.registerTool(
   }
 );
 
+// Get Amazon Deals
+server.registerTool(
+  "get_amazon_deals",
+  {
+    title: "Get Amazon Deals",
+    description: "Retrieve current deals from Amazon. Returns a paginated list of products currently on deal, including deal-specific information like discount percentages and deal badges.",
+    inputSchema: {
+      domain: z.string().optional().default('US').describe("The domain for fetching deals data, defaults to US. Supported values: US, UK, CA, DE, FR, IT, ES, AU, IN, MX, BR, JP"),
+      page: z.number().optional().describe("The page number requested for product results"),
+      limit: z.number().optional().describe("Optionally limit the products results. Typically between 20-40 results will be available per page if no limit is applied."),
+    },
+    outputSchema: {
+      data: z.object({
+        amazonDeals: z.object({
+          productResults: z.object({
+            results: z.array(z.object({
+              title: z.string().optional(),
+              url: z.string().optional(),
+              asin: z.string().optional(),
+              price: priceSchema.optional(),
+              recommendedRetailPrice: priceSchema.optional(),
+              mainImageUrl: z.string().optional(),
+            })).optional(),
+            pageInfo: pageInfoSchema.optional(),
+          }).optional(),
+        }),
+      }),
+    },
+  },
+  async ({ domain, page, limit }) => {
+    const client = createApiClient(getCurrentApiKey());
+    const data = await client.getAmazonDeals({ domain, page, limit });
+    return {
+      content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+      structuredContent: data
+    };
+  }
+);
+
 export default server;
