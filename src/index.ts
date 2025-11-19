@@ -6,7 +6,7 @@ import server, { setRequestHeaders } from "./server";
 export default {
   fetch: handle({
     server,
-    basePath: "/sse",
+    base: "/sse",
     pre: (app) => {
       app.use(
         "/sse/*",
