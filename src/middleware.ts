@@ -36,7 +36,7 @@ const middleware: WebMiddleware = (request, context) => {
     );
   }
 
-  console.log("mcp request", { apiKey });
+  // console.log("mcp request", { apiKey });
 
   context.setAuth({
     token: apiKey,
