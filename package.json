@@ -9,7 +9,7 @@
   },
   "scripts": {
     "build": "xmcp build --cf",
-    "dev": "concurrently \"xmcp dev --cf\" \"wrangler dev\"",
+    "dev": "xmcp build --cf && concurrently \"xmcp dev --cf\" \"wrangler dev\"",
     "deploy": "xmcp build --cf && wrangler deploy --env production",
     "delete": "wrangler delete",
     "generate": "openapi-typescript https://rest.canopyapi.co/api/v1/openapi.json --output src/types/api.d.ts"
