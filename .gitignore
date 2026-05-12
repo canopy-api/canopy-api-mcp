@@ -3,3 +3,6 @@ node_modules
 .wrangler
 *.tsbuildinfo
 dist
+.xmcp
+worker.js
+xmcp-env.d.ts

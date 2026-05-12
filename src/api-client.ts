@@ -1,4 +1,4 @@
-import type { paths } from "./types/api.js";
+import type { paths } from "./types/api";
 
 // Base API configuration
 const API_BASE_URL = "https://rest.canopyapi.co";
@@ -114,6 +114,34 @@ export class CanopyApiClient {
 
   async getAmazonDeals(params?: QueryParams<"/api/amazon/deals">) {
     return this.get("/api/amazon/deals", params);
+  }
+
+  async getAmazonGtinFromAsin(
+    params: QueryParams<"/api/amazon/product/gtin-from-asin">
+  ) {
+    return this.get("/api/amazon/product/gtin-from-asin", params);
+  }
+
+  async getAmazonAsinFromGtin(
+    params: QueryParams<"/api/amazon/product/asin-from-gtin">
+  ) {
+    return this.get("/api/amazon/product/asin-from-gtin", params);
+  }
+
+  async getAmazonProductOffers(
+    params?: QueryParams<"/api/amazon/product/offers">
+  ) {
+    return this.get("/api/amazon/product/offers", params);
+  }
+
+  async getAmazonBestSellers(params?: QueryParams<"/api/amazon/bestsellers">) {
+    return this.get("/api/amazon/bestsellers", params);
+  }
+
+  async getAmazonBestSellerCategories(
+    params?: QueryParams<"/api/amazon/bestseller-categories">
+  ) {
+    return this.get("/api/amazon/bestseller-categories", params);
   }
 }
 
