@@ -1,7 +1,9 @@
 {
+  "$schema": "node_modules/wrangler/config-schema.json",
   "name": "canopy-api-mcp",
-  "main": "./src/index.ts",
+  "main": "worker.js",
   "compatibility_date": "2025-06-17",
+  "compatibility_flags": ["nodejs_compat"],
   "observability": {
     "enabled": true
   },

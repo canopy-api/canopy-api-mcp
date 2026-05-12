@@ -1,26 +1,29 @@
 {
   "name": "canopy-api-mcp",
-  "version": "0.0.1",
-  "description": "Canopy (built with ModelFetch)",
+  "version": "2.0.0",
+  "description": "Canopy MCP server (xmcp + Cloudflare Workers)",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
-    "dev": "wrangler dev",
-    "deploy": "wrangler deploy --env production",
+    "build": "xmcp build --cf",
+    "dev": "xmcp build --cf && concurrently \"xmcp dev --cf\" \"wrangler dev\"",
+    "deploy": "xmcp build --cf && wrangler deploy --env production",
     "delete": "wrangler delete",
     "generate": "openapi-typescript https://rest.canopyapi.co/api/v1/openapi.json --output src/types/api.d.ts"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "1.17.1",
-    "@modelfetch/cloudflare": "0.17.0",
-    "hono": "^4.0.0",
-    "tslib": "2.8.1",
-    "zod": "3.25.76"
+    "xmcp": "^0.6.9",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241112.0",
     "@openapitools/openapi-generator-cli": "^2.21.4",
+    "concurrently": "^9.2.0",
     "openapi-typescript": "^7.8.0",
     "typescript": "5.8.3",
-    "wrangler": "4.27.0"
+    "wrangler": "^4.27.0"
   }
 }
