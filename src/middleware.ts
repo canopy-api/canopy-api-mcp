@@ -25,7 +25,7 @@ const middleware: WebMiddleware = (request, context) => {
         error: {
           code: -32001,
           message:
-            "API key required. Provide via CANOPY-API-KEY, API-KEY, X-API-KEY, or Authorization: Bearer <key> header.",
+            "API key required. Provide via CANOPY-API-KEY, API-KEY, X-API-KEY, or Authorization: Bearer <key> header. Sign up for an API key at https://www.canopyapi.co/.",
         },
         id: null,
       }),
