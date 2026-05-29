@@ -36,7 +36,7 @@ export class CanopyApiClient {
     // Add query parameters if provided
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
+        if (value !== undefined && value !== null && value !== "") {
           url.searchParams.append(key, String(value));
         }
       });
