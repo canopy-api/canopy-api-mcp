@@ -5,7 +5,7 @@ const config: XmcpConfig = {
     endpoint: "/mcp",
     cors: {
       origin: "*",
-      methods: ["POST", "OPTIONS"],
+      methods: ["GET", "POST", "OPTIONS"],
       allowedHeaders: [
         "Content-Type",
         "Accept",
@@ -13,7 +13,12 @@ const config: XmcpConfig = {
         "X-API-Key",
         "API-KEY",
         "CANOPY-API-KEY",
+        "mcp-method",
+        "mcp-name",
+        "mcp-protocol-version",
+        "mcp-session-id",
       ],
+      exposedHeaders: ["Content-Type", "Authorization", "mcp-session-id"],
       credentials: true,
     },
   },

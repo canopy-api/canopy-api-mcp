@@ -51,8 +51,11 @@ export class CanopyApiClient {
     });
 
     if (!response.ok) {
+      const body = await response.text().catch(() => "");
       throw new Error(
-        `API request failed: ${response.status} ${response.statusText}`
+        `API request failed: ${response.status} ${response.statusText}${
+          body ? ` — ${body}` : ""
+        }`
       );
     }
 

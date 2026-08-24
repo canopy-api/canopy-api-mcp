@@ -61,11 +61,17 @@ CORS is configured in `xmcp.config.ts` under `http.cors`:
 
 ## MCP Protocol
 
-- Streamable HTTP transport at `/mcp` (the current MCP convention)
+- Streamable HTTP transport at `/mcp`, fully stateless (fresh server per request, no `mcp-session-id` needed)
+- xmcp 1.x / MCP SDK v2: serves both protocol revision 2026-07-28 (envelope requests, `server/discover`) and 2025-era clients
+- CORS must allow the `mcp-method`, `mcp-name`, `mcp-protocol-version` headers that 2026-07-28 clients send
 - Accepts JSON-RPC POST requests with `Accept: application/json, text/event-stream`
 - Returns `structuredContent` plus a JSON text fallback for backwards compatibility
 
 ## Testing
+
+`npm test` builds `worker.js` and runs `test/regression.test.mjs` (node:test + wrangler `unstable_dev`) against the built worker. It covers the client-facing contract: 401 without a key, all four API key header formats, stateless `tools/list` (no `mcp-session-id`), the full tool roster, input-schema conversion, per-request key forwarding to Canopy (skips if offline), CORS preflight headers, and notification handling.
+
+For interactive testing:
 
 ```bash
 npx -y @modelcontextprotocol/inspector@latest
