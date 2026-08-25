@@ -45,9 +45,13 @@ function jsonRpcError(
   );
 }
 
-function unauthorized(requestUrl: string, message: string): Response {
+function unauthorized(
+  requestUrl: string,
+  message: string,
+  error?: "invalid_token",
+): Response {
   return jsonRpcError(401, -32001, message, {
-    "WWW-Authenticate": wwwAuthenticate(requestUrl),
+    "WWW-Authenticate": wwwAuthenticate(requestUrl, error),
   });
 }
 
@@ -82,12 +86,14 @@ const middleware: WebMiddleware = async (request, context) => {
       return unauthorized(
         request.url,
         "Invalid or expired OAuth access token. Re-authenticate, or provide a Canopy API key header instead.",
+        "invalid_token",
       );
     }
     if (typeof verification.payload.sub !== "string") {
       return unauthorized(
         request.url,
         "Invalid or expired OAuth access token. Re-authenticate, or provide a Canopy API key header instead.",
+        "invalid_token",
       );
     }
     const lookup = await resolveApiKeyForUser(verification.payload.sub);
