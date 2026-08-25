@@ -6,3 +6,4 @@ dist
 .xmcp
 worker.js
 xmcp-env.d.ts
+.dev.vars
