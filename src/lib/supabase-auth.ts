@@ -1,4 +1,4 @@
-import { createRemoteJWKSet, jwtVerify, type JWTPayload } from "jose";
+import { createRemoteJWKSet, errors, jwtVerify, type JWTPayload } from "jose";
 
 export const SUPABASE_URL = "https://tboibfpbpdexvgroofuz.supabase.co";
 export const SUPABASE_ISSUER = `${SUPABASE_URL}/auth/v1`;
@@ -27,24 +27,65 @@ export function looksLikeJwt(token: string): boolean {
 // Module-scope singleton so the JWKS is cached across requests in an isolate.
 let jwks: ReturnType<typeof createRemoteJWKSet> | null = null;
 
+export type JwtVerification =
+  | { ok: true; payload: JWTPayload }
+  | { ok: false; reason: "invalid" | "unavailable" };
+
+// JOSE errors that mean the token itself is bad. Anything else thrown by
+// jwtVerify (JWKS fetch timeout, network failure, non-200 from Supabase) is
+// our infrastructure being unavailable and must not be reported to the
+// client as an invalid token — that would make clients discard valid tokens
+// and force a re-consent loop during a transient outage.
+const TOKEN_ERRORS = [
+  errors.JWTClaimValidationFailed, // includes JWTExpired
+  errors.JWTInvalid,
+  errors.JWSInvalid,
+  errors.JWSSignatureVerificationFailed,
+  errors.JWKSNoMatchingKey,
+  errors.JOSENotSupported, // e.g. an HS256 token against an asymmetric JWKS
+] as const;
+
 export async function verifySupabaseJwt(
   token: string,
-): Promise<JWTPayload | null> {
+): Promise<JwtVerification> {
   try {
     jwks ??= createRemoteJWKSet(new URL(SUPABASE_JWKS_URL));
     const { payload } = await jwtVerify(token, jwks, {
       issuer: SUPABASE_ISSUER,
     });
-    return payload;
-  } catch {
-    return null;
+    return { ok: true, payload };
+  } catch (error) {
+    if (TOKEN_ERRORS.some((kind) => error instanceof kind)) {
+      return { ok: false, reason: "invalid" };
+    }
+    console.error("[supabase-auth] JWT verification unavailable:", error);
+    return { ok: false, reason: "unavailable" };
   }
 }
 
-// Short-TTL cache of sub -> api_key to avoid a DB round trip per tool call.
-// Per-isolate only; never persisted.
+// Short-TTL cache of sub -> lookup result to avoid a Supabase round trip per
+// tool call. Failed lookups are cached briefly too, so an account without an
+// api_key (or a flapping Supabase REST endpoint) cannot drive one outbound
+// fetch per MCP request. Per-isolate only; never persisted.
 const API_KEY_CACHE_TTL_MS = 5 * 60 * 1000;
-const apiKeyCache = new Map<string, { apiKey: string; expires: number }>();
+const NEGATIVE_CACHE_TTL_MS = 30 * 1000;
+const API_KEY_CACHE_MAX_ENTRIES = 1000;
+const apiKeyCache = new Map<string, { result: ApiKeyLookup; expires: number }>();
+
+function cacheLookup(sub: string, result: ApiKeyLookup, ttlMs: number): void {
+  if (apiKeyCache.size >= API_KEY_CACHE_MAX_ENTRIES) {
+    const now = Date.now();
+    for (const [key, entry] of apiKeyCache) {
+      if (entry.expires <= now) apiKeyCache.delete(key);
+    }
+    if (apiKeyCache.size >= API_KEY_CACHE_MAX_ENTRIES) {
+      // Still full of live entries: drop the oldest (Map is insertion-ordered).
+      const oldest = apiKeyCache.keys().next().value;
+      if (oldest !== undefined) apiKeyCache.delete(oldest);
+    }
+  }
+  apiKeyCache.set(sub, { result, expires: Date.now() + ttlMs });
+}
 
 export type ApiKeyLookup =
   | { ok: true; apiKey: string }
@@ -57,7 +98,7 @@ export type ApiKeyLookup =
 export async function resolveApiKeyForUser(sub: string): Promise<ApiKeyLookup> {
   const cached = apiKeyCache.get(sub);
   if (cached && cached.expires > Date.now()) {
-    return { ok: true, apiKey: cached.apiKey };
+    return cached.result;
   }
 
   const serviceRoleKey = getWorkerEnv()["SUPABASE_SERVICE_ROLE_KEY"];
@@ -65,9 +106,11 @@ export async function resolveApiKeyForUser(sub: string): Promise<ApiKeyLookup> {
     console.error(
       "[supabase-auth] SUPABASE_SERVICE_ROLE_KEY is not configured; cannot map OAuth users to API keys.",
     );
+    // Not cached: this branch does no I/O, and the env never changes mid-isolate.
     return { ok: false, reason: "misconfigured" };
   }
 
+  let result: ApiKeyLookup;
   try {
     const url = `${SUPABASE_URL}/rest/v1/users?id=eq.${encodeURIComponent(sub)}&select=api_key`;
     const response = await fetch(url, {
@@ -80,17 +123,17 @@ export async function resolveApiKeyForUser(sub: string): Promise<ApiKeyLookup> {
       console.error(
         `[supabase-auth] api_key lookup failed: ${response.status} ${response.statusText}`,
       );
-      return { ok: false, reason: "lookup-failed" };
+      result = { ok: false, reason: "lookup-failed" };
+    } else {
+      const rows = (await response.json()) as Array<{ api_key?: string | null }>;
+      const apiKey = rows[0]?.api_key;
+      result = apiKey ? { ok: true, apiKey } : { ok: false, reason: "no-api-key" };
     }
-    const rows = (await response.json()) as Array<{ api_key?: string | null }>;
-    const apiKey = rows[0]?.api_key;
-    if (!apiKey) {
-      return { ok: false, reason: "no-api-key" };
-    }
-    apiKeyCache.set(sub, { apiKey, expires: Date.now() + API_KEY_CACHE_TTL_MS });
-    return { ok: true, apiKey };
   } catch (error) {
     console.error("[supabase-auth] api_key lookup errored:", error);
-    return { ok: false, reason: "lookup-failed" };
+    result = { ok: false, reason: "lookup-failed" };
   }
+
+  cacheLookup(sub, result, result.ok ? API_KEY_CACHE_TTL_MS : NEGATIVE_CACHE_TTL_MS);
+  return result;
 }

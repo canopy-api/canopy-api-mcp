@@ -51,5 +51,5 @@ export function handleWellKnown(request: Request): Response | null {
 /** WWW-Authenticate header value advertising OAuth discovery (RFC 9728 §5.1). */
 export function wwwAuthenticate(requestUrl: string): string {
   const origin = new URL(requestUrl).origin;
-  return `Bearer resource_metadata="${origin}${WELL_KNOWN_PATH}"`;
+  return `Bearer resource_metadata="${origin}${WELL_KNOWN_PATH}/mcp"`;
 }

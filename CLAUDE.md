@@ -54,7 +54,7 @@ MCP server providing Amazon product data through the Canopy API. Built with [xmc
 Auth runs in `src/middleware.ts` before any tool handler. Two modes:
 
 1. **API key headers** (unchanged): `CANOPY-API-KEY`, `API-KEY`, `X-API-KEY`, or `Authorization: Bearer <key>` (non-JWT).
-2. **Supabase OAuth**: `Authorization: Bearer <jwt>` (three dot-separated segments — Canopy keys are UUIDs, so shape disambiguates). The JWT is verified against the Supabase JWKS (issuer `https://tboibfpbpdexvgroofuz.supabase.co/auth/v1`); the `sub` claim is mapped to `public.users.api_key` via the Supabase REST API using `SUPABASE_SERVICE_ROLE_KEY`. A failed verification is a hard 401 — it never falls through to the API-key path.
+2. **Supabase OAuth**: `Authorization: Bearer <jwt>` (three dot-separated segments — Canopy keys are UUIDs, so shape disambiguates). The JWT is verified against the Supabase JWKS (issuer `https://tboibfpbpdexvgroofuz.supabase.co/auth/v1`); the `sub` claim is mapped to `public.users.api_key` via the Supabase REST API using `SUPABASE_SERVICE_ROLE_KEY`. A failed verification is a hard 401 — it never falls through to the API-key path. Two non-401 carve-outs: a JWKS fetch failure (our side) returns 503 so clients keep their valid token, and a verified user with no `api_key` row gets 403 without a `WWW-Authenticate` challenge so clients don't loop through re-consent.
 
 Either way the resolved Canopy key lands on `authInfo.token`, so `getApiKey(extra)` and all tools are auth-mode agnostic.
 
@@ -91,4 +91,4 @@ Connect to `http://localhost:8787/mcp` (development) or the deployed URL. Provid
 
 ## Build output
 
-`xmcp build --cf` emits a single `worker.js` at the project root. `wrangler.jsonc` points `main` at `./worker.js`. The intermediate `.xmcp/` directory contains the import map and per-runtime stubs.
+`xmcp build --cf` emits a single `worker.js` at the project root. `wrangler.jsonc` points `main` at `worker-entry.ts`, which wraps `worker.js` (so `worker.js` must be built before `wrangler dev`/`deploy` runs). The intermediate `.xmcp/` directory contains the import map and per-runtime stubs.

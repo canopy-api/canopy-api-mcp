@@ -229,7 +229,7 @@ test("401 without credentials advertises OAuth discovery via WWW-Authenticate", 
   const header = res.headers.get("www-authenticate") ?? "";
   assert.match(
     header,
-    /^Bearer resource_metadata="https?:\/\/[^"]+\/\.well-known\/oauth-protected-resource"$/,
+    /^Bearer resource_metadata="https?:\/\/[^"]+\/\.well-known\/oauth-protected-resource\/mcp"$/,
   );
   const body = await res.json();
   assert.match(body.error.message, /OAuth/);
