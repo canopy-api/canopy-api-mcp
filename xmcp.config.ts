@@ -18,7 +18,12 @@ const config: XmcpConfig = {
         "mcp-protocol-version",
         "mcp-session-id",
       ],
-      exposedHeaders: ["Content-Type", "Authorization", "mcp-session-id"],
+      exposedHeaders: [
+        "Content-Type",
+        "Authorization",
+        "mcp-session-id",
+        "WWW-Authenticate",
+      ],
       credentials: true,
     },
   },

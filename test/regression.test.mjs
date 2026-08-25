@@ -12,7 +12,7 @@ import { unstable_dev } from "wrangler";
 let worker;
 
 before(async () => {
-  worker = await unstable_dev("worker.js", {
+  worker = await unstable_dev("worker-entry.ts", {
     config: "wrangler.jsonc",
     experimental: { disableExperimentalWarning: true },
   });
@@ -67,7 +67,7 @@ test("rejects requests without an API key with 401 and a JSON-RPC error", async 
   assert.equal(res.status, 401);
   const body = await res.json();
   assert.equal(body.error.code, -32001);
-  assert.match(body.error.message, /API key required/);
+  assert.match(body.error.message, /Sign in via OAuth|API key/);
 });
 
 for (const headers of [
@@ -193,3 +193,72 @@ test("notifications are accepted without a session", async () => {
   );
   assert.ok(res.status === 202 || res.status === 200, `unexpected status ${res.status}`);
 });
+
+// ---- OAuth (Supabase) support ----
+
+test("serves OAuth protected-resource metadata with CORS", async () => {
+  for (const path of [
+    "/.well-known/oauth-protected-resource",
+    "/.well-known/oauth-protected-resource/mcp",
+  ]) {
+    const res = await worker.fetch(`http://localhost${path}`);
+    assert.equal(res.status, 200, `unexpected status for ${path}`);
+    assert.match(res.headers.get("content-type") ?? "", /application\/json/);
+    assert.equal(res.headers.get("access-control-allow-origin"), "*");
+    const body = await res.json();
+    assert.deepEqual(body.authorization_servers, [
+      "https://tboibfpbpdexvgroofuz.supabase.co/auth/v1",
+    ]);
+    assert.match(body.resource, /\/mcp$/);
+    assert.deepEqual(body.bearer_methods_supported, ["header"]);
+  }
+});
+
+test("OPTIONS preflight on the well-known route succeeds", async () => {
+  const res = await worker.fetch(
+    "http://localhost/.well-known/oauth-protected-resource",
+    { method: "OPTIONS", headers: { Origin: "https://example.com" } },
+  );
+  assert.equal(res.status, 204);
+  assert.equal(res.headers.get("access-control-allow-origin"), "*");
+});
+
+test("401 without credentials advertises OAuth discovery via WWW-Authenticate", async () => {
+  const res = await rpc(initBody);
+  assert.equal(res.status, 401);
+  const header = res.headers.get("www-authenticate") ?? "";
+  assert.match(
+    header,
+    /^Bearer resource_metadata="https?:\/\/[^"]+\/\.well-known\/oauth-protected-resource\/mcp"$/,
+  );
+  const body = await res.json();
+  assert.match(body.error.message, /OAuth/);
+  assert.match(body.error.message, /API key/);
+});
+
+test("a JWT-shaped bearer token that fails verification is rejected, not treated as an API key", async () => {
+  // Self-signed garbage JWT: right shape, wrong issuer/signature.
+  const b64 = (o) => Buffer.from(JSON.stringify(o)).toString("base64url");
+  const fakeJwt = `${b64({ alg: "HS256", typ: "JWT" })}.${b64({
+    iss: "https://evil.example.com",
+    sub: "someone",
+    exp: Math.floor(Date.now() / 1000) + 3600,
+  })}.${Buffer.from("sig").toString("base64url")}`;
+  const res = await rpc(initBody, { Authorization: `Bearer ${fakeJwt}` });
+  assert.equal(res.status, 401);
+  assert.ok(res.headers.get("www-authenticate"), "missing WWW-Authenticate");
+  const body = await res.json();
+  assert.match(body.error.message, /Invalid or expired OAuth access token/);
+});
+
+test("a non-JWT bearer token still takes the API-key path", async () => {
+  // A UUID-style key must NOT be rejected as a bad JWT; it reaches setAuth
+  // and initialize succeeds (key validity is Canopy's concern, not ours).
+  const res = await rpc(initBody, {
+    Authorization: "Bearer 123e4567-e89b-12d3-a456-426614174000",
+  });
+  assert.equal(res.status, 200);
+  const msg = await parseRpc(res);
+  assert.equal(msg.result.serverInfo.name, "Canopy");
+});
+

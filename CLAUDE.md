@@ -17,7 +17,10 @@ MCP server providing Amazon product data through the Canopy API. Built with [xmc
 ### Layout
 
 - **src/tools/** — one file per tool, auto-discovered by xmcp. Each file exports `schema`, `metadata`, and a default async function.
-- **src/middleware.ts** — `WebMiddleware` that extracts the API key from request headers and stores it via `context.setAuth({ token })`. Returns 401 if no key is present.
+- **worker-entry.ts** — wrapper around the generated `worker.js` (wrangler `main`). Serves `/.well-known/oauth-protected-resource[/mcp]` and stashes Worker env on `globalThis` for the middleware (xmcp's CF runtime 404s unknown paths and never passes env to middleware).
+- **src/middleware.ts** — `WebMiddleware` handling both auth modes: header API keys, and Supabase OAuth bearer JWTs (verified against JWKS, mapped to the user's `api_key`). Stores the resolved key via `context.setAuth({ token })`. Returns 401 with a `WWW-Authenticate` discovery header if no/invalid credentials.
+- **src/lib/supabase-auth.ts** — JWT detection/verification (jose), `sub` → `api_key` lookup via Supabase REST (service role key, 5-min in-isolate cache).
+- **src/lib/oauth-metadata.ts** — protected-resource metadata + `WWW-Authenticate` helper.
 - **src/lib/api-key.ts** — `getApiKey(extra)` helper that reads `extra.authInfo.token` inside tool handlers.
 - **src/api-client.ts** — type-safe Canopy REST client (uses generated `paths` types).
 - **src/types/api.d.ts** — auto-generated from the Canopy OpenAPI spec.
@@ -48,9 +51,16 @@ MCP server providing Amazon product data through the Canopy API. Built with [xmc
 
 ## Authentication
 
-Auth runs in `src/middleware.ts` before any tool handler. The middleware accepts the API key in any of four header formats (`CANOPY-API-KEY`, `API-KEY`, `X-API-KEY`, or `Authorization: Bearer <key>`) and stashes it on `authInfo.token`. Tools call `getApiKey(extra)` from `src/lib/api-key.ts` to read it back.
+Auth runs in `src/middleware.ts` before any tool handler. Two modes:
 
-If no key is present, the middleware short-circuits with HTTP 401 and a JSON-RPC error.
+1. **API key headers** (unchanged): `CANOPY-API-KEY`, `API-KEY`, `X-API-KEY`, or `Authorization: Bearer <key>` (non-JWT).
+2. **Supabase OAuth**: `Authorization: Bearer <jwt>` (three dot-separated segments — Canopy keys are UUIDs, so shape disambiguates). The JWT is verified against the Supabase JWKS (issuer `https://tboibfpbpdexvgroofuz.supabase.co/auth/v1`); the `sub` claim is mapped to `public.users.api_key` via the Supabase REST API using `SUPABASE_SERVICE_ROLE_KEY`. A failed verification is a hard 401 — it never falls through to the API-key path. Two non-401 carve-outs: a JWKS fetch failure (our side) returns 503 so clients keep their valid token, and a verified user with no `api_key` row gets 403 without a `WWW-Authenticate` challenge so clients don't loop through re-consent.
+
+Either way the resolved Canopy key lands on `authInfo.token`, so `getApiKey(extra)` and all tools are auth-mode agnostic.
+
+401 responses carry `WWW-Authenticate: Bearer resource_metadata="…/.well-known/oauth-protected-resource"` so MCP clients can discover the OAuth flow (Supabase is the authorization server; consent lives at canopyapi.co — nothing in this repo).
+
+Secrets: `SUPABASE_SERVICE_ROLE_KEY` via `wrangler secret put` (and `--env production`); locally in `.dev.vars` (gitignored, see `.dev.vars.example`).
 
 ## CORS
 
@@ -81,4 +91,4 @@ Connect to `http://localhost:8787/mcp` (development) or the deployed URL. Provid
 
 ## Build output
 
-`xmcp build --cf` emits a single `worker.js` at the project root. `wrangler.jsonc` points `main` at `./worker.js`. The intermediate `.xmcp/` directory contains the import map and per-runtime stubs.
+`xmcp build --cf` emits a single `worker.js` at the project root. `wrangler.jsonc` points `main` at `worker-entry.ts`, which wraps `worker.js` (so `worker.js` must be built before `wrangler dev`/`deploy` runs). The intermediate `.xmcp/` directory contains the import map and per-runtime stubs.
