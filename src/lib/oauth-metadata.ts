@@ -39,7 +39,9 @@ export function handleWellKnown(request: Request): Response | null {
       resource: `${url.origin}/mcp`,
       authorization_servers: [SUPABASE_ISSUER],
       bearer_methods_supported: ["header"],
-      scopes_supported: ["openid", "email"],
+      // offline_access makes Supabase issue a refresh token; without it,
+      // sessions hard-expire with the access token (~1h) and force re-consent.
+      scopes_supported: ["openid", "email", "offline_access"],
     }),
     {
       status: 200,
@@ -48,8 +50,16 @@ export function handleWellKnown(request: Request): Response | null {
   );
 }
 
-/** WWW-Authenticate header value advertising OAuth discovery (RFC 9728 §5.1). */
-export function wwwAuthenticate(requestUrl: string): string {
+/**
+ * WWW-Authenticate header value advertising OAuth discovery (RFC 9728 §5.1).
+ * Pass `error: "invalid_token"` when a token was presented but rejected
+ * (RFC 6750 §3.1); omit it when no credentials were provided at all.
+ */
+export function wwwAuthenticate(
+  requestUrl: string,
+  error?: "invalid_token",
+): string {
   const origin = new URL(requestUrl).origin;
-  return `Bearer resource_metadata="${origin}${WELL_KNOWN_PATH}/mcp"`;
+  const errorParam = error ? `error="${error}", ` : "";
+  return `Bearer ${errorParam}resource_metadata="${origin}${WELL_KNOWN_PATH}/mcp"`;
 }
