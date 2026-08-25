@@ -5,22 +5,25 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "build": "xmcp build --cf",
     "dev": "xmcp build --cf && concurrently \"xmcp dev --cf\" \"wrangler dev\"",
     "deploy": "xmcp build --cf && wrangler deploy --env production",
     "delete": "wrangler delete",
-    "generate": "openapi-typescript https://rest.canopyapi.co/api/v1/openapi.json --output src/types/api.d.ts"
+    "generate": "openapi-typescript https://rest.canopyapi.co/api/v1/openapi.json --output src/types/api.d.ts",
+    "test": "npm run build && node --test \"test/*.test.mjs\""
   },
   "dependencies": {
-    "xmcp": "^0.6.9",
+    "@modelcontextprotocol/server": "^2.0.0",
+    "xmcp": "^1.1.1",
     "zod": "^3.25.76"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241112.0",
     "@openapitools/openapi-generator-cli": "^2.21.4",
+    "@xmcp-dev/compiler": "^1.1.1",
     "concurrently": "^9.2.0",
     "openapi-typescript": "^7.8.0",
     "typescript": "5.8.3",
