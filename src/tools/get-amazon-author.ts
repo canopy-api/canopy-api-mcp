@@ -2,10 +2,11 @@ import { z } from "zod";
 import { type InferSchema, type ToolMetadata, type ToolExtraArguments } from "xmcp";
 import { createApiClient } from "../api-client";
 import { getApiKey } from "../lib/api-key";
+import { domainParam } from "../lib/domains";
 
 export const schema = {
   asin: z.string().describe("The asin ID for the author (e.g. B017M7UJX6)"),
-  domain: z.string().optional().default("US").describe("The domain for fetching author data, defaults to US"),
+  domain: domainParam("The domain for fetching author data, defaults to US"),
   page: z.number().optional().describe("The page number requested for book results"),
 };
 

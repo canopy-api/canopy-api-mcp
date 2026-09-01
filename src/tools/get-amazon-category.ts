@@ -2,10 +2,11 @@ import { z } from "zod";
 import { type InferSchema, type ToolMetadata, type ToolExtraArguments } from "xmcp";
 import { createApiClient } from "../api-client";
 import { getApiKey } from "../lib/api-key";
+import { domainParam } from "../lib/domains";
 
 export const schema = {
   categoryId: z.string().describe("The category ID, typically a number but may also be a string in certain cases"),
-  domain: z.string().optional().default("US").describe("The domain for fetching product category data, defaults to US"),
+  domain: domainParam("The domain for fetching product category data, defaults to US"),
   page: z.number().optional().describe("The page number requested for product results"),
   sort: z.string().optional().default("FEATURED").describe("Sort order (FEATURED, MOST_RECENT, PRICE_ASCENDING, PRICE_DESCENDING, AVERAGE_CUSTOMER_REVIEW)"),
 };

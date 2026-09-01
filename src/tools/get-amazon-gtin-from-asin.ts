@@ -2,10 +2,11 @@ import { z } from "zod";
 import { type InferSchema, type ToolMetadata, type ToolExtraArguments } from "xmcp";
 import { createApiClient } from "../api-client";
 import { getApiKey } from "../lib/api-key";
+import { domainParam } from "../lib/domains";
 
 export const schema = {
   asin: z.string().describe("The ASIN for a product (e.g. B01HY0JA3G)"),
-  domain: z.string().optional().default("US").describe("The domain for fetching product data, defaults to US"),
+  domain: domainParam("The domain for fetching product data, defaults to US"),
 };
 
 export const metadata: ToolMetadata = {

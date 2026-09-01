@@ -2,15 +2,10 @@ import { z } from "zod";
 import { type InferSchema, type ToolMetadata, type ToolExtraArguments } from "xmcp";
 import { createApiClient } from "../api-client";
 import { getApiKey } from "../lib/api-key";
+import { domainParam } from "../lib/domains";
 
 export const schema = {
-  domain: z
-    .string()
-    .optional()
-    .default("US")
-    .describe(
-      "The domain for fetching deals data, defaults to US. Supported values: US, UK, CA, DE, FR, IT, ES, AU, IN, MX, BR, JP",
-    ),
+  domain: domainParam("The domain for fetching deals data, defaults to US"),
   page: z.number().optional().describe("The page number requested for product results"),
   limit: z
     .number()

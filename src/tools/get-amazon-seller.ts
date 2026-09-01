@@ -2,10 +2,11 @@ import { z } from "zod";
 import { type InferSchema, type ToolMetadata, type ToolExtraArguments } from "xmcp";
 import { createApiClient } from "../api-client";
 import { getApiKey } from "../lib/api-key";
+import { domainParam } from "../lib/domains";
 
 export const schema = {
   sellerId: z.string().describe("The seller ID for a product (e.g. A34JY1ZNKUG942)"),
-  domain: z.string().optional().default("US").describe("The domain for fetching seller data, defaults to US"),
+  domain: domainParam("The domain for fetching seller data, defaults to US"),
   page: z.number().optional().describe("The page number requested for product results"),
 };
 

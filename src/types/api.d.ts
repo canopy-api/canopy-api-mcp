@@ -129,6 +129,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/amazon/product/top-reviews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Amazon Product Top Reviews */
+        get: operations["get_AmazonProductTopReviews"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/amazon/product/offers": {
         parameters: {
             query?: never;
@@ -323,17 +340,17 @@ export interface operations {
     get_AmazonProduct: {
         parameters: {
             query?: {
-                /** @description The ASIN for a product (e.g. B01HY0JA3G) */
+                /** @description The ASIN for a product (e.g. B0F7K8DPPT) */
                 asin?: string;
                 /** @description The Amazon URL for a product */
                 url?: string;
                 /** @description The GTIN (ISBN, UPC or EAN code) for a product */
                 gtin?: string;
-                /** @description The domain for fetching product data, defaults to US. Available values: US, UK, CA, DE, FR, IT, ES, AU, IN, MX, BR, JP, PL */
-                domain?: string;
+                /** @description The domain for fetching product data, defaults to US. */
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
             };
             header: {
-                /** @description API Key for authentication */
+                /** @description API key for authentication */
                 "API-KEY": string;
             };
             path?: never;
@@ -369,6 +386,10 @@ export interface operations {
                                 rating?: number;
                                 ratingsTotal?: number;
                                 featureBullets?: string[];
+                                technicalSpecifications?: {
+                                    name?: string;
+                                    value?: string;
+                                }[];
                                 categories?: {
                                     id?: string;
                                     name?: string;
@@ -397,9 +418,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7001 */
                             code: number;
-                            /** @example Input Validation Error */
                             message: string;
                             path: string[];
                         }[];
@@ -416,9 +435,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7003 */
                             code: number;
-                            /** @example Unauthorized */
                             message: string;
                         }[];
                     };
@@ -434,9 +451,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7 */
                             code: number;
-                            /** @example Payment Required */
                             message: string;
                         }[];
                     };
@@ -454,13 +469,13 @@ export interface operations {
     get_AmazonGtinFromAsin: {
         parameters: {
             query: {
-                /** @description The ASIN for a product (e.g. B01HY0JA3G) */
+                /** @description The ASIN for a product (e.g. B0F7K8DPPT) */
                 asin: string;
-                /** @description The domain for fetching product data, defaults to US. Available values: US, UK, CA, DE, FR, IT, ES, AU, IN, MX, BR, JP, PL */
-                domain?: string;
+                /** @description The domain for fetching product data, defaults to US. */
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
             };
             header: {
-                /** @description API Key for authentication */
+                /** @description API key for authentication */
                 "API-KEY": string;
             };
             path?: never;
@@ -494,9 +509,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7001 */
                             code: number;
-                            /** @example Input Validation Error */
                             message: string;
                             path: string[];
                         }[];
@@ -513,9 +526,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7003 */
                             code: number;
-                            /** @example Unauthorized */
                             message: string;
                         }[];
                     };
@@ -531,9 +542,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7 */
                             code: number;
-                            /** @example Payment Required */
                             message: string;
                         }[];
                     };
@@ -553,11 +562,11 @@ export interface operations {
             query: {
                 /** @description The GTIN (ISBN, UPC or EAN code) for a product */
                 gtin: string;
-                /** @description The domain for fetching product data, defaults to US. Available values: US, UK, CA, DE, FR, IT, ES, AU, IN, MX, BR, JP, PL */
-                domain?: string;
+                /** @description The domain for fetching product data, defaults to US. */
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
             };
             header: {
-                /** @description API Key for authentication */
+                /** @description API key for authentication */
                 "API-KEY": string;
             };
             path?: never;
@@ -591,9 +600,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7001 */
                             code: number;
-                            /** @example Input Validation Error */
                             message: string;
                             path: string[];
                         }[];
@@ -610,9 +617,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7003 */
                             code: number;
-                            /** @example Unauthorized */
                             message: string;
                         }[];
                     };
@@ -628,9 +633,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7 */
                             code: number;
-                            /** @example Payment Required */
                             message: string;
                         }[];
                     };
@@ -648,17 +651,17 @@ export interface operations {
     get_AmazonProductVariants: {
         parameters: {
             query?: {
-                /** @description The ASIN for a product (e.g. B01HY0JA3G) */
+                /** @description The ASIN for a product (e.g. B0F7K8DPPT) */
                 asin?: string;
                 /** @description The Amazon URL for a product */
                 url?: string;
                 /** @description The GTIN (ISBN, UPC or EAN code) for a product */
                 gtin?: string;
-                /** @description The domain for fetching product data, defaults to US. Available values: US, UK, CA, DE, FR, IT, ES, AU, IN, MX, BR, JP, PL */
-                domain?: string;
+                /** @description The domain for fetching product data, defaults to US. */
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
             };
             header: {
-                /** @description API Key for authentication */
+                /** @description API key for authentication */
                 "API-KEY": string;
             };
             path?: never;
@@ -705,9 +708,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7001 */
                             code: number;
-                            /** @example Input Validation Error */
                             message: string;
                             path: string[];
                         }[];
@@ -724,9 +725,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7003 */
                             code: number;
-                            /** @example Unauthorized */
                             message: string;
                         }[];
                     };
@@ -744,17 +743,17 @@ export interface operations {
     get_AmazonStockEstimates: {
         parameters: {
             query?: {
-                /** @description The ASIN for a product (e.g. B01HY0JA3G) */
+                /** @description The ASIN for a product (e.g. B0F7K8DPPT) */
                 asin?: string;
                 /** @description The Amazon URL for a product */
                 url?: string;
                 /** @description The GTIN (ISBN, UPC or EAN code) for a product */
                 gtin?: string;
-                /** @description The domain for fetching product data, defaults to US. Available values: US, UK, CA, DE, FR, IT, ES, AU, IN, MX, BR, JP, PL */
-                domain?: string;
+                /** @description The domain for fetching product data, defaults to US. */
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
             };
             header: {
-                /** @description API Key for authentication */
+                /** @description API key for authentication */
                 "API-KEY": string;
             };
             path?: never;
@@ -792,9 +791,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7001 */
                             code: number;
-                            /** @example Input Validation Error */
                             message: string;
                             path: string[];
                         }[];
@@ -811,9 +808,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7003 */
                             code: number;
-                            /** @example Unauthorized */
                             message: string;
                         }[];
                     };
@@ -831,17 +826,17 @@ export interface operations {
     get_AmazonSalesEstimates: {
         parameters: {
             query?: {
-                /** @description The ASIN for a product (e.g. B01HY0JA3G) */
+                /** @description The ASIN for a product (e.g. B0F7K8DPPT) */
                 asin?: string;
                 /** @description The Amazon URL for a product */
                 url?: string;
                 /** @description The GTIN (ISBN, UPC or EAN code) for a product */
                 gtin?: string;
-                /** @description The domain for fetching product data, defaults to US. Available values: US, UK, CA, DE, FR, IT, ES, AU, IN, MX, BR, JP, PL */
-                domain?: string;
+                /** @description The domain for fetching product data, defaults to US. */
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
             };
             header: {
-                /** @description API Key for authentication */
+                /** @description API key for authentication */
                 "API-KEY": string;
             };
             path?: never;
@@ -878,9 +873,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7001 */
                             code: number;
-                            /** @example Input Validation Error */
                             message: string;
                             path: string[];
                         }[];
@@ -897,9 +890,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7003 */
                             code: number;
-                            /** @example Unauthorized */
                             message: string;
                         }[];
                     };
@@ -917,14 +908,14 @@ export interface operations {
     get_AmazonProductReviews: {
         parameters: {
             query?: {
-                /** @description The ASIN for a product (e.g. B01HY0JA3G) */
+                /** @description The ASIN for a product (e.g. B0F7K8DPPT) */
                 asin?: string;
                 /** @description The Amazon URL for a product */
                 url?: string;
                 /** @description The GTIN (ISBN, UPC or EAN code) for a product */
                 gtin?: string;
-                /** @description The domain for fetching product data, defaults to US. Available values: US, UK, CA, DE, FR, IT, ES, AU, IN, MX, BR, JP, PL */
-                domain?: string;
+                /** @description The domain for fetching product data, defaults to US. */
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
                 /** @description Page number for paginated reviews (default 1) */
                 page?: number;
                 /** @description Only include reviews from verified purchasers */
@@ -935,7 +926,7 @@ export interface operations {
                 search?: string;
             };
             header: {
-                /** @description API Key for authentication */
+                /** @description API key for authentication */
                 "API-KEY": string;
             };
             path?: never;
@@ -1012,9 +1003,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7001 */
                             code: number;
-                            /** @example Input Validation Error */
                             message: string;
                             path: string[];
                         }[];
@@ -1031,9 +1020,102 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7003 */
                             code: number;
-                            /** @example Unauthorized */
+                            message: string;
+                        }[];
+                    };
+                };
+            };
+            /** @description Internal Server Error - request failed */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    get_AmazonProductTopReviews: {
+        parameters: {
+            query?: {
+                /** @description The ASIN for a product (e.g. B0F7K8DPPT) */
+                asin?: string;
+                /** @description The Amazon URL for a product */
+                url?: string;
+                /** @description The GTIN (ISBN, UPC or EAN code) for a product */
+                gtin?: string;
+                /** @description The domain for fetching product data, defaults to US. */
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
+            };
+            header: {
+                /** @description API key for authentication */
+                "API-KEY": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Returns Amazon product top reviews */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            amazonProduct: {
+                                topReviews?: {
+                                    id?: string;
+                                    title?: string;
+                                    body?: string;
+                                    imageUrls?: string[];
+                                    videos?: {
+                                        posterImageUrl?: string;
+                                        url?: string;
+                                    }[];
+                                    rating?: number;
+                                    helpfulVotes?: number;
+                                    verifiedPurchase?: boolean;
+                                    reviewer?: {
+                                        id?: string;
+                                        name?: string;
+                                        url?: string;
+                                    };
+                                }[];
+                            };
+                        };
+                    };
+                };
+            };
+            /** @description Input Validation Error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {boolean} */
+                        success: false;
+                        errors: {
+                            code: number;
+                            message: string;
+                            path: string[];
+                        }[];
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {boolean} */
+                        success: false;
+                        errors: {
+                            code: number;
                             message: string;
                         }[];
                     };
@@ -1051,19 +1133,19 @@ export interface operations {
     get_AmazonProductOffers: {
         parameters: {
             query?: {
-                /** @description The ASIN for a product (e.g. B01HY0JA3G) */
+                /** @description The ASIN for a product (e.g. B0F7K8DPPT) */
                 asin?: string;
                 /** @description The Amazon URL for a product */
                 url?: string;
                 /** @description The GTIN (ISBN, UPC or EAN code) for a product */
                 gtin?: string;
-                /** @description The domain for fetching product data, defaults to US. Available values: US, UK, CA, DE, FR, IT, ES, AU, IN, MX, BR, JP, PL */
-                domain?: string;
+                /** @description The domain for fetching product data, defaults to US. */
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
                 /** @description The page number for offers results */
                 page?: number;
             };
             header: {
-                /** @description API Key for authentication */
+                /** @description API key for authentication */
                 "API-KEY": string;
             };
             path?: never;
@@ -1144,9 +1226,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7001 */
                             code: number;
-                            /** @example Input Validation Error */
                             message: string;
                             path: string[];
                         }[];
@@ -1163,9 +1243,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7003 */
                             code: number;
-                            /** @example Unauthorized */
                             message: string;
                         }[];
                     };
@@ -1185,8 +1263,8 @@ export interface operations {
             query: {
                 /** @description The search term for fetching search results */
                 searchTerm: string;
-                /** @description The domain for fetching search results data, defaults to US. Available values: US, UK, CA, DE, FR, IT, ES, AU, IN, MX, BR, JP, PL */
-                domain?: string;
+                /** @description The domain for fetching search results data, defaults to US. */
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
                 /** @description An optional category ID used to filter search results */
                 categoryId?: string;
                 /** @description The page number requested for product results */
@@ -1203,7 +1281,7 @@ export interface operations {
                 sort?: string;
             };
             header: {
-                /** @description API key for accessing Canopy GraphQL endpoint */
+                /** @description API key for authentication */
                 "API-KEY": string;
             };
             path?: never;
@@ -1269,9 +1347,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7001 */
                             code: number;
-                            /** @example Input Validation Error */
                             message: string;
                             path: string[];
                         }[];
@@ -1288,9 +1364,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7003 */
                             code: number;
-                            /** @example Unauthorized */
                             message: string;
                         }[];
                     };
@@ -1310,13 +1384,13 @@ export interface operations {
             query: {
                 /** @description The search term for fetching autocomplete results */
                 searchTerm: string;
-                /** @description The domain for fetching autocomplete data, defaults to US. Available values: US, UK, CA, DE, FR, IT, ES, AU, IN, MX, BR, JP, PL */
-                domain?: string;
+                /** @description The domain for fetching autocomplete data, defaults to US. */
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
                 /** @description The search autocomplete_alias in the amazon url parameter */
                 category?: string;
             };
             header: {
-                /** @description API key for accessing Canopy GraphQL endpoint */
+                /** @description API key for authentication */
                 "API-KEY": string;
             };
             path?: never;
@@ -1349,9 +1423,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7001 */
                             code: number;
-                            /** @example Input Validation Error */
                             message: string;
                             path: string[];
                         }[];
@@ -1368,9 +1440,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7003 */
                             code: number;
-                            /** @example Unauthorized */
                             message: string;
                         }[];
                     };
@@ -1388,11 +1458,11 @@ export interface operations {
     get_AmazonProductCategoryTaxonomy: {
         parameters: {
             query?: {
-                /** @description The domain for fetching product category taxonomy, defaults to US. Available values: US, UK, CA, DE, FR, IT, ES, AU, IN, MX, BR, JP, PL */
-                domain?: string;
+                /** @description The domain for fetching product category taxonomy, defaults to US. */
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
             };
             header: {
-                /** @description API key for accessing Canopy GraphQL endpoint */
+                /** @description API key for authentication */
                 "API-KEY": string;
             };
             path?: never;
@@ -1428,9 +1498,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7001 */
                             code: number;
-                            /** @example Input Validation Error */
                             message: string;
                             path: string[];
                         }[];
@@ -1447,9 +1515,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7003 */
                             code: number;
-                            /** @example Unauthorized */
                             message: string;
                         }[];
                     };
@@ -1469,15 +1535,15 @@ export interface operations {
             query: {
                 /** @description The category ID, typically a number but may also be a string in certain cases */
                 categoryId: string;
-                /** @description The domain for fetching product category data, defaults to US. Available values: US, UK, CA, DE, FR, IT, ES, AU, IN, MX, BR, JP, PL */
-                domain?: string;
+                /** @description The domain for fetching product category data, defaults to US. */
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
                 /** @description The page number requested for product results */
                 page?: number;
                 /** @description Sort order (FEATURED, MOST_RECENT, PRICE_ASCENDING, PRICE_DESCENDING, AVERAGE_CUSTOMER_REVIEW) */
                 sort?: string;
             };
             header: {
-                /** @description API key for accessing Canopy GraphQL endpoint */
+                /** @description API key for authentication */
                 "API-KEY": string;
             };
             path?: never;
@@ -1544,9 +1610,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7001 */
                             code: number;
-                            /** @example Input Validation Error */
                             message: string;
                             path: string[];
                         }[];
@@ -1563,9 +1627,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7003 */
                             code: number;
-                            /** @example Unauthorized */
                             message: string;
                         }[];
                     };
@@ -1585,13 +1647,13 @@ export interface operations {
             query: {
                 /** @description The seller ID for a product (e.g. A34JY1ZNKUG942) */
                 sellerId: string;
-                /** @description The domain for fetching seller data, defaults to US. Available values: US, UK, CA, DE, FR, IT, ES, AU, IN, MX, BR, JP, PL */
-                domain?: string;
+                /** @description The domain for fetching seller data, defaults to US. */
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
                 /** @description The page number requested for product results */
                 page?: number;
             };
             header: {
-                /** @description API key for accessing Canopy GraphQL endpoint */
+                /** @description API key for authentication */
                 "API-KEY": string;
             };
             path?: never;
@@ -1654,9 +1716,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7001 */
                             code: number;
-                            /** @example Input Validation Error */
                             message: string;
                             path: string[];
                         }[];
@@ -1673,9 +1733,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7003 */
                             code: number;
-                            /** @example Unauthorized */
                             message: string;
                         }[];
                     };
@@ -1695,13 +1753,13 @@ export interface operations {
             query: {
                 /** @description The asin ID for the author (e.g. B017M7UJX6) */
                 asin: string;
-                /** @description The domain for fetching author data, defaults to US. Available values: US, UK, CA, DE, FR, IT, ES, AU, IN, MX, BR, JP, PL */
-                domain?: string;
+                /** @description The domain for fetching author data, defaults to US. */
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
                 /** @description The page number requested for book results */
                 page?: number;
             };
             header: {
-                /** @description API key for accessing Canopy GraphQL endpoint */
+                /** @description API key for authentication */
                 "API-KEY": string;
             };
             path?: never;
@@ -1766,9 +1824,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7001 */
                             code: number;
-                            /** @example Input Validation Error */
                             message: string;
                             path: string[];
                         }[];
@@ -1785,9 +1841,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7003 */
                             code: number;
-                            /** @example Unauthorized */
                             message: string;
                         }[];
                     };
@@ -1805,8 +1859,8 @@ export interface operations {
     get_AmazonDeals: {
         parameters: {
             query?: {
-                /** @description The domain for fetching deals data, defaults to US. Available values: US, UK, CA, DE, FR, IT, ES, AU, IN, MX, BR, JP, PL */
-                domain?: string;
+                /** @description The domain for fetching deals data, defaults to US. */
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
                 /** @description The page number requested for product results */
                 page?: number;
                 /** @description Optionally limit the products results. Typically between 20-40 results will be available per page if no limit is applied. */
@@ -1815,7 +1869,7 @@ export interface operations {
                 categoryIds?: string;
             };
             header: {
-                /** @description API key for accessing Canopy GraphQL endpoint */
+                /** @description API key for authentication */
                 "API-KEY": string;
             };
             path?: never;
@@ -1900,9 +1954,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7001 */
                             code: number;
-                            /** @example Input Validation Error */
                             message: string;
                             path: string[];
                         }[];
@@ -1919,9 +1971,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7003 */
                             code: number;
-                            /** @example Unauthorized */
                             message: string;
                         }[];
                     };
@@ -1939,8 +1989,8 @@ export interface operations {
     get_AmazonBestSellers: {
         parameters: {
             query?: {
-                /** @description The domain for fetching best sellers data, defaults to US. Available values: US, UK, CA, DE, FR, IT, ES, AU, IN, MX, BR, JP, PL */
-                domain?: string;
+                /** @description The domain for fetching best sellers data, defaults to US. */
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
                 /** @description The page number requested for product results */
                 page?: number;
                 /** @description Optionally limit the products results. Typically between 20-50 results will be available per page if no limit is applied. */
@@ -1951,7 +2001,7 @@ export interface operations {
                 url?: string;
             };
             header: {
-                /** @description API key for accessing Canopy GraphQL endpoint */
+                /** @description API key for authentication */
                 "API-KEY": string;
             };
             path?: never;
@@ -2024,9 +2074,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7001 */
                             code: number;
-                            /** @example Input Validation Error */
                             message: string;
                             path: string[];
                         }[];
@@ -2043,9 +2091,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7003 */
                             code: number;
-                            /** @example Unauthorized */
                             message: string;
                         }[];
                     };
@@ -2063,11 +2109,11 @@ export interface operations {
     get_AmazonBestSellerCategories: {
         parameters: {
             query?: {
-                /** @description The domain for fetching best seller categories, defaults to US. Available values: US, UK, CA, DE, FR, IT, ES, AU, IN, MX, BR, JP, PL */
-                domain?: string;
+                /** @description The domain for fetching best seller categories, defaults to US. */
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
             };
             header: {
-                /** @description API key for accessing Canopy GraphQL endpoint */
+                /** @description API key for authentication */
                 "API-KEY": string;
             };
             path?: never;
@@ -2104,9 +2150,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7001 */
                             code: number;
-                            /** @example Input Validation Error */
                             message: string;
                             path: string[];
                         }[];
@@ -2123,9 +2167,7 @@ export interface operations {
                         /** @enum {boolean} */
                         success: false;
                         errors: {
-                            /** @example 7003 */
                             code: number;
-                            /** @example Unauthorized */
                             message: string;
                         }[];
                     };

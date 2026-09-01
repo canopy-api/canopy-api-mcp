@@ -2,9 +2,10 @@ import { z } from "zod";
 import { type InferSchema, type ToolMetadata, type ToolExtraArguments } from "xmcp";
 import { createApiClient } from "../api-client";
 import { getApiKey } from "../lib/api-key";
+import { domainParam } from "../lib/domains";
 
 export const schema = {
-  domain: z.string().optional().default("US").describe("The domain for fetching best sellers data, defaults to US"),
+  domain: domainParam("The domain for fetching best sellers data, defaults to US"),
   page: z.number().optional().describe("The page number requested for product results"),
   limit: z.number().optional().describe("Optionally limit the products results. Typically between 20-50 results will be available per page if no limit is applied."),
   categoryId: z.string().optional().describe("The category ID for best sellers (required if url is not provided). Discover IDs via get_amazon_bestseller_categories."),

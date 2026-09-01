@@ -2,9 +2,10 @@ import { z } from "zod";
 import { type InferSchema, type ToolMetadata, type ToolExtraArguments } from "xmcp";
 import { createApiClient } from "../api-client";
 import { getApiKey } from "../lib/api-key";
+import { domainParam } from "../lib/domains";
 
 export const schema = {
-  domain: z.string().optional().default("US").describe("The domain for fetching product category taxonomy, defaults to US"),
+  domain: domainParam("The domain for fetching product category taxonomy, defaults to US"),
 };
 
 export const metadata: ToolMetadata = {

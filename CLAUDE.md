@@ -29,18 +29,25 @@ MCP server providing Amazon product data through the Canopy API. Built with [xmc
 
 ### Tools
 
+All tools are read-only (`readOnlyHint: true`) and carry an annotation `title` (required for the Claude connectors directory).
+
 1. `get_amazon_product` — product details by ASIN/URL/GTIN
 2. `get_amazon_product_variants` — product variants
-3. `get_amazon_product_stock` — stock estimates
-4. `get_amazon_product_sales` — sales estimates
-5. `get_amazon_product_reviews` — product reviews
-6. `search_amazon_products` — product search with filters
-7. `get_amazon_autocomplete` — search suggestions
-8. `get_amazon_categories` — root categories
-9. `get_amazon_category` — category details and products
-10. `get_amazon_seller` — seller information
-11. `get_amazon_author` — author information and books
-12. `get_amazon_deals` — current Amazon deals
+3. `get_amazon_product_offers` — seller offers + Buy Box
+4. `get_amazon_product_stock` — stock estimates
+5. `get_amazon_product_sales` — sales estimates
+6. `get_amazon_product_top_reviews` — top customer reviews
+7. `search_amazon_products` — product search with filters
+8. `get_amazon_autocomplete` — search suggestions
+9. `get_amazon_categories` — root categories
+10. `get_amazon_category` — category details and products
+11. `get_amazon_bestsellers` — best sellers for a category
+12. `get_amazon_bestseller_categories` — best seller category list
+13. `get_amazon_seller` — seller information
+14. `get_amazon_author` — author information and books
+15. `get_amazon_deals` — current Amazon deals
+16. `get_amazon_asin_from_gtin` — ASIN by ISBN/UPC/EAN
+17. `get_amazon_gtin_from_asin` — GTIN by ASIN
 
 ### Adding a tool
 
