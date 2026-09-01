@@ -2,10 +2,11 @@ import { z } from "zod";
 import { type InferSchema, type ToolMetadata, type ToolExtraArguments } from "xmcp";
 import { createApiClient } from "../api-client";
 import { getApiKey } from "../lib/api-key";
+import { domainParam } from "../lib/domains";
 
 export const schema = {
   searchTerm: z.string().describe("The search term for fetching autocomplete results"),
-  domain: z.string().optional().default("US").describe("The domain for fetching autocomplete data, defaults to US"),
+  domain: domainParam("The domain for fetching autocomplete data, defaults to US"),
   category: z.string().optional().describe("The search autocomplete_alias in the amazon url parameter"),
 };
 

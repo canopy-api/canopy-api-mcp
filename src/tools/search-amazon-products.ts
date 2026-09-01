@@ -2,10 +2,11 @@ import { z } from "zod";
 import { type InferSchema, type ToolMetadata, type ToolExtraArguments } from "xmcp";
 import { createApiClient } from "../api-client";
 import { getApiKey } from "../lib/api-key";
+import { domainParam } from "../lib/domains";
 
 export const schema = {
   searchTerm: z.string().describe("The search term for fetching search results"),
-  domain: z.string().optional().default("US").describe("The domain for fetching search results data, defaults to US"),
+  domain: domainParam("The domain for fetching search results data, defaults to US"),
   categoryId: z.string().optional().describe("An optional category ID used to filter search results"),
   page: z.number().optional().describe("The page number requested for product results"),
   limit: z.number().optional().describe("Optionally limit the products results, typically between 20-40 results"),

@@ -85,10 +85,10 @@ export class CanopyApiClient {
     return this.get("/api/amazon/product/sales", params);
   }
 
-  async getAmazonProductReviews(
-    params?: QueryParams<"/api/amazon/product/reviews">
+  async getAmazonProductTopReviews(
+    params?: QueryParams<"/api/amazon/product/top-reviews">
   ) {
-    return this.get("/api/amazon/product/reviews", params);
+    return this.get("/api/amazon/product/top-reviews", params);
   }
 
   async searchAmazonProducts(params: QueryParams<"/api/amazon/search">) {
