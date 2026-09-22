@@ -22,6 +22,7 @@ export const metadata: ToolMetadata = {
   annotations: {
     title: "Search Amazon Products",
     readOnlyHint: true,
+    destructiveHint: false,
     openWorldHint: true,
   },
 };
@@ -34,3 +35,34 @@ export default async function searchAmazonProducts(params: InferSchema<typeof sc
     structuredContent: data,
   };
 }
+
+import { productResultSchema, pageInfoSchema } from "../lib/output-schemas";
+
+export const outputSchema = {
+  data: z.looseObject({
+    amazonProductSearchResults: z
+      .looseObject({
+        availableRefinements: z
+          .array(
+            z.looseObject({
+              name: z.string().optional(),
+              options: z.array(z.looseObject({ name: z.string().optional() })).optional(),
+            }),
+          )
+          .optional(),
+        productResults: z
+          .looseObject({
+            results: z
+              .array(
+                productResultSchema.extend({
+                  coupon: z.looseObject({ label: z.string().optional() }).optional(),
+                }),
+              )
+              .optional(),
+            pageInfo: pageInfoSchema.optional(),
+          })
+          .optional(),
+      })
+      .optional(),
+  }),
+};

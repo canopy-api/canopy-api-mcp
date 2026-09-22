@@ -16,6 +16,7 @@ export const metadata: ToolMetadata = {
   annotations: {
     title: "Get Amazon Author Information",
     readOnlyHint: true,
+    destructiveHint: false,
     openWorldHint: true,
   },
 };
@@ -28,3 +29,32 @@ export default async function getAmazonAuthor(params: InferSchema<typeof schema>
     structuredContent: data,
   };
 }
+
+import { productResultSchema, pageInfoSchema } from "../lib/output-schemas";
+
+export const outputSchema = {
+  data: z.looseObject({
+    amazonAuthor: z
+      .looseObject({
+        name: z.string().optional(),
+        url: z.string().optional(),
+        imageUrl: z.string().optional(),
+        biography: z.string().optional(),
+        bookResults: z
+          .looseObject({
+            results: z
+              .array(
+                productResultSchema.extend({
+                  authors: z
+                    .array(z.looseObject({ name: z.string().optional(), url: z.string().optional() }))
+                    .optional(),
+                }),
+              )
+              .optional(),
+            pageInfo: pageInfoSchema.optional(),
+          })
+          .optional(),
+      })
+      .optional(),
+  }),
+};

@@ -16,6 +16,7 @@ export const metadata: ToolMetadata = {
   annotations: {
     title: "Get Amazon Search Autocomplete",
     readOnlyHint: true,
+    destructiveHint: false,
     openWorldHint: true,
   },
 };
@@ -28,3 +29,12 @@ export default async function getAmazonAutocomplete(params: InferSchema<typeof s
     structuredContent: data,
   };
 }
+
+export const outputSchema = {
+  data: z.looseObject({
+    amazonSearchAutocompleteResults: z
+      .array(z.looseObject({ suggestion: z.string().optional() }))
+      .optional()
+      .describe("Autocomplete search suggestions"),
+  }),
+};

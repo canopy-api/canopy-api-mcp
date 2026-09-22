@@ -14,7 +14,7 @@ and the [pre-submission checklist](https://claude.com/docs/connectors/building/r
 | OAuth 2.0/2.1 for authenticated service | ✅ Supabase AS, **dynamic client registration supported** (`registration_endpoint` present) |
 | Protected-resource metadata discovery | ✅ `/.well-known/oauth-protected-resource[/mcp]` |
 | 401 carries `WWW-Authenticate` w/ `resource_metadata` | ✅ verified with curl |
-| Every tool has `title` + `readOnlyHint`/`destructiveHint` | ✅ all 17 tools: `title` + `readOnlyHint: true` |
+| Every tool has `title` + `readOnlyHint`/`destructiveHint` | ✅ all 17 tools: `title` + `readOnlyHint: true` (verified against the live server) |
 | Read and write tools separated | ✅ N/A — the server is 100% read-only, no write tools |
 | No catch-all `api_request`-style tool | ✅ every tool calls a fixed Canopy endpoint |
 | Tool names ≤ 64 chars | ✅ longest is `get_amazon_bestseller_categories` (32) |
@@ -22,28 +22,25 @@ and the [pre-submission checklist](https://claude.com/docs/connectors/building/r
 | First-party API | ✅ Canopy owns `rest.canopyapi.co` and `mcp.canopyapi.co` |
 | Not an unsupported use case (money transfer / AI media gen) | ✅ |
 | Privacy policy URL (HTTPS, public) | ✅ https://www.canopyapi.co/privacy-policy |
-| Public documentation URL | ⚠️ https://docs.canopyapi.co/ai/mcp exists but is **stale** — see "Blocking work" |
-| Test account, fully populated | ⚠️ to be created — see "Blocking work" |
+| Public documentation URL | ✅ https://docs.canopyapi.co/ai/mcp — rewritten 2026-09-01: hosted URL, OAuth, all 17 tools |
+| Test account, fully populated | ✅ ready (credentials held by Ryan, entered at the Test & launch step) |
 | Team/Enterprise org + Owner (or Directory role) on claude.ai | ⚠️ user must confirm |
 
-## Blocking work before submitting
+## Remaining before submitting
 
-1. **Update the public docs page** (`/ai/mcp.md` in the `canopy-api/canopy-api` repo).
-   It currently says 11 tools, tells users to `git clone` and run on `localhost:8787`,
-   and never mentions the hosted URL or OAuth. A reviewer reads this page as the
-   "clear setup and usage instructions" requirement. Replacement copy is in
-   [Replacement docs page](#replacement-docs-page) below.
-2. **Create a reviewer test account** at canopyapi.co with an active plan and enough
-   quota to exercise all 17 tools, then write out the exact sign-in steps (see
-   [Test & launch](#test--launch)).
-3. **Confirm plan/permissions**: the portal lives in organization settings, so the
+Done: docs page rewritten (2026-09-01), reviewer test account ready, server deployed
+at 2.1.0 and published to the MCP registry.
+
+1. **Confirm plan/permissions**: the portal lives in organization settings, so the
    claude.ai account submitting must be on **Team or Enterprise** and be an Owner
    (or hold a custom role with the Directory or Libraries permission on Enterprise).
    Individual Pro/Max plans cannot reach the portal.
-4. **Icon**: a square PNG Canopy logo for the listing card.
-5. **Re-run the tool sweep**: exercise all 17 tools via MCP Inspector *and* as a custom
-   connector in Claude (the portal makes you attest to this). Confirm each returns a
-   real payload — generic "Internal Server Error"/"Bad Request" responses fail review.
+2. **Icon**: ✅ `assets/canopy-icon.png` (180×180 PNG, Canopy tree mark).
+3. **Tool sweep**: ✅ done 2026-09-01 — all 17 tools exercised against the live server
+   as a connected Claude connector; every one returned a real payload. (`get_amazon_deals`,
+   `get_amazon_bestsellers`, `search_amazon_products` also verified with `limit`/`page`.)
+   The earlier `get_amazon_gtin_from_asin` 500 on `B0F7K8DPPT` is fixed upstream; it now
+   returns `gtin: null`, which is intended behaviour when no GTIN is found.
 
 ## Portal answers
 
@@ -87,6 +84,7 @@ and the [pre-submission checklist](https://claude.com/docs/connectors/building/r
   E-commerce; Research; Productivity — choose the closest available options.
 - **Documentation URL**: `https://docs.canopyapi.co/ai/mcp` (after the rewrite below)
 - **Privacy policy URL**: `https://www.canopyapi.co/privacy-policy`
+- **Icon**: `assets/canopy-icon.png` (180×180 PNG)
 - **Support contact**: Canopy support email (use the address monitored for API support)
 - **URL slug**: `canopy-api` — **permanent once published**, pick deliberately.
 
@@ -155,7 +153,7 @@ Write instructions detailed enough for a reviewer to go end-to-end. Template:
 >    you'll be redirected to Canopy's consent screen; approve access.
 > 3. All 17 tools are read-only and need no further setup. Suggested calls:
 >    `get_amazon_product` with `asin: "B01HY0JA3G"`; `search_amazon_products` with
->    `query: "wireless headphones"`; `get_amazon_bestseller_categories` with no args.
+>    `searchTerm: "wireless headphones"`; `get_amazon_bestseller_categories` with no args.
 > 4. Alternative for header auth: the account's API key is on the dashboard at
 >    https://www.canopyapi.co/dashboard; pass it as `CANOPY-API-KEY`.
 

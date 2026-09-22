@@ -17,6 +17,7 @@ export const metadata: ToolMetadata = {
   annotations: {
     title: "Get Amazon Category Information",
     readOnlyHint: true,
+    destructiveHint: false,
     openWorldHint: true,
   },
 };
@@ -29,3 +30,25 @@ export default async function getAmazonCategory(params: InferSchema<typeof schem
     structuredContent: data,
   };
 }
+
+import { categoryRefSchema, productResultSchema, pageInfoSchema } from "../lib/output-schemas";
+
+export const outputSchema = {
+  data: z.looseObject({
+    amazonProductCategory: z
+      .looseObject({
+        id: z.string().optional(),
+        name: z.string().optional(),
+        url: z.string().optional(),
+        breadcrumbPath: z.string().optional(),
+        subcategories: z.array(categoryRefSchema).optional(),
+        productResults: z
+          .looseObject({
+            results: z.array(productResultSchema).optional(),
+            pageInfo: pageInfoSchema.optional(),
+          })
+          .optional(),
+      })
+      .optional(),
+  }),
+};

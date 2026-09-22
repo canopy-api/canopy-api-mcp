@@ -15,6 +15,7 @@ export const metadata: ToolMetadata = {
   annotations: {
     title: "Get GTIN from ASIN",
     readOnlyHint: true,
+    destructiveHint: false,
     openWorldHint: true,
   },
 };
@@ -27,3 +28,14 @@ export default async function getAmazonGtinFromAsin(params: InferSchema<typeof s
     structuredContent: data,
   };
 }
+
+export const outputSchema = {
+  data: z.looseObject({
+    amazonProduct: z
+      .looseObject({
+        asin: z.string().optional(),
+        gtin: z.string().nullable().optional().describe("GTIN (ISBN, UPC or EAN), null if not found"),
+      })
+      .optional(),
+  }),
+};

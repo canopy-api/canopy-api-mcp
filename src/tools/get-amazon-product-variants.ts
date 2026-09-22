@@ -17,6 +17,7 @@ export const metadata: ToolMetadata = {
   annotations: {
     title: "Get Amazon Product Variants",
     readOnlyHint: true,
+    destructiveHint: false,
     openWorldHint: true,
   },
 };
@@ -29,3 +30,27 @@ export default async function getAmazonProductVariants(params: InferSchema<typeo
     structuredContent: data,
   };
 }
+
+import { priceSchema } from "../lib/output-schemas";
+
+export const outputSchema = {
+  data: z.looseObject({
+    amazonProduct: z
+      .looseObject({
+        variants: z
+          .array(
+            z.looseObject({
+              asin: z.string().optional(),
+              text: z.string().optional().describe("Variant label (e.g. color or size)"),
+              url: z.string().optional(),
+              attributes: z
+                .array(z.looseObject({ name: z.string().optional(), value: z.string().optional() }))
+                .optional(),
+              price: priceSchema.optional(),
+            }),
+          )
+          .optional(),
+      })
+      .optional(),
+  }),
+};
