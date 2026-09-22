@@ -15,6 +15,7 @@ export const metadata: ToolMetadata = {
   annotations: {
     title: "Get GTIN from ASIN",
     readOnlyHint: true,
+    destructiveHint: false,
     openWorldHint: true,
   },
 };

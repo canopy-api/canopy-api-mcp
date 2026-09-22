@@ -14,6 +14,7 @@ export const metadata: ToolMetadata = {
   annotations: {
     title: "Get Amazon Product Categories",
     readOnlyHint: true,
+    destructiveHint: false,
     openWorldHint: true,
   },
 };

@@ -17,6 +17,7 @@ export const metadata: ToolMetadata = {
   annotations: {
     title: "Get Amazon Product Stock Estimates",
     readOnlyHint: true,
+    destructiveHint: false,
     openWorldHint: true,
   },
 };

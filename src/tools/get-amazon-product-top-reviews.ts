@@ -18,6 +18,7 @@ export const metadata: ToolMetadata = {
   annotations: {
     title: "Get Amazon Product Top Reviews",
     readOnlyHint: true,
+    destructiveHint: false,
     openWorldHint: true,
   },
 };
