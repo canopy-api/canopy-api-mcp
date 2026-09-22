@@ -27,3 +27,21 @@ export default async function getAmazonBestSellerCategories(params: InferSchema<
     structuredContent: data,
   };
 }
+
+export const outputSchema = {
+  data: z.looseObject({
+    amazonBestSellerCategories: z
+      .looseObject({
+        categories: z
+          .array(
+            z.looseObject({
+              id: z.string().nullable().optional().describe("Category ID for get_amazon_bestsellers"),
+              name: z.string().nullable().optional(),
+              url: z.string().nullable().optional(),
+            }),
+          )
+          .optional(),
+      })
+      .optional(),
+  }),
+};

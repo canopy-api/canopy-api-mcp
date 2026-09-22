@@ -27,3 +27,14 @@ export default async function getAmazonCategories(params: InferSchema<typeof sch
     structuredContent: data,
   };
 }
+
+import { categoryRefSchema } from "../lib/output-schemas";
+
+export const outputSchema = {
+  data: z.looseObject({
+    amazonProductCategoryTaxonomy: z
+      .array(categoryRefSchema)
+      .optional()
+      .describe("Root-level Amazon product categories"),
+  }),
+};

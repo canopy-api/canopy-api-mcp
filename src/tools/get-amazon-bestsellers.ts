@@ -31,3 +31,48 @@ export default async function getAmazonBestSellers(params: InferSchema<typeof sc
     structuredContent: data,
   };
 }
+
+import { priceSchema, pageInfoSchema } from "../lib/output-schemas";
+
+export const outputSchema = {
+  data: z.looseObject({
+    amazonBestSellers: z
+      .looseObject({
+        productResults: z
+          .looseObject({
+            results: z
+              .array(
+                z.looseObject({
+                  title: z.string().optional(),
+                  url: z.string().optional(),
+                  asin: z.string().optional(),
+                  price: priceSchema.optional(),
+                  mainImageUrl: z.string().optional(),
+                  rating: z.number().optional(),
+                  ratingsTotal: z.number().optional(),
+                  bestSellersRank: z.number().optional().describe("Rank position in the category"),
+                }),
+              )
+              .optional(),
+            pageInfo: pageInfoSchema.optional(),
+          })
+          .optional(),
+        categoryInfo: z
+          .looseObject({
+            currentCategory: z
+              .looseObject({ name: z.string().optional(), url: z.string().optional(), id: z.string().optional() })
+              .optional(),
+            parentCategory: z
+              .looseObject({ name: z.string().optional(), url: z.string().optional(), id: z.string().optional() })
+              .optional(),
+            childCategories: z
+              .array(
+                z.looseObject({ name: z.string().optional(), url: z.string().optional(), id: z.string().optional() }),
+              )
+              .optional(),
+          })
+          .optional(),
+      })
+      .optional(),
+  }),
+};

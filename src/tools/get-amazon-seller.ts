@@ -29,3 +29,26 @@ export default async function getAmazonSeller(params: InferSchema<typeof schema>
     structuredContent: data,
   };
 }
+
+import { productResultSchema, pageInfoSchema } from "../lib/output-schemas";
+
+export const outputSchema = {
+  data: z.looseObject({
+    amazonSeller: z
+      .looseObject({
+        sellerId: z.string().optional(),
+        name: z.string().optional(),
+        logoUrl: z.string().optional(),
+        phone: z.string().optional().describe("Seller's public business phone number, when listed"),
+        rating: z.number().optional(),
+        about: z.string().optional(),
+        productResults: z
+          .looseObject({
+            results: z.array(productResultSchema).optional(),
+            pageInfo: pageInfoSchema.optional(),
+          })
+          .optional(),
+      })
+      .optional(),
+  }),
+};

@@ -31,3 +31,60 @@ export default async function getAmazonProductOffers(params: InferSchema<typeof 
     structuredContent: data,
   };
 }
+
+import { priceSchema, pageInfoSchema } from "../lib/output-schemas";
+
+export const outputSchema = {
+  data: z.looseObject({
+    amazonProduct: z
+      .looseObject({
+        offersPaginated: z
+          .looseObject({
+            offers: z
+              .array(
+                z.looseObject({
+                  id: z.string().optional(),
+                  price: priceSchema.nullable().optional(),
+                  minimumOrderQuantity: z.number().optional(),
+                  maximumOrderQuantity: z.number().optional(),
+                  conditionIsNew: z.boolean().optional(),
+                  title: z.string().optional(),
+                  delivery: z
+                    .looseObject({
+                      fulfilledByAmazon: z.boolean().optional(),
+                      shippedFromOutsideCountry: z.boolean().optional(),
+                      countdown: z.string().optional(),
+                      comments: z.string().optional(),
+                      price: priceSchema.nullable().optional(),
+                      upsell: z
+                        .looseObject({ name: z.string().optional(), value: z.string().optional() })
+                        .nullable()
+                        .optional(),
+                    })
+                    .nullable()
+                    .optional(),
+                  seller: z
+                    .looseObject({
+                      name: z.string().optional(),
+                      link: z.string().optional(),
+                      rating: z.number().optional(),
+                      ratingsPercentagePositive: z.number().optional(),
+                      ratingsTotal: z.number().optional(),
+                      id: z.string().optional(),
+                      imageUrl: z.string().optional(),
+                    })
+                    .nullable()
+                    .optional(),
+                  isPrime: z.boolean().optional(),
+                  buyboxWinner: z.boolean().optional().describe("True for the current Buy Box offer"),
+                }),
+              )
+              .optional(),
+            pageInfo: pageInfoSchema.nullable().optional(),
+          })
+          .nullable()
+          .optional(),
+      })
+      .optional(),
+  }),
+};

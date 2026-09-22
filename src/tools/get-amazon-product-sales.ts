@@ -30,3 +30,19 @@ export default async function getAmazonProductSales(params: InferSchema<typeof s
     structuredContent: data,
   };
 }
+
+export const outputSchema = {
+  data: z.looseObject({
+    amazonProduct: z
+      .looseObject({
+        salesEstimate: z
+          .looseObject({
+            weeklyUnitSales: z.number().optional(),
+            monthlyUnitSales: z.number().optional(),
+            annualUnitSales: z.number().optional(),
+          })
+          .optional(),
+      })
+      .optional(),
+  }),
+};

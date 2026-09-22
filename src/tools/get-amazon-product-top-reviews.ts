@@ -31,3 +31,15 @@ export default async function getAmazonProductTopReviews(params: InferSchema<typ
     structuredContent: data,
   };
 }
+
+import { reviewSchema } from "../lib/output-schemas";
+
+export const outputSchema = {
+  data: z.looseObject({
+    amazonProduct: z
+      .looseObject({
+        topReviews: z.array(reviewSchema).optional().describe("Top customer reviews"),
+      })
+      .optional(),
+  }),
+};

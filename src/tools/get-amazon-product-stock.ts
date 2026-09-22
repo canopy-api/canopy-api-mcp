@@ -30,3 +30,20 @@ export default async function getAmazonProductStock(params: InferSchema<typeof s
     structuredContent: data,
   };
 }
+
+export const outputSchema = {
+  data: z.looseObject({
+    amazonProduct: z
+      .looseObject({
+        stockEstimate: z
+          .looseObject({
+            offerId: z.string().optional(),
+            inStock: z.boolean().optional(),
+            stockLevel: z.number().optional().describe("Estimated units in stock"),
+            availabilityMessage: z.string().optional(),
+          })
+          .optional(),
+      })
+      .optional(),
+  }),
+};

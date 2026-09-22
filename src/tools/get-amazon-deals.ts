@@ -35,3 +35,42 @@ export default async function getAmazonDeals(params: InferSchema<typeof schema>,
     structuredContent: data,
   };
 }
+
+import { priceSchema, pageInfoSchema } from "../lib/output-schemas";
+
+export const outputSchema = {
+  data: z.looseObject({
+    amazonDeals: z
+      .looseObject({
+        productResults: z
+          .looseObject({
+            results: z
+              .array(
+                z.looseObject({
+                  title: z.string().optional(),
+                  url: z.string().optional(),
+                  asin: z.string().optional(),
+                  price: priceSchema.optional(),
+                  recommendedRetailPrice: priceSchema.optional(),
+                  mainImageUrl: z.string().optional(),
+                  dealId: z.string().optional(),
+                  dealUrl: z.string().optional(),
+                  dealPrice: priceSchema.optional(),
+                  dealCurrentPrice: priceSchema.optional(),
+                  dealListPrice: priceSchema.optional(),
+                  dealPercentOff: z.number().optional(),
+                  dealType: z.string().optional(),
+                  dealIsLightningDeal: z.boolean().optional(),
+                  dealBadge: z.string().optional(),
+                  dealStartTime: z.string().optional(),
+                  dealEndTime: z.string().optional(),
+                }),
+              )
+              .optional(),
+            pageInfo: pageInfoSchema.optional(),
+          })
+          .optional(),
+      })
+      .optional(),
+  }),
+};
