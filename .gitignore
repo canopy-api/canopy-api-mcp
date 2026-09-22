@@ -7,3 +7,7 @@ dist
 worker.js
 xmcp-env.d.ts
 .dev.vars
+
+# Local submission notes, not for the public repo
+DIRECTORY_SUBMISSION.md
+CODEX_MARKETPLACE_SUBMISSION.md
