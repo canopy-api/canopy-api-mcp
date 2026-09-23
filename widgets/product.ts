@@ -1,6 +1,6 @@
 // Product card widget for get_amazon_product.
 import { boot, wireLinks } from "./bridge";
-import { couponText, esc, imgHtml, priceHtml, starsHtml, emptyState, type Price } from "./format";
+import { bulletHtml, couponText, esc, imgHtml, priceHtml, starsHtml, emptyState, type Price } from "./format";
 
 interface Product {
   title?: string;
@@ -35,10 +35,7 @@ function render(output: unknown): void {
   const coupon = couponText(product.coupon?.label);
   if (coupon) chips.push(`<span class="chip coupon">${esc(coupon)}</span>`);
 
-  const bullets = (product.featureBullets ?? [])
-    .slice(0, 3)
-    .map((b) => `<li>${esc(b)}</li>`)
-    .join("");
+  const bullets = (product.featureBullets ?? []).slice(0, 3).map(bulletHtml).join("");
 
   const titleHtml = product.url
     ? `<a href="${esc(product.url)}" class="bold">${esc(product.title ?? "Amazon product")}</a>`
@@ -46,8 +43,8 @@ function render(output: unknown): void {
 
   root.innerHTML = `
     <div style="display:flex;gap:14px;padding:2px">
-      <div class="thumb" style="flex:0 0 140px;height:150px;border:1px solid var(--border);border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden">
-        ${imgHtml(product.mainImageUrl, product.title)}
+      <div class="thumb" style="flex:0 0 140px;height:160px;border-radius:10px">
+        ${imgHtml(product.mainImageUrl, product.title, 160)}
       </div>
       <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:5px">
         <div style="font-size:15px;line-height:1.35" class="clamp2">${titleHtml}</div>
@@ -55,10 +52,10 @@ function render(output: unknown): void {
         <div>${starsHtml(product.rating, product.ratingsTotal)}</div>
         <div>${priceHtml(product.price)}</div>
         ${chips.length ? `<div style="display:flex;gap:6px;flex-wrap:wrap">${chips.join("")}</div>` : ""}
-        ${bullets ? `<ul class="small muted" style="margin:2px 0 0;padding-left:16px">${bullets}</ul>` : ""}
+        ${bullets ? `<ul class="small muted" style="margin:2px 0 0;padding-left:16px;display:flex;flex-direction:column;gap:3px">${bullets}</ul>` : ""}
         ${
           product.url
-            ? `<div class="small" style="margin-top:auto"><a href="${esc(product.url)}">View on Amazon →</a></div>`
+            ? `<div style="margin-top:8px"><a href="${esc(product.url)}" class="btn">View on Amazon →</a></div>`
             : ""
         }
       </div>

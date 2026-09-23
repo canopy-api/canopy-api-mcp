@@ -40,7 +40,7 @@ function card(result: SearchResult): string {
     : esc(result.title ?? "");
   return `
     <div class="card">
-      <div class="thumb">${imgHtml(result.mainImageUrl, result.title)}</div>
+      <div class="thumb">${imgHtml(result.mainImageUrl, result.title, 160)}</div>
       <div class="title clamp2">${title}</div>
       <div class="small">${starsHtml(result.rating, result.ratingsTotal)}</div>
       <div>${priceHtml(result.price)}</div>

@@ -32,9 +32,9 @@ function rankedRow(product: BestSeller, index: number): string {
     : esc(product.title ?? "");
   return `
     <div class="row" style="align-items:center">
-      <div class="bold muted" style="flex:0 0 26px;font-size:15px;text-align:center">${rank}</div>
-      <div style="flex:0 0 56px;height:56px;border:1px solid var(--border);border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden">
-        ${imgHtml(product.mainImageUrl, product.title)}
+      <div class="rank${rank <= 3 ? " top" : ""}">${rank}</div>
+      <div class="thumb" style="flex:0 0 56px;height:56px">
+        ${imgHtml(product.mainImageUrl, product.title, 56)}
       </div>
       <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
         <div class="clamp2" style="font-size:13px">${title}</div>

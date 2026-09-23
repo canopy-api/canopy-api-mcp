@@ -37,7 +37,7 @@ function dealCard(deal: Deal): string {
   else if (deal.dealBadge) badges.push(`<span class="chip">${esc(deal.dealBadge)}</span>`);
   return `
     <div class="card">
-      <div class="thumb">${imgHtml(deal.mainImageUrl, deal.title)}</div>
+      <div class="thumb">${imgHtml(deal.mainImageUrl, deal.title, 160)}</div>
       ${badges.length ? `<div style="display:flex;gap:4px;flex-wrap:wrap">${badges.join("")}</div>` : ""}
       <div class="title clamp2">${title}</div>
       <div>${priceHtml(current, was)}</div>

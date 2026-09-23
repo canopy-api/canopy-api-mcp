@@ -30,7 +30,7 @@ function reviewRow(review: Review): string {
     .slice(0, 4)
     .map(
       (url) =>
-        `<span style="width:48px;height:48px;border-radius:6px;overflow:hidden;border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;background:#fff">${imgHtml(url, review.title)}</span>`,
+        `<span class="thumb" style="width:48px;height:48px;border-radius:6px">${imgHtml(url, review.title, 48)}</span>`,
     )
     .join("");
   return `

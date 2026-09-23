@@ -69,9 +69,35 @@ export function couponText(label: string | null | undefined): string {
   return text;
 }
 
-export function imgHtml(url: string | undefined, alt: string | undefined): string {
+/**
+ * Amazon CDN image URLs accept size modifiers before the extension
+ * (`…/images/I/<id>._AC_SX320_.jpg`). Request one at ~2× the displayed size so
+ * thumbnails load fast and stay crisp on retina screens. Only rewrites bare
+ * `…/images/I/<id>.<ext>` URLs; anything else is left untouched.
+ */
+function sizedUrl(url: string, displayPx?: number): string {
+  if (!displayPx) return url;
+  return url.replace(
+    /^(https:\/\/[^/]+\/images\/I\/[^._]+)\.(jpg|jpeg|png|webp)$/i,
+    `$1._AC_SX${displayPx * 2}_.$2`,
+  );
+}
+
+export function imgHtml(url: string | undefined, alt: string | undefined, displayPx?: number): string {
   if (!url || !/^https:\/\//.test(url)) return "";
-  return `<img src="${esc(url)}" alt="${esc(alt ?? "")}" loading="lazy">`;
+  return `<img src="${esc(sizedUrl(url, displayPx))}" alt="${esc(alt ?? "")}" loading="lazy">`;
+}
+
+/**
+ * Amazon feature bullets often start with a shouty ALL-CAPS label
+ * ("ENJOY OPTIMUM FLAVOR: The grinder…"). Render the label as a bold
+ * sentence-case lead-in and clamp each bullet to two lines.
+ */
+export function bulletHtml(text: string): string {
+  const match = /^([A-Z][A-Z0-9 ,'’&/.-]{2,60}?):\s*(.+)$/.exec(text.trim());
+  if (!match) return `<li class="clamp2">${esc(text)}</li>`;
+  const label = match[1].charAt(0) + match[1].slice(1).toLowerCase();
+  return `<li class="clamp2"><span class="bold">${esc(label)}:</span> ${esc(match[2])}</li>`;
 }
 
 export function emptyState(message: string): string {
