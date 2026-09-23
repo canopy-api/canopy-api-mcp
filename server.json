@@ -8,7 +8,7 @@
     "source": "github"
   },
   "version": "2.1.0",
-  "websiteUrl": "https://www.canopyapi.co/",
+  "websiteUrl": "https://canopyapi.co/amazon-mcp-server",
   "remotes": [
     {
       "type": "streamable-http",

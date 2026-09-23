@@ -1,6 +1,20 @@
-# Canopy API MCP Server
+# Canopy MCP Server — Amazon Product Data API for AI Agents
 
-A type-safe MCP (Model Context Protocol) server that provides Amazon product data through the Canopy API. Built with [xmcp](https://xmcp.dev) and deployed on Cloudflare Workers.
+An Amazon product data API served over the [Model Context Protocol](https://modelcontextprotocol.io). Connect Claude, ChatGPT, Cursor, or any MCP client to real-time Amazon data — an Amazon search API, reviews API, price tracker, ASIN lookup, best sellers, deals, and sales estimates — powered by the [Canopy API](https://canopyapi.co/). No headless browsers, no brittle HTML scraping: typed JSON over standard MCP tools.
+
+Built with [xmcp](https://xmcp.dev) and deployed on Cloudflare Workers. Use the hosted remote MCP server at `https://mcp.canopyapi.co/mcp` or self-host from this repo. Setup guides and client walkthroughs live on the [Amazon MCP server](https://canopyapi.co/amazon-mcp-server) page.
+
+## Why an Amazon MCP server?
+
+AI agents and LLM apps increasingly need live e-commerce data. This server gives any MCP-capable assistant or agent framework direct tool access to Amazon:
+
+- **Shopping assistants** — an Amazon search API for agents: query products, compare prices and Buy Box offers, surface deals and coupons in chat
+- **Price monitoring & competitive intelligence** — an Amazon price tracker API for prices, stock estimates, and seller offers on any ASIN
+- **Product research & market analysis** — an Amazon product research tool with best seller rankings, sales estimates, and category taxonomies
+- **Catalog enrichment** — ASIN lookup and ASIN ↔ GTIN/UPC/ISBN/EAN conversion, plus images, variants, and specs
+- **Review analysis** — an Amazon reviews API returning top customer reviews with ratings, helpful votes, and media for summarization
+
+Works as a Claude MCP server (Desktop, Code, and the claude.ai connectors directory), a ChatGPT MCP connector (Apps SDK, with rich product widgets), in Cursor and the MCP Inspector, and with any agent built on the MCP SDK, LangChain, or the OpenAI Agents SDK.
 
 ## Features
 
@@ -13,6 +27,18 @@ A type-safe MCP (Model Context Protocol) server that provides Amazon product dat
 
 ## Quick Start
 
+### Use the hosted server (no install)
+
+Add the remote MCP server to your client and sign in with OAuth, or supply a Canopy API key:
+
+```
+https://mcp.canopyapi.co/mcp
+```
+
+Claude and other OAuth-capable MCP clients will walk you through sign-in automatically. Get an API key at [canopyapi.co](https://canopyapi.co/), and see the [Amazon MCP server guide](https://canopyapi.co/amazon-mcp-server) for per-client setup instructions.
+
+### Run it yourself
+
 You'll need a Canopy API key from [canopyapi.co](https://canopyapi.co/).
 
 ```bash
@@ -22,6 +48,12 @@ npm run deploy   # build + wrangler deploy --env production
 ```
 
 ### Testing
+
+Run `npm test` to build the worker and run the regression suite. Output-schema
+tests use mocked REST responses to verify that null-valued fields (unavailable
+prices, coupons, ratings) are stripped before reaching MCP clients, that
+responses match the advertised JSON Schema, and that malformed values are still
+rejected. These tests do not require a real Canopy API key.
 
 Use the MCP Inspector and connect to `http://localhost:8787/mcp` (or your deployed URL). Provide the API key as a request header:
 
@@ -129,5 +161,6 @@ v2.0 replaces ModelFetch with [xmcp](https://xmcp.dev). The MCP endpoint moved f
 
 - [Model Context Protocol](https://modelcontextprotocol.io)
 - [xmcp framework](https://xmcp.dev)
+- [Amazon MCP Server — Canopy](https://canopyapi.co/amazon-mcp-server)
 - [Canopy API](https://canopyapi.co/docs)
 - [Cloudflare Workers](https://workers.cloudflare.com/)
