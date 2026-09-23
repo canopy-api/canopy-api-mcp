@@ -33,7 +33,7 @@ export default async function getAmazonProduct(params: InferSchema<typeof schema
   };
 }
 
-import { priceSchema, categoryRefSchema } from "../lib/output-schemas";
+import { priceSchema, categoryRefSchema, couponSchema } from "../lib/output-schemas";
 
 export const outputSchema = {
   data: z.looseObject({
@@ -57,7 +57,7 @@ export const outputSchema = {
           .array(z.looseObject({ name: z.string().optional(), value: z.string().optional() }))
           .optional(),
         categories: z.array(categoryRefSchema).optional(),
-        coupon: z.looseObject({ label: z.string().optional() }).optional(),
+        coupon: couponSchema.optional(),
         seller: z
           .looseObject({ sellerId: z.string().optional(), name: z.string().optional() })
           .optional(),

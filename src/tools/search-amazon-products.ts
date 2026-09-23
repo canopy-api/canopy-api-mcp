@@ -38,7 +38,7 @@ export default async function searchAmazonProducts(params: InferSchema<typeof sc
   };
 }
 
-import { productResultSchema, pageInfoSchema } from "../lib/output-schemas";
+import { productResultSchema, pageInfoSchema, couponSchema } from "../lib/output-schemas";
 
 export const outputSchema = {
   data: z.looseObject({
@@ -57,7 +57,7 @@ export const outputSchema = {
             results: z
               .array(
                 productResultSchema.extend({
-                  coupon: z.looseObject({ label: z.string().optional() }).optional(),
+                  coupon: couponSchema.optional(),
                 }),
               )
               .optional(),

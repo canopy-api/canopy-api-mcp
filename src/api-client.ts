@@ -3,6 +3,23 @@ import type { paths } from "./types/api";
 // Base API configuration
 const API_BASE_URL = "https://rest.canopyapi.co";
 
+// Canopy's REST API passes through GraphQL responses, which use explicit null
+// for unavailable fields (rating, price, coupon, …). Tool outputSchemas declare
+// those fields optional, and strict MCP hosts validate structuredContent, so
+// null-valued object properties are dropped here for every endpoint at once.
+// Array elements are kept (even null) to preserve indices.
+function stripNulls(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(stripNulls);
+  if (value && typeof value === "object") {
+    const result: Record<string, unknown> = {};
+    for (const [key, entry] of Object.entries(value)) {
+      if (entry !== null) result[key] = stripNulls(entry);
+    }
+    return result;
+  }
+  return value;
+}
+
 // Type helpers to extract path info
 type PathKeys = keyof paths;
 type PathInfo<P extends PathKeys> = paths[P];
@@ -59,7 +76,7 @@ export class CanopyApiClient {
       );
     }
 
-    return response.json() as Promise<ResponseData<P>>;
+    return stripNulls(await response.json()) as ResponseData<P>;
   }
 
   // Convenience methods for specific endpoints

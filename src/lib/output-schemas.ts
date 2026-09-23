@@ -1,15 +1,22 @@
 import { z } from "zod";
 
 // Shared building blocks for tool outputSchema declarations, mirroring the
-// Canopy API response shapes in src/types/api.d.ts. Objects are loose and
-// fields optional so response validation never rejects a live API payload.
+// Canopy API response shapes. Loose objects allow additive upstream fields.
+// GraphQL (passed through by REST) returns null for unavailable fields, but
+// the api-client strips null object properties before responses reach tools,
+// so plain .optional() is enough; the .nullable() below are defense-in-depth.
+// The published OpenAPI spec and generated api.d.ts currently omit the nulls.
 
 export const priceSchema = z.looseObject({
   symbol: z.string().optional().describe("Currency symbol (e.g. $)"),
   value: z.number().optional().describe("Numeric price value"),
   currency: z.string().optional().describe("Currency code (e.g. USD)"),
   display: z.string().optional().describe("Formatted price string (e.g. $19.99)"),
-});
+}).nullable();
+
+export const couponSchema = z.looseObject({
+  label: z.string().optional(),
+}).nullable();
 
 export const pageInfoSchema = z.looseObject({
   currentPage: z.number().optional(),

@@ -27,7 +27,7 @@ MCP server providing Amazon product data through the Canopy API. Built with [xmc
 - **src/lib/supabase-auth.ts** — JWT detection/verification (jose), `sub` → `api_key` lookup via Supabase REST (service role key, 5-min in-isolate cache).
 - **src/lib/oauth-metadata.ts** — protected-resource metadata + `WWW-Authenticate` helper.
 - **src/lib/api-key.ts** — `getApiKey(extra)` helper that reads `extra.authInfo.token` inside tool handlers.
-- **src/api-client.ts** — type-safe Canopy REST client (uses generated `paths` types).
+- **src/api-client.ts** — type-safe Canopy REST client (uses generated `paths` types). Strips null object properties from every response (GraphQL returns explicit nulls for unavailable fields like `rating`; strict MCP hosts reject them against the declared `outputSchema`).
 - **src/types/api.d.ts** — auto-generated from the Canopy OpenAPI spec.
 - **xmcp.config.ts** — endpoint (`/mcp`), CORS, paths.
 - **wrangler.jsonc** — Cloudflare Workers config (custom domain `mcp.canopyapi.co` in `production` env).
