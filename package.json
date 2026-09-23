@@ -8,9 +8,10 @@
     "node": ">=22.0.0"
   },
   "scripts": {
-    "build": "xmcp build --cf",
-    "dev": "xmcp build --cf && concurrently \"xmcp dev --cf\" \"wrangler dev\"",
-    "deploy": "xmcp build --cf && wrangler deploy --env production",
+    "build:widgets": "node scripts/build-widgets.mjs",
+    "build": "npm run build:widgets && xmcp build --cf",
+    "dev": "npm run build && concurrently \"xmcp dev --cf\" \"wrangler dev\"",
+    "deploy": "npm run build && wrangler deploy --env production",
     "delete": "wrangler delete",
     "generate": "openapi-typescript https://rest.canopyapi.co/api/v1/openapi.json --output src/types/api.d.ts",
     "test": "npm run build && node --test \"test/*.test.mjs\""
@@ -26,6 +27,7 @@
     "@openapitools/openapi-generator-cli": "^2.21.4",
     "@xmcp-dev/compiler": "^1.1.1",
     "concurrently": "^9.2.0",
+    "esbuild": "^0.27.3",
     "openapi-typescript": "^7.8.0",
     "typescript": "5.8.3",
     "wrangler": "^4.27.0"

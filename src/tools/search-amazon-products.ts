@@ -3,6 +3,7 @@ import { type InferSchema, type ToolMetadata, type ToolExtraArguments } from "xm
 import { createApiClient } from "../api-client";
 import { getApiKey } from "../lib/api-key";
 import { domainParam } from "../lib/domains";
+import { widgetToolMeta } from "../lib/widget-meta";
 
 export const schema = {
   searchTerm: z.string().describe("The search term for fetching search results"),
@@ -25,6 +26,7 @@ export const metadata: ToolMetadata = {
     destructiveHint: false,
     openWorldHint: true,
   },
+  _meta: widgetToolMeta("search", "Searching Amazon…", "Found Amazon products"),
 };
 
 export default async function searchAmazonProducts(params: InferSchema<typeof schema>, extra: ToolExtraArguments) {

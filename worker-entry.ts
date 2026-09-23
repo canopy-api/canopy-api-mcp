@@ -5,6 +5,7 @@
 // Kept outside tsconfig's rootDir; all real logic lives (type-checked) in src/lib.
 import worker from "./worker.js";
 import { handleWellKnown } from "./src/lib/oauth-metadata";
+import { handleOpenAiVerification } from "./src/lib/openai-verification";
 
 interface Env {
   SUPABASE_SERVICE_ROLE_KEY?: string;
@@ -17,6 +18,6 @@ export default {
     ctx: ExecutionContext,
   ): Promise<Response> {
     (globalThis as Record<string, unknown>).__CANOPY_WORKER_ENV = env;
-    return handleWellKnown(request) ?? worker.fetch(request, env, ctx);
+    return handleOpenAiVerification(request) ?? handleWellKnown(request) ?? worker.fetch(request, env, ctx);
   },
 };

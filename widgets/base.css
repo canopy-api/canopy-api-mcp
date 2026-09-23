@@ -1,0 +1,100 @@
+/* Shared widget styles, inlined into every widget document by scripts/build-widgets.mjs. */
+:root {
+  --fg: #191919;
+  --muted: #6f7780;
+  --border: #e4e6e9;
+  --card: #ffffff;
+  --chip: #f2f3f5;
+  --star: #e88a00;
+  --prime: #0f7fae;
+  --deal: #cc0c39;
+  --link: #0066c0;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fg: #ececec;
+    --muted: #9aa1a9;
+    --border: #3b3d40;
+    --card: #202123;
+    --chip: #2e2f32;
+    --star: #f0a13c;
+    --prime: #4fb3dc;
+    --deal: #ff5a6e;
+    --link: #6fb7ff;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: transparent; }
+body {
+  color: var(--fg);
+  font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+img { display: block; }
+
+.muted { color: var(--muted); }
+.small { font-size: 12px; }
+.bold { font-weight: 600; }
+.clamp2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.clamp3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+.chip {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--chip);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.chip.prime { color: var(--prime); }
+.chip.deal { background: var(--deal); color: #fff; }
+.chip.coupon { color: #1d7a3e; border: 1px dashed #1d7a3e; background: transparent; }
+
+.stars { position: relative; display: inline-block; font-size: 13px; line-height: 1; color: var(--border); white-space: nowrap; }
+.stars .fill {
+  position: absolute; top: 0; left: 0;
+  overflow: hidden; white-space: nowrap;
+  color: var(--star);
+}
+
+.price { font-weight: 700; font-size: 16px; }
+.price .strike { font-weight: 400; font-size: 12px; color: var(--muted); text-decoration: line-through; margin-left: 6px; }
+
+.empty { padding: 24px; text-align: center; color: var(--muted); }
+
+/* Horizontal card rail (search results, deals) */
+.rail {
+  display: flex; gap: 10px;
+  overflow-x: auto;
+  padding: 4px 2px 10px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+}
+.rail .card { scroll-snap-align: start; flex: 0 0 168px; }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.card .thumb {
+  height: 128px; width: 100%;
+  display: flex; align-items: center; justify-content: center;
+  background: #fff; border-radius: 8px;
+}
+.card .thumb img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.card .title { font-size: 12.5px; line-height: 1.35; min-height: 2.7em; }
+
+/* Stacked row list (offers, reviews, bestsellers) */
+.rows { display: flex; flex-direction: column; }
+.row { display: flex; gap: 12px; padding: 10px 2px; border-top: 1px solid var(--border); }
+.row:first-child { border-top: 0; }
+
+.header { display: flex; align-items: baseline; gap: 8px; padding: 2px 2px 8px; }
+.header .h-title { font-size: 15px; font-weight: 700; }

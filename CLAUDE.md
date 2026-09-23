@@ -5,7 +5,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Development Commands
 
 - `npm run dev` — xmcp watcher + `wrangler dev` (local Workers runtime, port 8787)
-- `npm run build` — `xmcp build --cf` (emits `worker.js` at the project root)
+- `npm run build` — widget bundling + `xmcp build --cf` (emits `worker.js` at the project root)
+- `npm run build:widgets` — bundle `widgets/*.ts` into generated string modules under `src/widgets/` (gitignored; runs automatically as part of `build`)
 - `npm run deploy` — build + `wrangler deploy --env production`
 - `npm run delete` — remove deployed Worker and resources
 - `npm run generate` — regenerate `src/types/api.d.ts` from `https://rest.canopyapi.co/api/v1/openapi.json`
@@ -17,6 +18,10 @@ MCP server providing Amazon product data through the Canopy API. Built with [xmc
 ### Layout
 
 - **src/tools/** — one file per tool, auto-discovered by xmcp. Each file exports `schema`, `metadata`, and a default async function.
+- **widgets/** — vanilla-TS widget sources (ChatGPT Apps / MCP Apps UI): `bridge.ts` (host bridge: `window.openai` with a JSON-RPC postMessage fallback), `format.ts` (HTML escaping + render helpers), `base.css`, and one entry per widget (`product`, `search`, `offers`, `reviews`, `bestsellers`, `deals`).
+- **scripts/build-widgets.mjs** — esbuild-bundles each widget into a self-contained HTML document and emits it as a string module in `src/widgets/` (gitignored) for the resource files to import.
+- **src/resources/(ui)/widget/** — one xmcp resource per widget, served as `ui://widget/<name>.html` with mimeType `text/html;profile=mcp-app`. Handlers return a full `ReadResourceResult` via `widgetResourceResult(...)` — a bare string return would drop the mimeType and CSP `_meta`.
+- **src/lib/widget-meta.ts** — `_meta` builders. Tools use the flat `"ui/resourceUri"` key + `"openai/outputTemplate"` alias. Never use xmcp's nested `_meta.ui` object on tools: it triggers xmcp's built-in widget mode, which auto-registers a `ui://app/<tool>.html` resource backed by the tool handler itself (reading it would call Canopy without an API key and throw). Also lists the Amazon image CDNs allowed by the widget CSP.
 - **worker-entry.ts** — wrapper around the generated `worker.js` (wrangler `main`). Serves `/.well-known/oauth-protected-resource[/mcp]` and stashes Worker env on `globalThis` for the middleware (xmcp's CF runtime 404s unknown paths and never passes env to middleware).
 - **src/middleware.ts** — `WebMiddleware` handling both auth modes: header API keys, and Supabase OAuth bearer JWTs (verified against JWKS, mapped to the user's `api_key`). Stores the resolved key via `context.setAuth({ token })`. Returns 401 with a `WWW-Authenticate` discovery header if no/invalid credentials.
 - **src/lib/supabase-auth.ts** — JWT detection/verification (jose), `sub` → `api_key` lookup via Supabase REST (service role key, 5-min in-isolate cache).
@@ -48,6 +53,8 @@ All tools are read-only (`readOnlyHint: true`) and carry an annotation `title` (
 15. `get_amazon_deals` — current Amazon deals
 16. `get_amazon_asin_from_gtin` — ASIN by ISBN/UPC/EAN
 17. `get_amazon_gtin_from_asin` — GTIN by ASIN
+
+Six tools render widgets in hosts that support MCP Apps / ChatGPT Apps UI: `get_amazon_product` (card), `search_amazon_products` (carousel), `get_amazon_product_offers` (offers list), `get_amazon_product_top_reviews` (reviews), `get_amazon_bestsellers` (ranked list), `get_amazon_deals` (deals carousel). Widgets are display-only: they render the tool's `structuredContent` (no network calls, links open on Amazon), so tools keep working unchanged in non-UI clients.
 
 ### Adding a tool
 

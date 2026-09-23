@@ -3,6 +3,7 @@ import { type InferSchema, type ToolMetadata, type ToolExtraArguments } from "xm
 import { createApiClient } from "../api-client";
 import { getApiKey } from "../lib/api-key";
 import { domainParam } from "../lib/domains";
+import { widgetToolMeta } from "../lib/widget-meta";
 
 export const schema = {
   asin: z.string().optional().describe("The ASIN for a product (e.g. B01HY0JA3G)"),
@@ -21,6 +22,7 @@ export const metadata: ToolMetadata = {
     destructiveHint: false,
     openWorldHint: true,
   },
+  _meta: widgetToolMeta("reviews", "Fetching top reviews…", "Loaded top reviews"),
 };
 
 export default async function getAmazonProductTopReviews(params: InferSchema<typeof schema>, extra: ToolExtraArguments) {

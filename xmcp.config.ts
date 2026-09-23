@@ -30,7 +30,7 @@ const config: XmcpConfig = {
   paths: {
     tools: "./src/tools",
     prompts: false,
-    resources: false,
+    resources: "./src/resources",
   },
   template: {
     name: "Canopy",

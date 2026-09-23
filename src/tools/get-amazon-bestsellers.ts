@@ -3,6 +3,7 @@ import { type InferSchema, type ToolMetadata, type ToolExtraArguments } from "xm
 import { createApiClient } from "../api-client";
 import { getApiKey } from "../lib/api-key";
 import { domainParam } from "../lib/domains";
+import { widgetToolMeta } from "../lib/widget-meta";
 
 export const schema = {
   domain: domainParam("The domain for fetching best sellers data, defaults to US"),
@@ -21,6 +22,7 @@ export const metadata: ToolMetadata = {
     destructiveHint: false,
     openWorldHint: true,
   },
+  _meta: widgetToolMeta("bestsellers", "Fetching best sellers…", "Loaded best sellers"),
 };
 
 export default async function getAmazonBestSellers(params: InferSchema<typeof schema>, extra: ToolExtraArguments) {
