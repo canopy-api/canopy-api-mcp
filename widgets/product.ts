@@ -1,6 +1,6 @@
 // Product card widget for get_amazon_product.
 import { boot, wireLinks } from "./bridge";
-import { bulletHtml, couponText, esc, imgHtml, priceHtml, starsHtml, emptyState, type Price } from "./format";
+import { bulletHtml, couponText, esc, imgHtml, priceHtml, skeletonHtml, starsHtml, emptyState, type Price } from "./format";
 
 interface Product {
   title?: string;
@@ -21,6 +21,7 @@ interface Product {
 
 const root = document.getElementById("root")!;
 wireLinks(root);
+root.innerHTML = skeletonHtml("hero");
 
 function render(output: unknown): void {
   const product = (output as { data?: { amazonProduct?: Product } })?.data?.amazonProduct;
@@ -31,7 +32,7 @@ function render(output: unknown): void {
 
   const chips: string[] = [];
   if (product.isPrime) chips.push(`<span class="chip prime">✓ Prime</span>`);
-  if (product.isInStock === false) chips.push(`<span class="chip">Out of stock</span>`);
+  if (product.isInStock === false) chips.push(`<span class="chip oos">Out of stock</span>`);
   const coupon = couponText(product.coupon?.label);
   if (coupon) chips.push(`<span class="chip coupon">${esc(coupon)}</span>`);
 

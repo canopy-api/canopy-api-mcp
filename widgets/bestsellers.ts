@@ -1,6 +1,6 @@
 // Ranked best sellers widget for get_amazon_bestsellers.
 import { boot, wireLinks } from "./bridge";
-import { esc, imgHtml, priceHtml, starsHtml, emptyState, type Price } from "./format";
+import { esc, imgHtml, priceHtml, skeletonHtml, starsHtml, emptyState, type Price } from "./format";
 
 interface BestSeller {
   title?: string;
@@ -24,6 +24,7 @@ interface BestSellersOutput {
 
 const root = document.getElementById("root")!;
 wireLinks(root);
+root.innerHTML = skeletonHtml("rows");
 
 function rankedRow(product: BestSeller, index: number): string {
   const rank = product.bestSellersRank ?? index + 1;
@@ -38,7 +39,7 @@ function rankedRow(product: BestSeller, index: number): string {
       </div>
       <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
         <div class="clamp2" style="font-size:13px">${title}</div>
-        <div class="small">${starsHtml(product.rating, product.ratingsTotal)}</div>
+        <div class="small">${starsHtml(product.rating, product.ratingsTotal, true)}</div>
       </div>
       <div style="text-align:right">${priceHtml(product.price)}</div>
     </div>`;

@@ -22,6 +22,14 @@ export function num(value: number | undefined): string {
   return typeof value === "number" ? value.toLocaleString() : "";
 }
 
+/** 49,280 → "49.3K" for tight layouts (search cards, bestseller rows). */
+export function compactNum(value: number | undefined): string {
+  if (typeof value !== "number") return "";
+  if (value < 10_000) return value.toLocaleString();
+  if (value < 1_000_000) return `${(value / 1_000).toFixed(value < 100_000 ? 1 : 0)}K`;
+  return `${(value / 1_000_000).toFixed(1)}M`;
+}
+
 export function priceText(price: Price | null | undefined): string {
   if (!price) return "";
   if (price.display) return price.display;
@@ -29,15 +37,24 @@ export function priceText(price: Price | null | undefined): string {
   return `${price.symbol ?? "$"}${price.value.toFixed(2)}`;
 }
 
-/** Fractional star rating, e.g. 4.3 → 86%-filled overlay of ★★★★★. */
-export function starsHtml(rating: number | undefined, ratingsTotal?: number): string {
+/** One row of five stars as inline SVG (identical rendering across host fonts). */
+function starRow(): string {
+  const star =
+    `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">` +
+    `<path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7L12 17.2l-6.2 3.7 1.6-7L2 9.2l7.1-.6z"/></svg>`;
+  return star.repeat(5);
+}
+
+/** Fractional star rating, e.g. 4.3 → 86%-wide colored overlay over grey stars. */
+export function starsHtml(rating: number | undefined, ratingsTotal?: number, compact = false): string {
   if (typeof rating !== "number") return "";
   const pct = Math.max(0, Math.min(100, (rating / 5) * 100));
-  const count = typeof ratingsTotal === "number" ? ` <span class="muted small">(${num(ratingsTotal)})</span>` : "";
+  const total = compact ? compactNum(ratingsTotal) : num(ratingsTotal);
+  const count = total ? ` <span class="muted small">(${total})</span>` : "";
   return (
-    `<span class="stars" aria-label="${rating.toFixed(1)} out of 5 stars">` +
-    `<span aria-hidden="true">★★★★★</span>` +
-    `<span class="fill" aria-hidden="true" style="width:${pct}%">★★★★★</span>` +
+    `<span class="stars" role="img" aria-label="${rating.toFixed(1)} out of 5 stars">` +
+    `<span style="display:inline-flex" aria-hidden="true">${starRow()}</span>` +
+    `<span class="fill" aria-hidden="true" style="width:${pct}%">${starRow()}</span>` +
     `</span> <span class="small muted">${rating.toFixed(1)}</span>${count}`
   );
 }
@@ -102,4 +119,43 @@ export function bulletHtml(text: string): string {
 
 export function emptyState(message: string): string {
   return `<div class="empty">${esc(message)}</div>`;
+}
+
+/**
+ * Placeholder shown between widget load and the host delivering the tool
+ * result (which can take a moment on the MCP Apps bridge).
+ */
+export function skeletonHtml(kind: "hero" | "rail" | "rows"): string {
+  if (kind === "hero") {
+    return `
+      <div style="display:flex;gap:14px;padding:2px" aria-hidden="true">
+        <div class="skel" style="flex:0 0 140px;height:160px"></div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+          <div class="skel" style="height:16px;width:85%"></div>
+          <div class="skel" style="height:12px;width:40%"></div>
+          <div class="skel" style="height:14px;width:55%"></div>
+          <div class="skel" style="height:12px;width:95%"></div>
+          <div class="skel" style="height:12px;width:90%"></div>
+        </div>
+      </div>`;
+  }
+  if (kind === "rail") {
+    const card = `
+      <div class="card" aria-hidden="true">
+        <div class="skel" style="height:128px"></div>
+        <div class="skel" style="height:12px;width:90%"></div>
+        <div class="skel" style="height:12px;width:60%"></div>
+        <div class="skel" style="height:14px;width:45%"></div>
+      </div>`;
+    return `<div class="rail">${card.repeat(4)}</div>`;
+  }
+  const row = `
+    <div class="row" aria-hidden="true">
+      <div class="skel" style="flex:0 0 56px;height:56px"></div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:6px;justify-content:center">
+        <div class="skel" style="height:12px;width:80%"></div>
+        <div class="skel" style="height:12px;width:45%"></div>
+      </div>
+    </div>`;
+  return `<div class="rows">${row.repeat(3)}</div>`;
 }

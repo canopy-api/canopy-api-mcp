@@ -1,6 +1,6 @@
 // Seller offers / Buy Box widget for get_amazon_product_offers.
 import { boot, wireLinks } from "./bridge";
-import { esc, priceText, priceHtml, emptyState, num, type Price } from "./format";
+import { esc, priceText, priceHtml, emptyState, num, skeletonHtml, type Price } from "./format";
 
 interface Offer {
   price?: Price | null;
@@ -28,6 +28,7 @@ interface OffersOutput {
 
 const root = document.getElementById("root")!;
 wireLinks(root);
+root.innerHTML = skeletonHtml("rows");
 
 function offerRow(offer: Offer): string {
   const seller = offer.seller;
@@ -41,8 +42,8 @@ function offerRow(offer: Offer): string {
         }</span>`
       : "";
   const chips: string[] = [];
-  if (offer.buyboxWinner) chips.push(`<span class="chip deal">Buy Box</span>`);
-  chips.push(`<span class="chip">${offer.conditionIsNew === false ? "Used" : "New"}</span>`);
+  if (offer.buyboxWinner) chips.push(`<span class="chip buybox">Buy Box</span>`);
+  if (offer.conditionIsNew === false) chips.push(`<span class="chip">Used</span>`);
   if (offer.isPrime) chips.push(`<span class="chip prime">✓ Prime</span>`);
   if (offer.delivery?.fulfilledByAmazon) chips.push(`<span class="chip">Fulfilled by Amazon</span>`);
   const shipPrice = priceText(offer.delivery?.price);

@@ -1,6 +1,6 @@
 // Search results carousel widget for search_amazon_products.
-import { boot, wireLinks } from "./bridge";
-import { couponText, esc, imgHtml, num, priceHtml, starsHtml, emptyState, type Price } from "./format";
+import { boot, refreshRails, wireLinks, wireRails } from "./bridge";
+import { couponText, esc, imgHtml, num, priceHtml, skeletonHtml, starsHtml, emptyState, type Price } from "./format";
 
 interface SearchResult {
   title?: string;
@@ -28,6 +28,8 @@ interface SearchOutput {
 
 const root = document.getElementById("root")!;
 wireLinks(root);
+wireRails(root);
+root.innerHTML = skeletonHtml("rail");
 
 function card(result: SearchResult): string {
   const badges: string[] = [];
@@ -42,9 +44,9 @@ function card(result: SearchResult): string {
     <div class="card">
       <div class="thumb">${imgHtml(result.mainImageUrl, result.title, 160)}</div>
       <div class="title clamp2">${title}</div>
-      <div class="small">${starsHtml(result.rating, result.ratingsTotal)}</div>
-      <div>${priceHtml(result.price)}</div>
-      ${badges.length ? `<div style="display:flex;gap:4px;flex-wrap:wrap">${badges.join("")}</div>` : ""}
+      <div class="small" style="min-height:17px">${starsHtml(result.rating, result.ratingsTotal, true)}</div>
+      <div style="min-height:23px">${priceHtml(result.price)}</div>
+      ${badges.length ? `<div class="foot" style="flex-direction:row;flex-wrap:wrap;gap:4px">${badges.join("")}</div>` : ""}
     </div>`;
 }
 
@@ -61,6 +63,7 @@ function render(output: unknown): void {
       ? `<div class="header small muted">${num(total)} results</div>`
       : "";
   root.innerHTML = `${header}<div class="rail">${results.map(card).join("")}</div>`;
+  refreshRails(root);
 }
 
 boot(render);

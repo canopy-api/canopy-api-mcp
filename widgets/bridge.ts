@@ -4,11 +4,29 @@
 
 type OpenAiGlobals = {
   toolOutput?: unknown;
+  theme?: string;
   openExternal?: (opts: { href: string }) => void;
 };
 
 function openai(): OpenAiGlobals | undefined {
   return (window as unknown as { openai?: OpenAiGlobals }).openai;
+}
+
+/**
+ * Apply the host-reported theme. This overrides the prefers-color-scheme
+ * fallback in base.css — the chat surface's theme, not the OS appearance,
+ * is what the widget must match.
+ */
+function applyTheme(theme: unknown): void {
+  if (theme !== "dark" && theme !== "light") return;
+  document.documentElement.dataset.theme = theme;
+}
+
+/** Pull a theme string out of loosely-shaped host payloads. */
+function themeOf(value: unknown): unknown {
+  if (value == null || typeof value !== "object") return undefined;
+  const obj = value as { theme?: unknown; hostContext?: { theme?: unknown } };
+  return obj.theme ?? obj.hostContext?.theme;
 }
 
 /**
@@ -18,10 +36,13 @@ function openai(): OpenAiGlobals | undefined {
 export function boot(render: (output: unknown) => void): void {
   const host = openai();
   if (host) {
+    applyTheme(host.theme);
     if (host.toolOutput != null) render(host.toolOutput);
     window.addEventListener("openai:set_globals", (event) => {
       const globals = (event as CustomEvent<{ globals?: OpenAiGlobals }>).detail?.globals;
-      if (globals && globals.toolOutput != null) render(globals.toolOutput);
+      if (!globals) return;
+      applyTheme(globals.theme);
+      if (globals.toolOutput != null) render(globals.toolOutput);
     });
     return;
   }
@@ -39,6 +60,7 @@ export function boot(render: (output: unknown) => void): void {
     const data = event.data as { id?: number; result?: unknown; method?: string; params?: unknown } | undefined;
     if (!data) return;
     if (data.id === INIT_ID && data.result != null) {
+      applyTheme(themeOf(data.result));
       post({ method: "ui/notifications/initialized", params: {} });
       const initial =
         extract((data.result as Record<string, unknown>).toolResult) ?? extract(data.result);
@@ -48,8 +70,25 @@ export function boot(render: (output: unknown) => void): void {
     if (data.method === "ui/notifications/tool-result") {
       const output = extract(data.params);
       if (output != null) render(output);
+      return;
+    }
+    // Theme changes arrive as host-context notifications.
+    if (typeof data.method === "string" && data.method.startsWith("ui/notifications/")) {
+      applyTheme(themeOf(data.params));
     }
   });
+  // Report content height so hosts size the iframe to fit instead of leaving
+  // blank space or clipping. ResizeObserver fires once on observe, covering
+  // the initial size too.
+  if (typeof ResizeObserver === "function") {
+    let lastHeight = 0;
+    new ResizeObserver(() => {
+      const height = Math.ceil(document.documentElement.scrollHeight);
+      if (height === lastHeight) return;
+      lastHeight = height;
+      post({ method: "ui/notifications/size-changed", params: { height } });
+    }).observe(document.body);
+  }
   post({
     id: INIT_ID,
     method: "ui/initialize",
@@ -69,6 +108,39 @@ export function openLink(url: string): void {
     return;
   }
   window.open(url, "_blank", "noopener");
+}
+
+/** Set a rail's edge-fade mask from its scroll position. */
+function syncRailFade(rail: HTMLElement): void {
+  const max = rail.scrollWidth - rail.clientWidth;
+  if (max <= 8) {
+    delete rail.dataset.fade;
+    return;
+  }
+  const left = rail.scrollLeft > 8;
+  const right = rail.scrollLeft < max - 8;
+  rail.dataset.fade = left && right ? "lr" : left ? "l" : right ? "r" : "";
+}
+
+/**
+ * Keep `.rail` edge fades in sync. Call once at startup; refreshRails() must
+ * be called after each render since innerHTML replaces the rail element.
+ * Scroll doesn't bubble, so the listener runs in the capture phase.
+ */
+export function wireRails(root: HTMLElement): void {
+  root.addEventListener(
+    "scroll",
+    (event) => {
+      const target = event.target as HTMLElement;
+      if (target.classList?.contains("rail")) syncRailFade(target);
+    },
+    true,
+  );
+  window.addEventListener("resize", () => refreshRails(root));
+}
+
+export function refreshRails(root: HTMLElement): void {
+  root.querySelectorAll<HTMLElement>(".rail").forEach(syncRailFade);
 }
 
 /**

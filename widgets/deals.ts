@@ -1,6 +1,6 @@
 // Deals grid widget for get_amazon_deals.
-import { boot, wireLinks } from "./bridge";
-import { esc, imgHtml, priceHtml, emptyState, type Price } from "./format";
+import { boot, refreshRails, wireLinks, wireRails } from "./bridge";
+import { esc, imgHtml, priceHtml, skeletonHtml, emptyState, type Price } from "./format";
 
 interface Deal {
   title?: string;
@@ -23,6 +23,8 @@ interface DealsOutput {
 
 const root = document.getElementById("root")!;
 wireLinks(root);
+wireRails(root);
+root.innerHTML = skeletonHtml("rail");
 
 function dealCard(deal: Deal): string {
   const url = deal.dealUrl || deal.url;
@@ -40,7 +42,7 @@ function dealCard(deal: Deal): string {
       <div class="thumb">${imgHtml(deal.mainImageUrl, deal.title, 160)}</div>
       ${badges.length ? `<div style="display:flex;gap:4px;flex-wrap:wrap">${badges.join("")}</div>` : ""}
       <div class="title clamp2">${title}</div>
-      <div>${priceHtml(current, was)}</div>
+      <div class="foot">${priceHtml(current, was)}</div>
     </div>`;
 }
 
@@ -53,6 +55,7 @@ function render(output: unknown): void {
   root.innerHTML = `
     <div class="header"><span class="h-title">Today’s deals</span></div>
     <div class="rail">${deals.map(dealCard).join("")}</div>`;
+  refreshRails(root);
 }
 
 boot(render);

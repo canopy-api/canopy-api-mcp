@@ -1,6 +1,6 @@
 // Top reviews widget for get_amazon_product_top_reviews.
 import { boot, wireLinks } from "./bridge";
-import { esc, num, starsHtml, imgHtml, emptyState } from "./format";
+import { esc, num, skeletonHtml, starsHtml, imgHtml, emptyState } from "./format";
 
 interface Review {
   title?: string;
@@ -18,11 +18,22 @@ interface ReviewsOutput {
 
 const root = document.getElementById("root")!;
 wireLinks(root);
+root.innerHTML = skeletonHtml("rows");
+
+// Expand/collapse long review bodies locally (no network needed).
+root.addEventListener("click", (event) => {
+  const button = (event.target as HTMLElement).closest<HTMLElement>("[data-expand]");
+  if (!button) return;
+  const body = button.parentElement?.querySelector("[data-body]");
+  if (!body) return;
+  const expanded = body.classList.toggle("clamp3") === false;
+  button.textContent = expanded ? "Show less" : "Read more";
+});
 
 function reviewRow(review: Review): string {
   const meta: string[] = [];
   if (review.reviewer?.name) meta.push(esc(review.reviewer.name));
-  if (review.verifiedPurchase) meta.push(`<span style="color:#1d7a3e">Verified purchase</span>`);
+  if (review.verifiedPurchase) meta.push(`<span style="color:var(--good)">Verified purchase</span>`);
   if (typeof review.helpfulVotes === "number" && review.helpfulVotes > 0) {
     meta.push(`${num(review.helpfulVotes)} found helpful`);
   }
@@ -39,7 +50,8 @@ function reviewRow(review: Review): string {
         ${starsHtml(review.rating)}
         ${review.title ? `<span class="bold">${esc(review.title)}</span>` : ""}
       </div>
-      ${review.body ? `<div class="clamp3 small" style="font-size:13px">${esc(review.body)}</div>` : ""}
+      ${review.body ? `<div class="clamp3 small" style="font-size:13px" data-body>${esc(review.body)}</div>` : ""}
+      ${review.body && review.body.length > 220 ? `<button class="more" type="button" data-expand>Read more</button>` : ""}
       ${images ? `<div style="display:flex;gap:6px">${images}</div>` : ""}
       ${meta.length ? `<div class="small muted">${meta.join(" · ")}</div>` : ""}
     </div>`;

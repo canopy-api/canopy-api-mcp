@@ -1,5 +1,9 @@
-/* Shared widget styles, inlined into every widget document by scripts/build-widgets.mjs. */
+/* Shared widget styles, inlined into every widget document by scripts/build-widgets.mjs.
+   Theming: the host's theme (ChatGPT `window.openai.theme`, MCP Apps hostContext) is
+   applied by bridge.ts as html[data-theme]; prefers-color-scheme is only the fallback
+   when the host doesn't say. The dark palette therefore appears twice below. */
 :root {
+  color-scheme: light dark;
   --fg: #191919;
   --muted: #6f7780;
   --border: #e4e6e9;
@@ -8,10 +12,25 @@
   --star: #e88a00;
   --prime: #0f7fae;
   --deal: #cc0c39;
+  --good: #1d7a3e;
   --link: #0066c0;
 }
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --fg: #ececec;
+  --muted: #9aa1a9;
+  --border: #3b3d40;
+  --card: #202123;
+  --chip: #2e2f32;
+  --star: #f0a13c;
+  --prime: #4fb3dc;
+  --deal: #ff5a6e;
+  --good: #4cba74;
+  --link: #6fb7ff;
+}
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --fg: #ececec;
     --muted: #9aa1a9;
     --border: #3b3d40;
@@ -20,6 +39,7 @@
     --star: #f0a13c;
     --prime: #4fb3dc;
     --deal: #ff5a6e;
+    --good: #4cba74;
     --link: #6fb7ff;
   }
 }
@@ -32,6 +52,11 @@ body {
 }
 a { color: var(--link); text-decoration: none; }
 a:hover { text-decoration: underline; }
+a:focus-visible, button:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
 img { display: block; }
 
 .muted { color: var(--muted); }
@@ -52,16 +77,20 @@ img { display: block; }
 }
 .chip.prime { color: var(--prime); }
 .chip.deal { background: var(--deal); color: #fff; }
-.chip.coupon { color: #1d7a3e; border: 1px dashed #1d7a3e; background: transparent; }
+.chip.buybox { background: var(--good); color: #fff; }
+.chip.oos { color: var(--deal); border: 1px solid var(--deal); background: transparent; }
+.chip.coupon { color: var(--good); border: 1px dashed var(--good); background: transparent; }
 
-.stars { position: relative; display: inline-block; font-size: 13px; line-height: 1; color: var(--border); white-space: nowrap; }
+/* SVG star rating: a grey row with a partially-revealed colored overlay. */
+.stars { position: relative; display: inline-flex; vertical-align: -2px; color: var(--border); }
+.stars svg { flex: 0 0 auto; }
 .stars .fill {
   position: absolute; top: 0; left: 0;
-  overflow: hidden; white-space: nowrap;
+  display: inline-flex; overflow: hidden;
   color: var(--star);
 }
 
-.price { font-weight: 700; font-size: 16px; }
+.price { font-weight: 700; font-size: 16px; font-variant-numeric: tabular-nums; }
 .price .strike { font-weight: 400; font-size: 12px; color: var(--muted); text-decoration: line-through; margin-left: 6px; }
 
 .empty { padding: 24px; text-align: center; color: var(--muted); }
@@ -99,7 +128,9 @@ img { display: block; }
 }
 .rank.top { background: var(--fg); color: var(--card); }
 
-/* Horizontal card rail (search results, deals) */
+/* Horizontal card rail (search results, deals). data-fade edge masks are kept
+   in sync with the scroll position by wireRails() in bridge.ts and hint that
+   there is more content to scroll to. */
 .rail {
   display: flex; gap: 10px;
   overflow-x: auto;
@@ -107,6 +138,9 @@ img { display: block; }
   scroll-snap-type: x mandatory;
   scrollbar-width: thin;
 }
+.rail[data-fade="r"] { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent); }
+.rail[data-fade="l"] { -webkit-mask-image: linear-gradient(to right, transparent, #000 40px); mask-image: linear-gradient(to right, transparent, #000 40px); }
+.rail[data-fade="lr"] { -webkit-mask-image: linear-gradient(to right, transparent, #000 40px, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(to right, transparent, #000 40px, #000 calc(100% - 40px), transparent); }
 .rail .card { scroll-snap-align: start; flex: 0 0 168px; }
 
 .card {
@@ -116,8 +150,10 @@ img { display: block; }
   padding: 10px;
   display: flex; flex-direction: column; gap: 6px;
 }
-.card .thumb { height: 128px; width: 100%; border: 0; }
+.card .thumb { height: 128px; width: 100%; border: 0; flex: 0 0 auto; }
 .card .title { font-size: 12.5px; line-height: 1.35; min-height: 2.7em; }
+/* Pins price + chips to the card bottom so carousel cards align. */
+.card .foot { margin-top: auto; display: flex; flex-direction: column; gap: 6px; }
 
 /* Stacked row list (offers, reviews, bestsellers) */
 .rows { display: flex; flex-direction: column; }
@@ -126,3 +162,16 @@ img { display: block; }
 
 .header { display: flex; align-items: baseline; gap: 8px; padding: 2px 2px 8px; }
 .header .h-title { font-size: 15px; font-weight: 700; }
+
+/* Expand/collapse toggle (review bodies). */
+.more {
+  border: 0; padding: 0; background: none;
+  color: var(--link); font: inherit; font-size: 12px; font-weight: 600;
+  cursor: pointer; align-self: flex-start;
+}
+.more:hover { text-decoration: underline; }
+
+/* Loading skeleton shown until the host delivers the tool result. */
+.skel { background: var(--chip); border-radius: 8px; animation: skel-pulse 1.4s ease-in-out infinite; }
+@keyframes skel-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+@media (prefers-reduced-motion: reduce) { .skel { animation: none; } }
