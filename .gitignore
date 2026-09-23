@@ -5,9 +5,12 @@ node_modules
 dist
 .xmcp
 worker.js
+# Generated widget HTML modules (scripts/build-widgets.mjs)
+src/widgets/
 xmcp-env.d.ts
 .dev.vars
 
 # Local submission notes, not for the public repo
 DIRECTORY_SUBMISSION.md
 CODEX_MARKETPLACE_SUBMISSION.md
+chatgpt-app-submission.json
