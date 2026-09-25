@@ -1,6 +1,6 @@
 // Deals grid widget for get_amazon_deals.
 import { boot, refreshRails, wireLinks, wireRails } from "./bridge";
-import { esc, imgHtml, priceHtml, skeletonHtml, emptyState, type Price } from "./format";
+import { esc, imgHtml, priceHtml, railNavHtml, skeletonHtml, emptyState, type Price } from "./format";
 
 interface Deal {
   title?: string;
@@ -31,16 +31,19 @@ function dealCard(deal: Deal): string {
   const title = url ? `<a href="${esc(url)}">${esc(deal.title ?? "")}</a>` : esc(deal.title ?? "");
   const current = deal.dealCurrentPrice ?? deal.dealPrice ?? deal.price;
   const was = deal.dealListPrice ?? deal.recommendedRetailPrice;
-  const badges: string[] = [];
-  if (typeof deal.dealPercentOff === "number" && deal.dealPercentOff > 0) {
-    badges.push(`<span class="chip deal">-${Math.round(deal.dealPercentOff)}%</span>`);
-  }
-  if (deal.dealIsLightningDeal) badges.push(`<span class="chip">⚡ Lightning</span>`);
-  else if (deal.dealBadge) badges.push(`<span class="chip">${esc(deal.dealBadge)}</span>`);
+  const off =
+    typeof deal.dealPercentOff === "number" && deal.dealPercentOff > 0
+      ? `<span class="chip deal on-img">-${Math.round(deal.dealPercentOff)}%</span>`
+      : "";
+  const kind = deal.dealIsLightningDeal
+    ? `<div class="deal-kind hot">⚡ Lightning deal</div>`
+    : deal.dealBadge
+      ? `<div class="deal-kind">${esc(deal.dealBadge)}</div>`
+      : "";
   return `
     <div class="card">
-      <div class="thumb">${imgHtml(deal.mainImageUrl, deal.title, 160)}</div>
-      ${badges.length ? `<div style="display:flex;gap:4px;flex-wrap:wrap">${badges.join("")}</div>` : ""}
+      <div class="thumb">${imgHtml(deal.mainImageUrl, deal.title, 160)}${off}</div>
+      ${kind}
       <div class="title clamp2">${title}</div>
       <div class="foot">${priceHtml(current, was)}</div>
     </div>`;
@@ -53,7 +56,7 @@ function render(output: unknown): void {
     return;
   }
   root.innerHTML = `
-    <div class="header"><span class="h-title">Today’s deals</span></div>
+    <div class="header"><span class="h-title">Today’s deals</span>${railNavHtml()}</div>
     <div class="rail">${deals.map(dealCard).join("")}</div>`;
   refreshRails(root);
 }

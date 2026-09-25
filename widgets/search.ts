@@ -1,6 +1,6 @@
 // Search results carousel widget for search_amazon_products.
 import { boot, refreshRails, wireLinks, wireRails } from "./bridge";
-import { couponText, esc, imgHtml, num, priceHtml, skeletonHtml, starsHtml, emptyState, type Price } from "./format";
+import { couponText, esc, imgHtml, num, priceHtml, railNavHtml, skeletonHtml, starsHtml, emptyState, type Price } from "./format";
 
 interface SearchResult {
   title?: string;
@@ -58,10 +58,8 @@ function render(output: unknown): void {
     return;
   }
   const total = productResults?.pageInfo?.totalResults;
-  const header =
-    typeof total === "number"
-      ? `<div class="header small muted">${num(total)} results</div>`
-      : "";
+  const count = typeof total === "number" ? `<span class="small muted">${num(total)} results</span>` : "";
+  const header = `<div class="header">${count}${railNavHtml()}</div>`;
   root.innerHTML = `${header}<div class="rail">${results.map(card).join("")}</div>`;
   refreshRails(root);
 }

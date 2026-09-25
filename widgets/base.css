@@ -58,6 +58,8 @@ a:focus-visible, button:focus-visible {
   border-radius: 4px;
 }
 img { display: block; }
+/* Hosts (Claude, ChatGPT) frame the widget iframe without inner padding. */
+#root { padding: 10px 12px; }
 
 .muted { color: var(--muted); }
 .small { font-size: 12px; }
@@ -77,7 +79,7 @@ img { display: block; }
 }
 .chip.prime { color: var(--prime); }
 .chip.deal { background: var(--deal); color: #fff; }
-.chip.buybox { background: var(--good); color: #fff; }
+.chip.buybox { background: color-mix(in srgb, var(--good) 20%, transparent); color: var(--good); }
 .chip.oos { color: var(--deal); border: 1px solid var(--deal); background: transparent; }
 .chip.coupon { color: var(--good); border: 1px dashed var(--good); background: transparent; }
 
@@ -126,7 +128,31 @@ img { display: block; }
   font-size: 12px; font-weight: 700;
   align-self: center;
 }
-.rank.top { background: var(--fg); color: var(--card); }
+.rank.top {
+  background: color-mix(in srgb, var(--star) 18%, transparent);
+  color: var(--star);
+}
+
+/* Product card (get_amazon_product): hero row + full-width "About" bullets. */
+.hero { display: flex; gap: 16px; align-items: stretch; }
+.hero-img { flex: 0 0 140px; height: 140px; border-radius: 10px; }
+.hero-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.eyebrow { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.01em; }
+.hero-title { font-size: 15px; font-weight: 600; line-height: 1.35; }
+.hero-title a { color: inherit; }
+.hero-title a:hover { color: var(--link); text-decoration: none; }
+.hero-price { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
+.hero-price .price { font-size: 18px; }
+.hero-cta { margin-top: auto; padding-top: 8px; }
+.about { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+.about-h { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+.bullets { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 13px; line-height: 1.45; color: var(--muted); }
+.bullets li { position: relative; padding-left: 14px; }
+.bullets li::before {
+  content: ""; position: absolute; left: 2px; top: 0.6em;
+  width: 4px; height: 4px; border-radius: 50%; background: var(--muted);
+}
+.bullets .lead { color: var(--fg); font-weight: 600; }
 
 /* Horizontal card rail (search results, deals). data-fade edge masks are kept
    in sync with the scroll position by wireRails() in bridge.ts and hint that
@@ -136,8 +162,9 @@ img { display: block; }
   overflow-x: auto;
   padding: 4px 2px 10px;
   scroll-snap-type: x mandatory;
-  scrollbar-width: thin;
+  scrollbar-width: none; /* the ‹ › header buttons and edge fades replace it */
 }
+.rail::-webkit-scrollbar { display: none; }
 .rail[data-fade="r"] { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent); }
 .rail[data-fade="l"] { -webkit-mask-image: linear-gradient(to right, transparent, #000 40px); mask-image: linear-gradient(to right, transparent, #000 40px); }
 .rail[data-fade="lr"] { -webkit-mask-image: linear-gradient(to right, transparent, #000 40px, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(to right, transparent, #000 40px, #000 calc(100% - 40px), transparent); }
@@ -150,7 +177,13 @@ img { display: block; }
   padding: 10px;
   display: flex; flex-direction: column; gap: 6px;
 }
-.card .thumb { height: 128px; width: 100%; border: 0; flex: 0 0 auto; }
+.card .thumb { position: relative; height: 128px; width: 100%; border: 0; flex: 0 0 auto; }
+.card .title a { color: inherit; }
+.card .title a:hover { color: var(--link); text-decoration: none; }
+/* Deal discount pinned to the image corner. */
+.chip.on-img { position: absolute; top: 6px; left: 6px; }
+.deal-kind { font-size: 11px; font-weight: 600; color: var(--muted); }
+.deal-kind.hot { color: var(--deal); }
 .card .title { font-size: 12.5px; line-height: 1.35; min-height: 2.7em; }
 /* Pins price + chips to the card bottom so carousel cards align. */
 .card .foot { margin-top: auto; display: flex; flex-direction: column; gap: 6px; }
@@ -160,8 +193,45 @@ img { display: block; }
 .row { display: flex; gap: 12px; padding: 10px 2px; border-top: 1px solid var(--border); }
 .row:first-child { border-top: 0; }
 
+/* Offers list */
+.row.offer { align-items: flex-start; padding: 12px 2px; }
+.o-seller { font-weight: 600; color: var(--fg); }
+a.o-seller:hover { color: var(--link); text-decoration: none; }
+
+/* Ranked list (bestsellers): the whole row is a link. Negative margins let the
+   hover wash reach the widget edge while the content stays aligned. */
+.row.ranked {
+  position: relative;
+  align-items: center; gap: 14px;
+  margin: 0 -8px; padding: 12px 8px;
+  border-top: 0; border-radius: 10px;
+  color: inherit;
+  transition: background-color 120ms ease;
+}
+/* Inset divider (a border would curve with the hover radius). */
+.row.ranked + .row.ranked::before {
+  content: ""; position: absolute; top: 0; left: 8px; right: 8px;
+  border-top: 1px solid var(--border);
+}
+.row.ranked:hover { text-decoration: none; background: var(--chip); }
+.row.ranked:hover::before, .row.ranked:hover + .row.ranked::before { border-top-color: transparent; }
+.row.ranked .r-title { font-size: 13.5px; font-weight: 500; line-height: 1.35; }
+.row.ranked:hover .r-title { color: var(--link); }
+.row.ranked .r-price { flex: 0 0 auto; text-align: right; padding-left: 4px; }
+
 .header { display: flex; align-items: baseline; gap: 8px; padding: 2px 2px 8px; }
 .header .h-title { font-size: 15px; font-weight: 700; }
+.rail-nav { margin-left: auto; display: flex; gap: 6px; align-self: center; }
+.rail-nav button {
+  width: 28px; height: 28px; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); border-radius: 999px;
+  background: var(--card); color: var(--fg); cursor: pointer;
+  transition: background-color 120ms ease, opacity 120ms ease;
+}
+.rail-nav button[hidden] { display: none; }
+.rail-nav button:hover:not(:disabled) { background: var(--chip); }
+.rail-nav button:disabled { opacity: 0.35; cursor: default; }
 
 /* Expand/collapse toggle (review bodies). */
 .more {

@@ -1,6 +1,6 @@
 // Ranked best sellers widget for get_amazon_bestsellers.
 import { boot, wireLinks } from "./bridge";
-import { esc, imgHtml, priceHtml, skeletonHtml, starsHtml, emptyState, type Price } from "./format";
+import { cappedTitle, esc, imgHtml, priceHtml, skeletonHtml, starsHtml, emptyState, type Price } from "./format";
 
 interface BestSeller {
   title?: string;
@@ -26,23 +26,23 @@ const root = document.getElementById("root")!;
 wireLinks(root);
 root.innerHTML = skeletonHtml("rows");
 
+// The whole row is the link (bigger hit target, row hover state).
 function rankedRow(product: BestSeller, index: number): string {
   const rank = product.bestSellersRank ?? index + 1;
-  const title = product.url
-    ? `<a href="${esc(product.url)}">${esc(product.title ?? "")}</a>`
-    : esc(product.title ?? "");
+  const tag = product.url ? "a" : "div";
+  const href = product.url ? ` href="${esc(product.url)}"` : "";
   return `
-    <div class="row" style="align-items:center">
+    <${tag} class="row ranked"${href}>
       <div class="rank${rank <= 3 ? " top" : ""}">${rank}</div>
       <div class="thumb" style="flex:0 0 56px;height:56px">
         ${imgHtml(product.mainImageUrl, product.title, 56)}
       </div>
-      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
-        <div class="clamp2" style="font-size:13px">${title}</div>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px">
+        <div class="r-title clamp2">${esc(cappedTitle(product.title))}</div>
         <div class="small">${starsHtml(product.rating, product.ratingsTotal, true)}</div>
       </div>
-      <div style="text-align:right">${priceHtml(product.price)}</div>
-    </div>`;
+      <div class="r-price">${priceHtml(product.price)}</div>
+    </${tag}>`;
 }
 
 function render(output: unknown): void {

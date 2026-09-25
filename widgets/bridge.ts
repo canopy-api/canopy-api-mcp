@@ -55,6 +55,13 @@ export function boot(render: (output: unknown) => void): void {
     const obj = value as Record<string, unknown>;
     return obj.structuredContent ?? (obj.result as Record<string, unknown> | undefined)?.structuredContent;
   };
+  let lastHeight = 0;
+  const reportSize = (force = false): void => {
+    const height = Math.ceil(document.documentElement.scrollHeight);
+    if (!force && height === lastHeight) return;
+    lastHeight = height;
+    post({ method: "ui/notifications/size-changed", params: { height } });
+  };
   window.addEventListener("message", (event) => {
     if (event.source !== window.parent) return;
     const data = event.data as { id?: number; result?: unknown; method?: string; params?: unknown } | undefined;
@@ -62,6 +69,9 @@ export function boot(render: (output: unknown) => void): void {
     if (data.id === INIT_ID && data.result != null) {
       applyTheme(themeOf(data.result));
       post({ method: "ui/notifications/initialized", params: {} });
+      // Hosts may drop size reports sent before the handshake completes (the
+      // skeleton's first report), leaving a default-height iframe that scrolls.
+      reportSize(true);
       const initial =
         extract((data.result as Record<string, unknown>).toolResult) ?? extract(data.result);
       if (initial != null) render(initial);
@@ -81,13 +91,7 @@ export function boot(render: (output: unknown) => void): void {
   // blank space or clipping. ResizeObserver fires once on observe, covering
   // the initial size too.
   if (typeof ResizeObserver === "function") {
-    let lastHeight = 0;
-    new ResizeObserver(() => {
-      const height = Math.ceil(document.documentElement.scrollHeight);
-      if (height === lastHeight) return;
-      lastHeight = height;
-      post({ method: "ui/notifications/size-changed", params: { height } });
-    }).observe(document.body);
+    new ResizeObserver(() => reportSize()).observe(document.body);
   }
   post({
     id: INIT_ID,
@@ -110,16 +114,21 @@ export function openLink(url: string): void {
   window.open(url, "_blank", "noopener");
 }
 
-/** Set a rail's edge-fade mask from its scroll position. */
+/**
+ * Set a rail's edge-fade mask from its scroll position, and enable/disable the
+ * ‹ › nav buttons (railNavHtml) that share its parent. Buttons are hidden
+ * entirely when everything fits.
+ */
 function syncRailFade(rail: HTMLElement): void {
   const max = rail.scrollWidth - rail.clientWidth;
-  if (max <= 8) {
-    delete rail.dataset.fade;
-    return;
-  }
-  const left = rail.scrollLeft > 8;
-  const right = rail.scrollLeft < max - 8;
-  rail.dataset.fade = left && right ? "lr" : left ? "l" : right ? "r" : "";
+  const left = max > 8 && rail.scrollLeft > 8;
+  const right = max > 8 && rail.scrollLeft < max - 8;
+  if (max <= 8) delete rail.dataset.fade;
+  else rail.dataset.fade = left && right ? "lr" : left ? "l" : right ? "r" : "";
+  rail.parentElement?.querySelectorAll<HTMLButtonElement>("[data-rail-nav]").forEach((button) => {
+    button.hidden = max <= 8;
+    button.disabled = button.dataset.railNav === "prev" ? !left : !right;
+  });
 }
 
 /**
@@ -136,6 +145,14 @@ export function wireRails(root: HTMLElement): void {
     },
     true,
   );
+  root.addEventListener("click", (event) => {
+    const button = (event.target as HTMLElement).closest<HTMLElement>("[data-rail-nav]");
+    const rail = root.querySelector<HTMLElement>(".rail"); // one rail per widget
+    if (!button || !rail) return;
+    const step = rail.clientWidth * 0.8 * (button.dataset.railNav === "prev" ? -1 : 1);
+    const smooth = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    rail.scrollBy({ left: step, behavior: smooth ? "smooth" : "auto" });
+  });
   window.addEventListener("resize", () => refreshRails(root));
 }
 

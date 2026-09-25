@@ -106,15 +106,38 @@ export function imgHtml(url: string | undefined, alt: string | undefined, displa
 }
 
 /**
- * Amazon feature bullets often start with a shouty ALL-CAPS label
- * ("ENJOY OPTIMUM FLAVOR: The grinder…"). Render the label as a bold
- * sentence-case lead-in and clamp each bullet to two lines.
+ * Amazon feature bullets usually start with a label ("Speedy 30W Charging: …",
+ * often shouty ALL-CAPS). Render the label as a bold lead-in (sentence-cased
+ * when all caps) and clamp each bullet to two lines.
  */
 export function bulletHtml(text: string): string {
-  const match = /^([A-Z][A-Z0-9 ,'’&/.-]{2,60}?):\s*(.+)$/.exec(text.trim());
-  if (!match) return `<li class="clamp2">${esc(text)}</li>`;
-  const label = match[1].charAt(0) + match[1].slice(1).toLowerCase();
-  return `<li class="clamp2"><span class="bold">${esc(label)}:</span> ${esc(match[2])}</li>`;
+  const match = /^([^:.!?]{3,48}):\s*(.+)$/s.exec(text.trim());
+  if (!match) return `<li><span class="clamp2">${esc(text)}</span></li>`;
+  let label = match[1].trim();
+  if (label === label.toUpperCase()) label = label.charAt(0) + label.slice(1).toLowerCase();
+  return `<li><span class="clamp2"><span class="lead">${esc(label)}.</span> ${esc(match[2])}</span></li>`;
+}
+
+/**
+ * Amazon's best seller pages cut titles at a fixed length, usually mid-word
+ * ("…Travel Ess"). When a title hits that cap, drop the partial last word and
+ * any dangling separators, then add an ellipsis.
+ */
+export function cappedTitle(title: string | undefined, cap = 120): string {
+  const text = (title ?? "").trim();
+  if (text.length < cap) return text;
+  const cut = text.slice(0, text.lastIndexOf(" ")).replace(/[\s|,;:&/([\-–—]+$/, "");
+  return cut ? `${cut}…` : text;
+}
+
+/** ‹ › buttons for a card rail; wired and kept in sync by wireRails(). */
+export function railNavHtml(): string {
+  const icon = (d: string) =>
+    `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
+  return `<div class="rail-nav">
+    <button type="button" data-rail-nav="prev" aria-label="Scroll left" hidden>${icon("M15 18l-6-6 6-6")}</button>
+    <button type="button" data-rail-nav="next" aria-label="Scroll right" hidden>${icon("M9 18l6-6-6-6")}</button>
+  </div>`;
 }
 
 export function emptyState(message: string): string {
@@ -128,8 +151,8 @@ export function emptyState(message: string): string {
 export function skeletonHtml(kind: "hero" | "rail" | "rows"): string {
   if (kind === "hero") {
     return `
-      <div style="display:flex;gap:14px;padding:2px" aria-hidden="true">
-        <div class="skel" style="flex:0 0 140px;height:160px"></div>
+      <div class="hero" aria-hidden="true">
+        <div class="skel" style="flex:0 0 140px;height:140px"></div>
         <div style="flex:1;display:flex;flex-direction:column;gap:8px">
           <div class="skel" style="height:16px;width:85%"></div>
           <div class="skel" style="height:12px;width:40%"></div>

@@ -37,30 +37,31 @@ function render(output: unknown): void {
   if (coupon) chips.push(`<span class="chip coupon">${esc(coupon)}</span>`);
 
   const bullets = (product.featureBullets ?? []).slice(0, 3).map(bulletHtml).join("");
-
-  const titleHtml = product.url
-    ? `<a href="${esc(product.url)}" class="bold">${esc(product.title ?? "Amazon product")}</a>`
-    : `<span class="bold">${esc(product.title ?? "Amazon product")}</span>`;
+  const title = esc(product.title ?? "Amazon product");
+  const titleHtml = product.url ? `<a href="${esc(product.url)}">${title}</a>` : title;
 
   root.innerHTML = `
-    <div style="display:flex;gap:14px;padding:2px">
-      <div class="thumb" style="flex:0 0 140px;height:160px;border-radius:10px">
-        ${imgHtml(product.mainImageUrl, product.title, 160)}
+    <div class="hero">
+      <div class="thumb hero-img">${imgHtml(product.mainImageUrl, product.title, 140)}</div>
+      <div class="hero-body">
+        ${product.brand ? `<div class="eyebrow">${esc(product.brand)}</div>` : ""}
+        <div class="hero-title clamp2">${titleHtml}</div>
+        <div class="small">${starsHtml(product.rating, product.ratingsTotal)}</div>
+        <div class="hero-price">
+          ${priceHtml(product.price)}
+          ${chips.join("")}
+        </div>
+        ${product.url ? `<div class="hero-cta"><a href="${esc(product.url)}" class="btn">View on Amazon →</a></div>` : ""}
       </div>
-      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:5px">
-        <div style="font-size:15px;line-height:1.35" class="clamp2">${titleHtml}</div>
-        ${product.brand ? `<div class="small muted">by ${esc(product.brand)}</div>` : ""}
-        <div>${starsHtml(product.rating, product.ratingsTotal)}</div>
-        <div>${priceHtml(product.price)}</div>
-        ${chips.length ? `<div style="display:flex;gap:6px;flex-wrap:wrap">${chips.join("")}</div>` : ""}
-        ${bullets ? `<ul class="small muted" style="margin:2px 0 0;padding-left:16px;display:flex;flex-direction:column;gap:3px">${bullets}</ul>` : ""}
-        ${
-          product.url
-            ? `<div style="margin-top:8px"><a href="${esc(product.url)}" class="btn">View on Amazon →</a></div>`
-            : ""
-        }
-      </div>
-    </div>`;
+    </div>
+    ${
+      bullets
+        ? `<div class="about">
+            <div class="about-h">About this item</div>
+            <ul class="bullets">${bullets}</ul>
+          </div>`
+        : ""
+    }`;
 }
 
 boot(render);
