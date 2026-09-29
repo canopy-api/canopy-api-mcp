@@ -106,16 +106,28 @@ export function imgHtml(url: string | undefined, alt: string | undefined, displa
 }
 
 /**
- * Amazon feature bullets usually start with a label ("Speedy 30W Charging: …",
- * often shouty ALL-CAPS). Render the label as a bold lead-in (sentence-cased
- * when all caps) and clamp each bullet to two lines.
+ * Amazon feature bullets usually start with a label, in one of several shapes:
+ * "Speedy 30W Charging: …", "[45dB ANC] …", "【Long Battery】 …", "Stereo
+ * sound - …" (often shouty ALL-CAPS). Split it off so it can render as a
+ * heading, sentence-cased when all caps.
  */
-export function bulletHtml(text: string): string {
-  const match = /^([^:.!?]{3,48}):\s*(.+)$/s.exec(text.trim());
-  if (!match) return `<li><span class="clamp2">${esc(text)}</span></li>`;
+function splitBullet(text: string): { label: string; body: string } {
+  const clean = text.replace(/\s+/g, " ").trim();
+  const match =
+    /^[[【(]\s*([^\]】)]{3,60}?)\s*[\]】)]\s*[:\-–—]?\s*(.+)$/.exec(clean) ??
+    /^([^:.!?[\]]{3,48}?)\s*(?::|\s[-–—])\s*(.+)$/.exec(clean);
+  if (!match) return { label: "", body: clean };
   let label = match[1].trim();
-  if (label === label.toUpperCase()) label = label.charAt(0) + label.slice(1).toLowerCase();
-  return `<li><span class="clamp2"><span class="lead">${esc(label)}.</span> ${esc(match[2])}</span></li>`;
+  if (label === label.toUpperCase() && /[A-Z]{3}/.test(label)) {
+    label = label.charAt(0) + label.slice(1).toLowerCase();
+  }
+  return { label, body: match[2] };
+}
+
+/** One highlight tile: optional label heading plus a clamped description. */
+export function bulletHtml(text: string): string {
+  const { label, body } = splitBullet(text);
+  return `<li>${label ? `<div class="lead">${esc(label)}</div>` : ""}<div class="desc clamp2">${esc(body)}</div></li>`;
 }
 
 /**
@@ -140,6 +152,17 @@ export function railNavHtml(): string {
   </div>`;
 }
 
+/**
+ * True when the tool result doesn't carry the expected root object, e.g. an
+ * upstream failure that Canopy passes through as `{ data: { <key>: null },
+ * errors: [...] }` (nulls are stripped server-side). Widgets show a load error
+ * for this instead of claiming there are no results.
+ */
+export function failedLoad(output: unknown, key: string): boolean {
+  const obj = output as { data?: Record<string, unknown>; errors?: unknown[] } | null;
+  return obj?.data?.[key] == null || (Array.isArray(obj?.errors) && obj.errors.length > 0);
+}
+
 export function emptyState(message: string): string {
   return `<div class="empty">${esc(message)}</div>`;
 }
@@ -152,7 +175,7 @@ export function skeletonHtml(kind: "hero" | "rail" | "rows"): string {
   if (kind === "hero") {
     return `
       <div class="hero" aria-hidden="true">
-        <div class="skel" style="flex:0 0 140px;height:140px"></div>
+        <div class="skel" style="flex:0 0 132px;height:132px"></div>
         <div style="flex:1;display:flex;flex-direction:column;gap:8px">
           <div class="skel" style="height:16px;width:85%"></div>
           <div class="skel" style="height:12px;width:40%"></div>

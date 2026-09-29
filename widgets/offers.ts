@@ -1,6 +1,6 @@
 // Seller offers / Buy Box widget for get_amazon_product_offers.
 import { boot, wireLinks } from "./bridge";
-import { esc, priceText, priceHtml, emptyState, num, skeletonHtml, type Price } from "./format";
+import { esc, priceText, priceHtml, emptyState, failedLoad, num, skeletonHtml, type Price } from "./format";
 
 interface Offer {
   price?: Price | null;
@@ -91,6 +91,10 @@ function offerRow(offer: Offer): string {
 }
 
 function render(output: unknown): void {
+  if (failedLoad(output, "amazonProduct")) {
+    root.innerHTML = emptyState("Couldn’t load offers from Amazon. Try again in a moment.");
+    return;
+  }
   const offers = (output as OffersOutput)?.data?.amazonProduct?.offersPaginated?.offers ?? [];
   if (offers.length === 0) {
     root.innerHTML = emptyState("No offers found for this product.");

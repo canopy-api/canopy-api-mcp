@@ -1,6 +1,6 @@
 // Search results carousel widget for search_amazon_products.
 import { boot, refreshRails, wireLinks, wireRails } from "./bridge";
-import { couponText, esc, imgHtml, num, priceHtml, railNavHtml, skeletonHtml, starsHtml, emptyState, type Price } from "./format";
+import { couponText, esc, imgHtml, num, priceHtml, railNavHtml, skeletonHtml, starsHtml, emptyState, failedLoad, type Price } from "./format";
 
 interface SearchResult {
   title?: string;
@@ -51,6 +51,10 @@ function card(result: SearchResult): string {
 }
 
 function render(output: unknown): void {
+  if (failedLoad(output, "amazonProductSearchResults")) {
+    root.innerHTML = emptyState("Couldn’t load search results from Amazon. Try again in a moment.");
+    return;
+  }
   const productResults = (output as SearchOutput)?.data?.amazonProductSearchResults?.productResults;
   const results = productResults?.results ?? [];
   if (results.length === 0) {

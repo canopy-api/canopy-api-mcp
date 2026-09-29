@@ -1,6 +1,6 @@
 // Top reviews widget for get_amazon_product_top_reviews.
 import { boot, wireLinks } from "./bridge";
-import { esc, num, skeletonHtml, starsHtml, imgHtml, emptyState } from "./format";
+import { esc, num, skeletonHtml, starsHtml, imgHtml, emptyState, failedLoad } from "./format";
 
 interface Review {
   title?: string;
@@ -58,6 +58,10 @@ function reviewRow(review: Review): string {
 }
 
 function render(output: unknown): void {
+  if (failedLoad(output, "amazonProduct")) {
+    root.innerHTML = emptyState("Couldn’t load reviews from Amazon. Try again in a moment.");
+    return;
+  }
   const reviews = (output as ReviewsOutput)?.data?.amazonProduct?.topReviews ?? [];
   if (reviews.length === 0) {
     root.innerHTML = emptyState("No reviews found for this product.");

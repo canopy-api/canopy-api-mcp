@@ -1,6 +1,6 @@
 // Ranked best sellers widget for get_amazon_bestsellers.
 import { boot, wireLinks } from "./bridge";
-import { cappedTitle, esc, imgHtml, priceHtml, skeletonHtml, starsHtml, emptyState, type Price } from "./format";
+import { cappedTitle, esc, imgHtml, priceHtml, skeletonHtml, starsHtml, emptyState, failedLoad, type Price } from "./format";
 
 interface BestSeller {
   title?: string;
@@ -46,6 +46,10 @@ function rankedRow(product: BestSeller, index: number): string {
 }
 
 function render(output: unknown): void {
+  if (failedLoad(output, "amazonBestSellers")) {
+    root.innerHTML = emptyState("Couldn’t load best sellers from Amazon. Try again in a moment.");
+    return;
+  }
   const bestSellers = (output as BestSellersOutput)?.data?.amazonBestSellers;
   const results = bestSellers?.productResults?.results ?? [];
   if (results.length === 0) {

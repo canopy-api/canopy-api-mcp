@@ -1,6 +1,6 @@
 // Deals grid widget for get_amazon_deals.
 import { boot, refreshRails, wireLinks, wireRails } from "./bridge";
-import { esc, imgHtml, priceHtml, railNavHtml, skeletonHtml, emptyState, type Price } from "./format";
+import { esc, imgHtml, priceHtml, railNavHtml, skeletonHtml, emptyState, failedLoad, type Price } from "./format";
 
 interface Deal {
   title?: string;
@@ -50,9 +50,13 @@ function dealCard(deal: Deal): string {
 }
 
 function render(output: unknown): void {
+  if (failedLoad(output, "amazonDeals")) {
+    root.innerHTML = emptyState("Couldn’t load deals from Amazon. Try again in a moment.");
+    return;
+  }
   const deals = (output as DealsOutput)?.data?.amazonDeals?.productResults?.results ?? [];
   if (deals.length === 0) {
-    root.innerHTML = emptyState("No deals available right now.");
+    root.innerHTML = emptyState("No deals found on this page.");
     return;
   }
   root.innerHTML = `

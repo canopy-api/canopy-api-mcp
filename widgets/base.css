@@ -14,6 +14,7 @@
   --deal: #cc0c39;
   --good: #1d7a3e;
   --link: #0066c0;
+  --thumb-border: var(--border);
 }
 :root[data-theme="light"] { color-scheme: light; }
 :root[data-theme="dark"] {
@@ -28,6 +29,7 @@
   --deal: #ff5a6e;
   --good: #4cba74;
   --link: #6fb7ff;
+  --thumb-border: transparent; /* a grey ring around a white tile looks harsh on dark */
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -41,6 +43,7 @@
     --deal: #ff5a6e;
     --good: #4cba74;
     --link: #6fb7ff;
+    --thumb-border: transparent;
   }
 }
 * { box-sizing: border-box; }
@@ -102,7 +105,7 @@ img { display: block; }
 .thumb {
   display: flex; align-items: center; justify-content: center;
   background: #fff;
-  border: 1px solid var(--border);
+  border: 1px solid var(--thumb-border);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -118,6 +121,13 @@ img { display: block; }
   font-weight: 600;
 }
 .btn:hover { text-decoration: none; border-color: var(--link); }
+.btn.primary {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; font-size: 13px;
+  background: var(--fg); border-color: var(--fg); color: var(--card);
+  transition: opacity 120ms ease;
+}
+.btn.primary:hover { opacity: 0.85; }
 
 .rank {
   flex: 0 0 24px; height: 24px;
@@ -133,26 +143,34 @@ img { display: block; }
   color: var(--star);
 }
 
-/* Product card (get_amazon_product): hero row + full-width "About" bullets. */
-.hero { display: flex; gap: 16px; align-items: stretch; }
-.hero-img { flex: 0 0 140px; height: 140px; border-radius: 10px; }
-.hero-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
-.eyebrow { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.01em; }
-.hero-title { font-size: 15px; font-weight: 600; line-height: 1.35; }
+/* Product card (get_amazon_product): hero row + "Highlights" grid. */
+.hero { display: flex; gap: 16px; align-items: flex-start; }
+.hero-img { flex: 0 0 132px; height: 132px; border-radius: 12px; }
+.hero-img img { padding: 10px; }
+.hero-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.eyebrow { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+.hero-title { font-size: 15px; font-weight: 600; line-height: 1.35; text-wrap: pretty; }
 .hero-title a { color: inherit; }
 .hero-title a:hover { color: var(--link); text-decoration: none; }
-.hero-price { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
-.hero-price .price { font-size: 18px; }
-.hero-cta { margin-top: auto; padding-top: 8px; }
-.about { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
-.about-h { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
-.bullets { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 13px; line-height: 1.45; color: var(--muted); }
-.bullets li { position: relative; padding-left: 14px; }
-.bullets li::before {
-  content: ""; position: absolute; left: 2px; top: 0.6em;
-  width: 4px; height: 4px; border-radius: 50%; background: var(--muted);
+.hero-price { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 8px; margin-top: 2px; }
+.hero-price .price { font-size: 20px; letter-spacing: -0.01em; margin-right: 2px; }
+.hero-cta { padding-top: 6px; }
+.in-stock { color: var(--good); font-weight: 600; }
+.oos-text { color: var(--deal); font-weight: 600; }
+.clamp1 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.about { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px; }
+.about-h { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+/* Two columns when there's room; each highlight is a label + 2-line description. */
+.bullets {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px 20px;
+  font-size: 13px; line-height: 1.45;
 }
-.bullets .lead { color: var(--fg); font-weight: 600; }
+.bullets li { min-width: 0; padding-left: 10px; border-left: 2px solid var(--border); }
+.bullets .lead { color: var(--fg); font-weight: 600; margin-bottom: 1px; }
+.bullets .desc { color: var(--muted); }
+.about:not(.expanded) .bullets li:nth-child(n + 5) { display: none; }
+.about.expanded .bullets .desc { -webkit-line-clamp: unset; }
 
 /* Horizontal card rail (search results, deals). data-fade edge masks are kept
    in sync with the scroll position by wireRails() in bridge.ts and hint that
