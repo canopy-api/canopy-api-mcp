@@ -55,7 +55,34 @@ function unauthorized(
   });
 }
 
+/**
+ * Log each tools/call (tool name + arguments) so failed or empty tool results
+ * can be traced in Workers observability. Reads a clone; never logs headers
+ * or credentials.
+ */
+async function logToolCalls(request: Request): Promise<void> {
+  if (request.method !== "POST") return;
+  try {
+    const body: unknown = await request.clone().json();
+    for (const message of Array.isArray(body) ? body : [body]) {
+      const msg = message as { method?: string; params?: { name?: string; arguments?: unknown } };
+      if (msg?.method !== "tools/call") continue;
+      console.log(
+        JSON.stringify({
+          event: "tool_call",
+          tool: msg.params?.name,
+          args: msg.params?.arguments,
+          userAgent: request.headers.get("User-Agent") ?? undefined,
+        }),
+      );
+    }
+  } catch {
+    // Not JSON (or empty); nothing to log.
+  }
+}
+
 const middleware: WebMiddleware = async (request, context) => {
+  await logToolCalls(request);
   const credential = extractCredential(request.headers);
 
   if (!credential) {

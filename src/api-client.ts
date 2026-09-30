@@ -20,6 +20,34 @@ function stripNulls(value: unknown): unknown {
   return value;
 }
 
+// One structured log line per Canopy call (Workers observability indexes
+// JSON fields). Never includes the API key.
+function logApiCall(fields: Record<string, unknown>): void {
+  console.log(JSON.stringify({ event: "canopy_api", ...fields }));
+}
+
+// Shape of a 200 response, enough to tell an empty result from an upstream
+// failure: which data roots came back null, GraphQL-style `errors`, and the
+// result count for paginated endpoints.
+function summarize(json: unknown): Record<string, unknown> {
+  const body = json as { data?: Record<string, unknown> | null; errors?: unknown[] } | null;
+  const data = body?.data;
+  const summary: Record<string, unknown> = {};
+  if (data == null) summary.dataNull = true;
+  else {
+    const nullRoots = Object.keys(data).filter((key) => data[key] == null);
+    if (nullRoots.length) summary.nullRoots = nullRoots;
+    for (const root of Object.values(data)) {
+      const results = (root as { productResults?: { results?: unknown[] } } | null)?.productResults?.results;
+      if (Array.isArray(results)) summary.results = results.length;
+    }
+  }
+  if (Array.isArray(body?.errors) && body.errors.length) {
+    summary.errors = JSON.stringify(body.errors).slice(0, 500);
+  }
+  return summary;
+}
+
 // Type helpers to extract path info
 type PathKeys = keyof paths;
 type PathInfo<P extends PathKeys> = paths[P];
@@ -59,16 +87,25 @@ export class CanopyApiClient {
       });
     }
 
-    const response = await fetch(url.toString(), {
-      method: "GET",
-      headers: {
-        "API-KEY": this.apiKey,
-        "Content-Type": "application/json",
-      },
-    });
+    const started = Date.now();
+    const query = Object.fromEntries(url.searchParams);
+    let response: Response;
+    try {
+      response = await fetch(url.toString(), {
+        method: "GET",
+        headers: {
+          "API-KEY": this.apiKey,
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (error) {
+      logApiCall({ path, query, ms: Date.now() - started, error: String(error) });
+      throw error;
+    }
 
     if (!response.ok) {
       const body = await response.text().catch(() => "");
+      logApiCall({ path, query, status: response.status, ms: Date.now() - started, body: body.slice(0, 500) });
       throw new Error(
         `API request failed: ${response.status} ${response.statusText}${
           body ? ` — ${body}` : ""
@@ -76,7 +113,9 @@ export class CanopyApiClient {
       );
     }
 
-    return stripNulls(await response.json()) as ResponseData<P>;
+    const json = await response.json();
+    logApiCall({ path, query, status: response.status, ms: Date.now() - started, ...summarize(json) });
+    return stripNulls(json) as ResponseData<P>;
   }
 
   // Convenience methods for specific endpoints
