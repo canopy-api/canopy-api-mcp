@@ -30,10 +30,20 @@ function themeOf(value: unknown): unknown {
 }
 
 /**
- * Boot the widget: call `render` with the tool's structuredContent as soon as
- * it is available, and again whenever the host updates it.
+ * Boot the widget: call `renderOutput` once with the tool's structuredContent
+ * as soon as it is available.
  */
-export function boot(render: (output: unknown) => void): void {
+export function boot(renderOutput: (output: unknown) => void): void {
+  // Each widget instance belongs to exactly one tool call, so render only the
+  // first result delivered. ChatGPT can broadcast a later call's toolOutput
+  // (e.g. a second get_amazon_deals in the same turn) to earlier widgets via
+  // openai:set_globals, which made cards pop into an already-rendered rail.
+  let rendered = false;
+  const render = (output: unknown): void => {
+    if (rendered) return;
+    rendered = true;
+    renderOutput(output);
+  };
   const host = openai();
   if (host) {
     applyTheme(host.theme);

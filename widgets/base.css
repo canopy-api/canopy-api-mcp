@@ -237,7 +237,7 @@ a.o-seller:hover { color: var(--link); text-decoration: none; }
 .row.ranked:hover .r-title { color: var(--link); }
 .row.ranked .r-price { flex: 0 0 auto; text-align: right; padding-left: 4px; }
 
-.header { display: flex; align-items: baseline; gap: 8px; padding: 2px 2px 8px; }
+.header { display: flex; align-items: baseline; gap: 8px; padding: 8px 2px 10px; }
 .header .h-title { font-size: 15px; font-weight: 700; }
 .rail-nav { margin-left: auto; display: flex; gap: 6px; align-self: center; }
 .rail-nav button {
