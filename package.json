@@ -29,7 +29,7 @@
     "@openapitools/openapi-generator-cli": "^2.21.4",
     "@xmcp-dev/compiler": "^1.1.1",
     "ajv": "^8.20.0",
-    "concurrently": "^9.2.0",
+    "concurrently": "^10.0.6",
     "esbuild": "^0.27.3",
     "openapi-typescript": "^7.8.0",
     "typescript": "5.8.3",
