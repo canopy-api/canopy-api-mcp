@@ -1,0 +1,21 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "canopy-api-mcp",
+  "version": "2.1.0",
+  "description": "Real-time Amazon product data for AI agents: search, prices, reviews, sellers, deals, and ASIN lookup via the Canopy API.",
+  "author": {
+    "name": "Canopy",
+    "url": "https://canopyapi.co"
+  },
+  "homepage": "https://canopyapi.co/amazon-mcp-server",
+  "repository": "https://github.com/canopy-api/canopy-api-mcp",
+  "keywords": [
+    "amazon",
+    "mcp",
+    "product-data",
+    "asin",
+    "prices",
+    "reviews",
+    "deals"
+  ]
+}

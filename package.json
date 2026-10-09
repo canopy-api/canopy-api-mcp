@@ -14,6 +14,7 @@
     "deploy": "npm run build && wrangler deploy --env production",
     "delete": "wrangler delete",
     "generate": "openapi-typescript https://rest.canopyapi.co/api/v1/openapi.json --output src/types/api.d.ts",
+    "validate:plugin": "node scripts/validate-plugin.mjs",
     "test": "npm run build && node --test \"test/*.test.mjs\""
   },
   "dependencies": {
@@ -26,6 +27,7 @@
     "@cloudflare/workers-types": "^4.20241112.0",
     "@openapitools/openapi-generator-cli": "^2.21.4",
     "@xmcp-dev/compiler": "^1.1.1",
+    "ajv": "^8.20.0",
     "concurrently": "^9.2.0",
     "esbuild": "^0.27.3",
     "openapi-typescript": "^7.8.0",
