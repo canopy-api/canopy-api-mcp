@@ -169,6 +169,7 @@ canopy-api-mcp/
 │       ├── SKILL.md
 │       └── references/tools.md
 ├── server.json                 # MCP Registry server card (separate from plugin.json)
+├── LICENSE                     # MIT License
 ├── src/
 │   ├── tools/                  # one file per tool (auto-discovered by xmcp)
 │   │   ├── get-amazon-product.ts
@@ -206,6 +207,10 @@ npm run generate
 ## Migration from v1.x
 
 v2.0 replaces ModelFetch with [xmcp](https://xmcp.dev). The MCP endpoint moved from `/sse/mcp` (deprecated SSE transport mount) to `/mcp` (current Streamable HTTP convention). Update any clients accordingly.
+
+## License
+
+This project is released under the [MIT License](LICENSE). Copyright (c) 2026 Canopy API.
 
 ## Related
 
