@@ -37,6 +37,47 @@ https://mcp.canopyapi.co/mcp
 
 Claude and other OAuth-capable MCP clients will walk you through sign-in automatically. Get an API key at [canopyapi.co](https://canopyapi.co/), and see the [Amazon MCP server guide](https://canopyapi.co/amazon-mcp-server) for per-client setup instructions.
 
+### Install as an Agent Plugin
+
+This repository is an [Agent Plugin](https://agent-plugins.org/specification) (specification 1.0.0). The plugin root is the repository root. A compatible client reads `plugin.json`, loads skills from `skills/`, and connects to the MCP server declared in `mcp.json`.
+
+```text
+canopy-api-mcp/
+├── plugin.json          # Agent Plugins 1.0.0 manifest
+├── mcp.json             # hosted Streamable HTTP server
+└── skills/
+    └── amazon-product-research/
+        ├── SKILL.md
+        └── references/tools.md
+```
+
+`mcp.json` points at the same hosted endpoint as above:
+
+```json
+{
+  "mcpServers": {
+    "canopy": {
+      "type": "streamable-http",
+      "url": "https://mcp.canopyapi.co/mcp"
+    }
+  }
+}
+```
+
+Authorization stays in the client. OAuth-capable clients discover sign-in from the server. The plugin does not embed an API key: Agent Plugins treats `headers` as public package data, not a place for secrets. If a client only supports a static header, set `CANOPY-API-KEY` in that client.
+
+**Cursor.** After the plugin is listed, install it from Customize or the [Cursor Marketplace](https://cursor.com/marketplace). To try the directory before it is listed, copy this repository to `~/.cursor/plugins/local/canopy-api-mcp` (a symlink that points outside that folder is ignored), reload the window, and confirm the Canopy server and the `amazon-product-research` skill in Customize.
+
+**Other Agent Plugins clients.** Load this directory. The client needs Agent Plugins 1.0.0 and the `streamable-http` transport. There is no archive and no registry protocol in the specification: the package is this directory.
+
+`server.json` is unchanged. It is the MCP Registry server card, a separate format from `plugin.json`. `npm install`, `npm run dev`, and `npm run deploy` are unchanged.
+
+Validate the package against the published schemas:
+
+```bash
+npm run validate:plugin
+```
+
 ### Run it yourself
 
 You'll need a Canopy API key from [canopyapi.co](https://canopyapi.co/).
@@ -121,6 +162,13 @@ All 17 tools are read-only (`readOnlyHint: true`) and annotated with a `title`.
 
 ```
 canopy-api-mcp/
+├── plugin.json                 # Agent Plugins 1.0.0 manifest
+├── mcp.json                    # MCP server declaration (Streamable HTTP)
+├── skills/
+│   └── amazon-product-research/
+│       ├── SKILL.md
+│       └── references/tools.md
+├── server.json                 # MCP Registry server card (separate from plugin.json)
 ├── src/
 │   ├── tools/                  # one file per tool (auto-discovered by xmcp)
 │   │   ├── get-amazon-product.ts
@@ -133,6 +181,7 @@ canopy-api-mcp/
 │       └── api.d.ts            # generated from OpenAPI
 ├── xmcp.config.ts              # xmcp config (endpoint, CORS, paths)
 ├── wrangler.jsonc              # Cloudflare Workers config
+├── worker-entry.ts             # Workers entry (unchanged)
 ├── tsconfig.json
 └── package.json
 ```
@@ -152,6 +201,7 @@ npm run generate
 - `npm run deploy` — build + `wrangler deploy --env production`
 - `npm run delete` — remove the deployed Worker
 - `npm run generate` — regenerate API types from the OpenAPI spec
+- `npm run validate:plugin` — check `plugin.json`, `mcp.json`, and `skills/` against Agent Plugins 1.0.0
 
 ## Migration from v1.x
 
