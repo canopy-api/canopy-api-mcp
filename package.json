@@ -26,7 +26,7 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241112.0",
-    "@openapitools/openapi-generator-cli": "^2.21.4",
+    "@openapitools/openapi-generator-cli": "^2.41.0",
     "@xmcp-dev/compiler": "^1.1.1",
     "ajv": "^8.20.0",
     "concurrently": "^9.2.0",
