@@ -2,6 +2,8 @@
 // or live Canopy request is needed, and both server and client validation run.
 import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { Miniflare, Response } from "miniflare";
 import { AjvJsonSchemaValidator } from "@modelcontextprotocol/server/validators/ajv";
 
@@ -68,18 +70,39 @@ async function rpc(method, params = {}) {
 }
 
 before(async () => {
+  // Miniflare 5 (pulled in by wrangler 4.149) takes worker config under
+  // `workers[]` and intercepts outbound fetch via `dev.outboundService`.
   worker = new Miniflare({
-    modules: true,
-    scriptPath: "worker.js",
-    compatibilityDate: "2025-06-17",
-    compatibilityFlags: ["nodejs_compat"],
     cf: false,
-    outboundService(request) {
-      upstreamRequest = request;
-      assert.equal(new URL(request.url).origin, "https://rest.canopyapi.co");
-      assert.equal(request.headers.get("API-KEY"), "fixture-key");
-      return Response.json(upstreamBody);
-    },
+    workers: [
+      {
+        config: {
+          name: "canopy-api-mcp",
+          compatibilityDate: "2025-06-17",
+          compatibilityFlags: ["nodejs_compat"],
+          manifest: {
+            mainModule: "worker.js",
+            modules: {
+              "worker.js": {
+                type: "esm",
+                contents: readFileSync(resolve("worker.js"), "utf8"),
+              },
+            },
+          },
+        },
+        dev: {
+          outboundService: {
+            type: "fetcher",
+            handler(request) {
+              upstreamRequest = request;
+              assert.equal(new URL(request.url).origin, "https://rest.canopyapi.co");
+              assert.equal(request.headers.get("API-KEY"), "fixture-key");
+              return Response.json(upstreamBody);
+            },
+          },
+        },
+      },
+    ],
   });
   tools = (await rpc("tools/list")).tools;
 });
