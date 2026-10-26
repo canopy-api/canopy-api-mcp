@@ -4,6 +4,7 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "lib": ["es2023"],
+    "types": ["@cloudflare/workers-types"],
     "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,

@@ -22,17 +22,16 @@
     "@modelcontextprotocol/server": "^2.3.1",
     "jose": "^6.2.12",
     "xmcp": "^1.9.0",
-    "zod": "^4.4.3"
+    "zod": "^4.6.6"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20241112.0",
-    "@openapitools/openapi-generator-cli": "^2.41.0",
+    "@cloudflare/workers-types": "^5.20261025.1",
     "@xmcp-dev/compiler": "^1.9.0",
     "ajv": "^8.20.0",
     "concurrently": "^10.0.6",
     "esbuild": "^0.28.2",
     "openapi-typescript": "^7.8.0",
     "typescript": "5.8.3",
-    "wrangler": "^4.27.0"
+    "wrangler": "^4.152.0"
   }
 }

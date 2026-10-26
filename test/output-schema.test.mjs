@@ -2,7 +2,7 @@
 // or live Canopy request is needed, and both server and client validation run.
 import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
-import { Miniflare, Response } from "miniflare";
+import { Miniflare, Response, convertV4MiniflareOptions } from "miniflare";
 import { AjvJsonSchemaValidator } from "@modelcontextprotocol/server/validators/ajv";
 
 let worker;
@@ -68,7 +68,7 @@ async function rpc(method, params = {}) {
 }
 
 before(async () => {
-  worker = new Miniflare({
+  worker = new Miniflare(convertV4MiniflareOptions({
     modules: true,
     scriptPath: "worker.js",
     compatibilityDate: "2025-06-17",
@@ -80,7 +80,7 @@ before(async () => {
       assert.equal(request.headers.get("API-KEY"), "fixture-key");
       return Response.json(upstreamBody);
     },
-  });
+  }));
   tools = (await rpc("tools/list")).tools;
 });
 
