@@ -111,6 +111,21 @@ test("search accepts null coupons and prices through MCP and its advertised sche
   }
 });
 
+test("deals forwards categoryId only when set", async () => {
+  const body = { data: { amazonDeals: { productResults: { results: [] } } } };
+  await checkTool("get_amazon_deals", { categoryId: "172282", page: 2 }, body);
+  let url = new URL(upstreamRequest.url);
+  assert.equal(url.pathname, "/api/amazon/deals");
+  assert.equal(url.searchParams.get("categoryId"), "172282");
+  assert.equal(url.searchParams.get("page"), "2");
+  assert.equal(url.searchParams.has("categoryIds"), false);
+
+  await checkTool("get_amazon_deals", {}, body);
+  url = new URL(upstreamRequest.url);
+  assert.equal(url.searchParams.has("categoryId"), false);
+  assert.equal(url.searchParams.has("categoryIds"), false);
+});
+
 test("search still accepts omitted fields and rejects malformed price/coupon values", async () => {
   const body = { data: { amazonProductSearchResults: { productResults: { results: [{}] } } } };
   await checkTool("search_amazon_products", { searchTerm: "headphones" }, body);

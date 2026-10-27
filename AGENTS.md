@@ -1,6 +1,6 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to coding agents (Claude Code, Codex, Cursor, and others) when working with code in this repository.
 
 ## Development Commands
 
@@ -50,7 +50,7 @@ All tools are read-only (`readOnlyHint: true`) and carry an annotation `title` (
 12. `get_amazon_bestseller_categories` — best seller category list
 13. `get_amazon_seller` — seller information
 14. `get_amazon_author` — author information and books
-15. `get_amazon_deals` — current Amazon deals
+15. `get_amazon_deals` — current Amazon deals, optionally filtered by category
 16. `get_amazon_asin_from_gtin` — ASIN by ISBN/UPC/EAN
 17. `get_amazon_gtin_from_asin` — GTIN by ASIN
 
