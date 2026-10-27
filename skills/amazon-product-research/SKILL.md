@@ -9,7 +9,7 @@ Use the Canopy MCP server from this plugin (`canopy` in `mcp.json`). It is the h
 
 ## Before calling a tool
 
-1. Choose the marketplace. `domain` defaults to `US`. Valid values are `US`, `UK`, `CA`, `DE`, `FR`, `IT`, `ES`, `AU`, `IN`, `MX`, `BR`, `JP`, `PL`, and `AE`.
+1. Choose the marketplace. `domain` defaults to `US`. Valid values are `US`, `UK`, `CA`, `DE`, `FR`, `IT`, `ES`, `AU`, `IN`, `MX`, `BR`, `JP`, `PL`, `AE`, `SG`, `NL`, and `SE`.
 2. For a product-scoped tool, pass exactly one of `asin`, `url`, or `gtin`.
 3. If a call fails because the client is not authenticated, stop and ask the user to sign in with Canopy or to set a Canopy API key in the client. Do not invent a key, and do not put a key in plugin files.
 

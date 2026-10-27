@@ -2,7 +2,7 @@
 
 All tools are read-only. `domain` is optional on every tool and defaults to `US`.
 
-Marketplaces: `US`, `UK`, `CA`, `DE`, `FR`, `IT`, `ES`, `AU`, `IN`, `MX`, `BR`, `JP`, `PL`, `AE`.
+Marketplaces: `US`, `UK`, `CA`, `DE`, `FR`, `IT`, `ES`, `AU`, `IN`, `MX`, `BR`, `JP`, `PL`, `AE`, `SG`, `NL`, `SE`.
 
 Product-scoped tools take exactly one of `asin`, `url`, or `gtin`.
 
@@ -16,7 +16,7 @@ Product-scoped tools take exactly one of `asin`, `url`, or `gtin`.
 | `get_amazon_product_top_reviews` | one of `asin`, `url`, `gtin` | `domain` |
 | `search_amazon_products` | `searchTerm` | `domain`, `categoryId`, `page`, `limit` (typically 20–40), `minPrice`, `maxPrice`, `conditions` (`NEW`, `USED`, `RENEWED`, comma-separated), `sort` |
 | `get_amazon_autocomplete` | `searchTerm` | `domain`, `category` (Amazon autocomplete alias) |
-| `get_amazon_deals` | — | `domain`, `page`, `limit` (typically 20–40) |
+| `get_amazon_deals` | — | `domain`, `categoryId`, `page`, `limit` (typically 20–40) |
 | `get_amazon_categories` | — | `domain` |
 | `get_amazon_category` | `categoryId` | `domain`, `page`, `sort` |
 | `get_amazon_bestseller_categories` | — | `domain` |

@@ -142,7 +142,7 @@ All 17 tools are read-only (`readOnlyHint: true`) and annotated with a `title`.
 ### Search & Discovery
 - `search_amazon_products` — search with filters and sorting
 - `get_amazon_autocomplete` — search term suggestions
-- `get_amazon_deals` — current deals
+- `get_amazon_deals` — current deals, optionally filtered by category
 - `get_amazon_bestsellers` — best-selling products for a category
 - `get_amazon_bestseller_categories` — best seller category list
 

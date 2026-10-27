@@ -135,6 +135,13 @@ test("tool input schemas survive the zod -> JSON Schema conversion", async () =>
     assert.ok(product.inputSchema.properties[prop], `property ${prop} missing from inputSchema`);
   }
   assert.equal(product.annotations?.readOnlyHint, true);
+  for (const domain of ["AE", "SG", "NL", "SE"]) {
+    assert.ok(product.inputSchema.properties.domain.enum.includes(domain), `domain ${domain} missing`);
+  }
+  const deals = msg.result.tools.find((t) => t.name === "get_amazon_deals");
+  assert.equal(deals.inputSchema.properties.categoryId?.type, "string");
+  assert.equal(deals.inputSchema.properties.categoryIds, undefined);
+  assert.ok(!(deals.inputSchema.required ?? []).includes("categoryId"));
 });
 
 test("tools/call forwards the request's API key to the Canopy API", async (t) => {
