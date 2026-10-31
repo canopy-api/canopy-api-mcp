@@ -1,0 +1,27 @@
+{
+  "name": "canopy",
+  "description": "Live Amazon product data from Canopy: search, prices, Buy Box offers, reviews, deals, best sellers, and ASIN lookup. Connects to the hosted Canopy MCP server with OAuth.",
+  "category": "development",
+  "source": {
+    "source": "url",
+    "url": "https://github.com/canopy-api/canopy-api-mcp.git",
+    "sha": "25f4fca396c884c66bce5f2df4ef61f49d456968"
+  },
+  "homepage": "https://www.canopyapi.co/amazon-mcp-server",
+  "keywords": [
+    "canopy",
+    "canopy api",
+    "canopy amazon"
+  ],
+  "domains": [
+    "canopyapi.co",
+    "www.canopyapi.co",
+    "mcp.canopyapi.co"
+  ],
+  "version": "2.1.0",
+  "author": {
+    "name": "Canopy",
+    "email": "support@canopyapi.co",
+    "url": "https://www.canopyapi.co"
+  }
+}
