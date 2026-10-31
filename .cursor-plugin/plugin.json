@@ -1,0 +1,30 @@
+{
+  "name": "canopy",
+  "displayName": "Canopy",
+  "version": "2.1.0",
+  "description": "Live Amazon product data from Canopy: search, prices, Buy Box offers, reviews, deals, best sellers, and ASIN lookup.",
+  "author": {
+    "name": "Canopy",
+    "email": "support@canopyapi.co"
+  },
+  "homepage": "https://www.canopyapi.co/amazon-mcp-server",
+  "repository": "https://github.com/canopy-api/canopy-api-mcp",
+  "license": "MIT",
+  "keywords": [
+    "canopy",
+    "amazon",
+    "asin",
+    "prices",
+    "reviews",
+    "deals",
+    "product-data"
+  ],
+  "category": "integrations",
+  "tags": [
+    "canopy",
+    "amazon",
+    "mcp"
+  ],
+  "logo": "assets/canopy-icon.png",
+  "mcpServers": "./.cursor-plugin/mcp.json"
+}

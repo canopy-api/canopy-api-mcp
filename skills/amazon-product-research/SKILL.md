@@ -5,7 +5,7 @@ description: Research live Amazon listings with the Canopy MCP server, including
 
 # Amazon product research
 
-Use the Canopy MCP server from this plugin (`canopy` in `mcp.json`). It is the hosted Streamable HTTP endpoint `https://mcp.canopyapi.co/mcp`. Every tool is read-only. Do not scrape Amazon HTML and do not browse the site to reconstruct data the tools already return.
+Use the Canopy MCP server bundled with this plugin (server name `canopy`, endpoint `https://mcp.canopyapi.co/mcp`). Every tool is read-only. Do not scrape Amazon HTML and do not browse the site to reconstruct data the tools already return. For a price, coupon, or deal question, use the `amazon-price-and-deals` skill.
 
 ## Before calling a tool
 
