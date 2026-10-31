@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/server": "^2.3.1",
-    "jose": "^6.2.12",
+    "jose": "^6.2.13",
     "xmcp": "^1.9.0",
     "zod": "^4.6.6"
   },
