@@ -62,7 +62,7 @@ Or, inside a session: `/plugin marketplace add canopy-api/canopy-api-mcp`, then 
 grok plugin install canopy --trust
 ```
 
-The first connection opens Canopy's OAuth flow. `.grok-plugin/plugin.json` is the manifest Grok reads first; the server config is the same `.mcp.json`.
+The first connection opens Canopy's OAuth flow. Skills load from `skills/` and the server from `.mcp.json`. `.grok-plugin/plugin.json` is the manifest the xAI catalog indexer reads first. In this repo, `grok plugin validate` reports the Agent Plugins manifest at root `plugin.json` (name `canopy-api-mcp`) because the CLI checks that file before `.grok-plugin/plugin.json`. The marketplace install id is still `canopy`.
 
 **Other Agent Plugins clients.** This repository is also an [Agent Plugin](https://agent-plugins.org/specification) (specification 1.0.0). Those clients read root `plugin.json` (name `canopy-api-mcp`) and `mcp.json` (`type: streamable-http`). They need Agent Plugins 1.0.0. There is no archive and no registry protocol in the specification: the package is this directory.
 
