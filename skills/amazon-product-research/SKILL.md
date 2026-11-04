@@ -1,6 +1,6 @@
 ---
 name: amazon-product-research
-description: Research live Amazon listings with the Canopy MCP server, including product search, prices, Buy Box offers, stock and sales estimates, reviews, deals, best sellers, categories, sellers, authors, and ASIN/GTIN conversion. Use when the user asks about an Amazon product, ASIN, ISBN, UPC, EAN, price, seller, review, deal, coupon, best-seller rank, or marketplace listing.
+description: Research live Amazon listings with the Canopy MCP server, including product search, product details, variants, stock and sales estimates, reviews, best sellers, categories, sellers, authors, and ASIN/GTIN conversion. Use when the user asks about an Amazon product, ASIN, ISBN, UPC, EAN, seller, review, best-seller rank, or marketplace listing. For prices, offers, coupons, or deals, use the amazon-price-and-deals skill.
 ---
 
 # Amazon product research

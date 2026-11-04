@@ -21,8 +21,8 @@
     "product-data"
   ],
   "icon": "./assets/canopy-icon.png",
-  "documentationUrl": "https://www.canopyapi.co/docs",
-  "supportUrl": "https://www.canopyapi.co/amazon-mcp-server",
+  "documentationUrl": "https://docs.canopyapi.co",
+  "supportUrl": "https://github.com/canopy-api/canopy-api-mcp/issues",
   "privacyPolicyUrl": "https://www.canopyapi.co/privacy-policy",
   "termsOfServiceUrl": "https://www.canopyapi.co/terms-of-service"
 }

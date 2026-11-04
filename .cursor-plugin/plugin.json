@@ -5,7 +5,8 @@
   "description": "Live Amazon product data from Canopy: search, prices, Buy Box offers, reviews, deals, best sellers, and ASIN lookup.",
   "author": {
     "name": "Canopy",
-    "email": "support@canopyapi.co"
+    "email": "support@canopyapi.co",
+    "url": "https://www.canopyapi.co"
   },
   "homepage": "https://www.canopyapi.co/amazon-mcp-server",
   "repository": "https://github.com/canopy-api/canopy-api-mcp",
@@ -26,5 +27,5 @@
     "mcp"
   ],
   "logo": "assets/canopy-icon.png",
-  "mcpServers": "./.cursor-plugin/mcp.json"
+  "mcpServers": "./.mcp.json"
 }
