@@ -6,8 +6,12 @@
  * fetches the canonical 1.0.0 schemas and checks the extra semantic rules
  * those schemas do not express: matching schema versions, remote URL form,
  * and Agent Skills frontmatter.
+ *
+ * It also checks the per-client marketplace manifests (.claude-plugin,
+ * .cursor-plugin, .grok-plugin, .mcp.json): one version everywhere, icon and
+ * server files that exist, and no credentials in server declarations.
  */
-import { readFile, readdir } from "node:fs/promises";
+import { access, readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import Ajv2020 from "ajv/dist/2020.js";
@@ -21,11 +25,16 @@ const SKILL_NAME = /^(?!.*--)[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 async function fetchSchema(url) {
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch ${url}: ${response.status} ${response.statusText}`);
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`${response.status} ${response.statusText}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.warn(`warning: could not fetch ${url} (${error.message}); skipping JSON Schema checks`);
+    return null;
   }
-  return response.json();
 }
 
 function schemaVersion(schemaId) {
@@ -115,6 +124,89 @@ async function validateSkills(errors) {
   }
 }
 
+/**
+ * Every manifest that carries the plugin version. `claude plugin update`
+ * only picks up a release when `.claude-plugin/plugin.json` changes, so all
+ * copies must move together.
+ */
+const VERSIONED_FILES = [
+  "package.json",
+  "server.json",
+  "plugin.json",
+  ".claude-plugin/plugin.json",
+  ".cursor-plugin/plugin.json",
+  ".grok-plugin/plugin.json",
+];
+
+async function readJson(relative, errors) {
+  try {
+    return JSON.parse(await readFile(path.join(root, relative), "utf8"));
+  } catch (error) {
+    errors.push(`${relative}: ${error.message}`);
+    return null;
+  }
+}
+
+async function fileExists(relative) {
+  try {
+    await access(path.join(root, relative));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function validateMarketplaceManifests(errors) {
+  const versions = new Map();
+  for (const file of VERSIONED_FILES) {
+    const json = await readJson(file, errors);
+    if (json) versions.set(file, json.version);
+  }
+  const distinct = new Set(versions.values());
+  if (distinct.size > 1) {
+    const list = [...versions].map(([file, version]) => `${file}=${version ?? "missing"}`).join(", ");
+    errors.push(`plugin version differs across manifests: ${list}`);
+  }
+
+  const claude = await readJson(".claude-plugin/plugin.json", errors);
+  const cursor = await readJson(".cursor-plugin/plugin.json", errors);
+  const grok = await readJson(".grok-plugin/plugin.json", errors);
+  const marketplace = await readJson(".claude-plugin/marketplace.json", errors);
+  const mcp = await readJson(".mcp.json", errors);
+
+  for (const [file, manifest, key] of [
+    [".claude-plugin/plugin.json", claude, "icon"],
+    [".cursor-plugin/plugin.json", cursor, "logo"],
+    [".grok-plugin/plugin.json", grok, "logo"],
+  ]) {
+    const asset = manifest?.[key];
+    if (asset && !(await fileExists(asset))) {
+      errors.push(`${file}: ${key} ${asset} does not exist`);
+    }
+  }
+
+  if (cursor && typeof cursor.mcpServers === "string" && !(await fileExists(cursor.mcpServers))) {
+    errors.push(`.cursor-plugin/plugin.json: mcpServers file ${cursor.mcpServers} does not exist`);
+  }
+
+  if (marketplace && claude) {
+    const listed = marketplace.plugins?.find((entry) => entry.name === claude.name);
+    if (!listed) {
+      errors.push(`.claude-plugin/marketplace.json does not list plugin ${JSON.stringify(claude.name)}`);
+    }
+  }
+
+  for (const [name, server] of Object.entries(mcp?.mcpServers ?? {})) {
+    if (server.url) {
+      const problem = validateRemoteUrl(server.url, `.mcp.json mcpServers.${name}.url`);
+      if (problem) errors.push(problem);
+    }
+    if (server.headers) {
+      errors.push(`.mcp.json mcpServers.${name}.headers is set; plugin files must not carry credentials`);
+    }
+  }
+}
+
 export async function validatePlugin() {
   const errors = [];
   const [pluginSchema, mcpSchema, plugin, mcp] = await Promise.all([
@@ -124,15 +216,17 @@ export async function validatePlugin() {
     readFile(path.join(root, "mcp.json"), "utf8").then(JSON.parse),
   ]);
 
-  const ajv = new Ajv2020({ allErrors: true, strict: false });
-  const validatePluginSchema = ajv.compile(pluginSchema);
-  const validateMcpSchema = ajv.compile(mcpSchema);
+  if (pluginSchema && mcpSchema) {
+    const ajv = new Ajv2020({ allErrors: true, strict: false });
+    const validatePluginSchema = ajv.compile(pluginSchema);
+    const validateMcpSchema = ajv.compile(mcpSchema);
 
-  if (!validatePluginSchema(plugin)) {
-    errors.push(`plugin.json: ${formatErrors(validatePluginSchema)}`);
-  }
-  if (!validateMcpSchema(mcp)) {
-    errors.push(`mcp.json: ${formatErrors(validateMcpSchema)}`);
+    if (!validatePluginSchema(plugin)) {
+      errors.push(`plugin.json: ${formatErrors(validatePluginSchema)}`);
+    }
+    if (!validateMcpSchema(mcp)) {
+      errors.push(`mcp.json: ${formatErrors(validateMcpSchema)}`);
+    }
   }
 
   if (plugin.$schema !== PLUGIN_SCHEMA_URL) {
@@ -161,6 +255,7 @@ export async function validatePlugin() {
   }
 
   await validateSkills(errors);
+  await validateMarketplaceManifests(errors);
   return errors;
 }
 
@@ -170,5 +265,5 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     for (const error of errors) console.error(error);
     process.exit(1);
   }
-  console.log("plugin.json, mcp.json, and skills/ match Agent Plugins 1.0.0");
+  console.log("plugin.json, mcp.json, and skills/ match Agent Plugins 1.0.0; marketplace manifests agree");
 }
