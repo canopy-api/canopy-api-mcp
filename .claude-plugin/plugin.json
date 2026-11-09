@@ -1,7 +1,7 @@
 {
   "name": "canopy",
   "displayName": "Canopy",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Live Amazon product data from Canopy: search, prices, Buy Box offers, reviews, deals, best sellers, and ASIN lookup.",
   "author": {
     "name": "Canopy",
