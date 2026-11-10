@@ -1,6 +1,6 @@
 {
   "name": "canopy-api-mcp",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Canopy MCP server (xmcp + Cloudflare Workers)",
   "license": "MIT",
   "private": true,
@@ -32,6 +32,6 @@
     "esbuild": "^0.28.2",
     "openapi-typescript": "^7.8.0",
     "typescript": "5.8.3",
-    "wrangler": "^4.152.0"
+    "wrangler": "^4.158.0"
   }
 }

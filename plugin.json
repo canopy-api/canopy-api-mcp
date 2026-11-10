@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "canopy-api-mcp",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Live Amazon product data from Canopy: search, prices, Buy Box offers, reviews, deals, best sellers, and ASIN lookup.",
   "author": {
     "name": "Canopy",
@@ -9,6 +9,7 @@
   },
   "homepage": "https://www.canopyapi.co/amazon-mcp-server",
   "repository": "https://github.com/canopy-api/canopy-api-mcp",
+  "license": "MIT",
   "keywords": [
     "amazon",
     "mcp",

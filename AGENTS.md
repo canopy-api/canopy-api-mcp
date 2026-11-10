@@ -103,6 +103,34 @@ npx -y @modelcontextprotocol/inspector@latest
 
 Connect to `http://localhost:8787/mcp` (development) or the deployed URL. Provide the API key as a request header.
 
+## Versioning and changelog
+
+Every PR updates `CHANGELOG.md`. Every PR that changes what users get also bumps the version. Merging to `main` is a release: the plugin marketplaces read `main` directly, and `claude plugin update` only picks up a new release when the version in `.claude-plugin/plugin.json` changes.
+
+### Changelog
+
+- The changelog follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Put each entry under `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, or `Security`.
+- Write for someone who uses the server, not for someone reading the diff. Name the tool, parameter, or client it affects. Leave out refactors, test-only changes, and CI changes unless they change behavior.
+- A PR that bumps the version adds a dated section, `## [X.Y.Z] - YYYY-MM-DD`, below `## [Unreleased]`. Move everything already under `Unreleased` into the new section, and leave `Unreleased` empty. Add a compare link for the new version at the bottom of the file, and point the `[Unreleased]` link at the new tag.
+- A PR that doesn't bump the version (docs, tests, internal tooling) adds its entry under `## [Unreleased]`, if the change is worth an entry. The next version bump releases it.
+
+### Version bump
+
+The project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html). The contract is the tool roster, tool input and output schemas, auth behavior, and the plugin manifests.
+
+- **Major**: anything that can break an existing client or prompt. Examples are removing or renaming a tool, removing or renaming a parameter, making an optional parameter required, removing a field from `outputSchema`, or dropping an auth mode.
+- **Minor**: a backward-compatible addition. Examples are a new tool, a new optional parameter or enum value (such as a new `domain`), a new widget or skill, or a new marketplace listing.
+- **Patch**: a fix or change that adds nothing new. Examples are bug fixes, dependency updates, and wording changes to descriptions.
+
+A version lives in six files, and the bump must change all six to the same value: `package.json`, `server.json`, `plugin.json`, `.claude-plugin/plugin.json`, `.cursor-plugin/plugin.json`, and `.grok-plugin/plugin.json`. Also update the two `version` fields at the top of `package-lock.json`. Running `npm version X.Y.Z --no-git-tag-version` updates both package files. Then edit the other four by hand. `npm run validate:plugin`, which `npm test` runs too, fails if any of the six files disagree.
+
+If another PR takes your version number first, rebase onto `main` and use the next free number. Then fold your changelog section into the right place.
+
+### After merge
+
+- Tag the merge commit `vX.Y.Z` and push the tag, so the changelog compare links work.
+- If `server.json` changed, republish it to the MCP registry. The registry entry is `co.canopyapi/mcp`.
+
 ## Build output
 
 `xmcp build --cf` emits a single `worker.js` at the project root. `wrangler.jsonc` points `main` at `worker-entry.ts`, which wraps `worker.js` (so `worker.js` must be built before `wrangler dev`/`deploy` runs). The intermediate `.xmcp/` directory contains the import map and per-runtime stubs.
