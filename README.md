@@ -1,6 +1,6 @@
 # Canopy MCP Server — Amazon Product Data API for AI Agents
 
-An Amazon product data API served over the [Model Context Protocol](https://modelcontextprotocol.io). Connect Claude, ChatGPT, Cursor, or any MCP client to real-time Amazon data — an Amazon search API, reviews API, price tracker, ASIN lookup, best sellers, deals, and sales estimates — powered by the [Canopy API](https://canopyapi.co/). No headless browsers, no brittle HTML scraping: typed JSON over standard MCP tools.
+An Amazon product data API served over the [Model Context Protocol](https://modelcontextprotocol.io). Connect Claude, ChatGPT, Cursor, or any MCP client to real-time Amazon data — an Amazon search API, price tracker, ASIN lookup, best sellers, deals, and sales estimates — powered by the [Canopy API](https://canopyapi.co/). No headless browsers, no brittle HTML scraping: typed JSON over standard MCP tools.
 
 Built with [xmcp](https://xmcp.dev) and deployed on Cloudflare Workers. Use the hosted remote MCP server at `https://mcp.canopyapi.co/mcp` or self-host from this repo. Setup guides and client walkthroughs live on the [Amazon MCP server](https://canopyapi.co/amazon-mcp-server) page.
 
@@ -12,13 +12,12 @@ AI agents and LLM apps increasingly need live e-commerce data. This server gives
 - **Price monitoring & competitive intelligence** — an Amazon price tracker API for prices, stock estimates, and seller offers on any ASIN
 - **Product research & market analysis** — an Amazon product research tool with best seller rankings, sales estimates, and category taxonomies
 - **Catalog enrichment** — ASIN lookup and ASIN ↔ GTIN/UPC/ISBN/EAN conversion, plus images, variants, and specs
-- **Review analysis** — an Amazon reviews API returning top customer reviews with ratings, helpful votes, and media for summarization
 
 Works as a Claude MCP server (Desktop, Code, and the claude.ai connectors directory), a ChatGPT MCP connector (Apps SDK, with rich product widgets), in Cursor and the MCP Inspector, and with any agent built on the MCP SDK, LangChain, or the OpenAI Agents SDK.
 
 ## Features
 
-- **17 Amazon Data Tools** — product info, variants, offers, stock, sales, reviews, search, autocomplete, categories, best sellers, sellers, authors, deals, and ASIN/GTIN lookup
+- **16 Amazon Data Tools** — product info, variants, offers, stock, sales, search, autocomplete, categories, best sellers, sellers, authors, deals, and ASIN/GTIN lookup
 - **Streamable HTTP transport** at `/mcp` (current MCP spec)
 - **File-based tools** — one file per tool under `src/tools/`
 - **Type Safety** — TypeScript types generated from the Canopy OpenAPI spec via `openapi-typescript`
@@ -99,7 +98,7 @@ A missing or invalid credential returns HTTP 401 with a JSON-RPC error before th
 
 ## Available Tools
 
-All 17 tools are read-only (`readOnlyHint: true`) and annotated with a `title`.
+All 16 tools are read-only (`readOnlyHint: true`) and annotated with a `title`.
 
 ### Product Information
 - `get_amazon_product` — product details by ASIN, URL, or GTIN
@@ -107,7 +106,6 @@ All 17 tools are read-only (`readOnlyHint: true`) and annotated with a `title`.
 - `get_amazon_product_offers` — seller offers and Buy Box info
 - `get_amazon_product_stock` — stock level estimates
 - `get_amazon_product_sales` — sales estimates (weekly, monthly, annual)
-- `get_amazon_product_top_reviews` — top customer reviews (title, body, rating, helpful votes, images/videos)
 
 ### Search & Discovery
 - `search_amazon_products` — search with filters and sorting
