@@ -1,6 +1,6 @@
 {
   "name": "canopy-api-mcp",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Canopy MCP server (xmcp + Cloudflare Workers)",
   "license": "MIT",
   "private": true,
