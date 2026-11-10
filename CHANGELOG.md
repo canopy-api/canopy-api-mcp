@@ -15,6 +15,10 @@ The major version marks two removals: the top reviews tool, and the plugin files
 - The `get_amazon_product_top_reviews` tool and its reviews widget (`ui://widget/reviews.html`). Amazon now requires a signed-in session cookie to return top reviews on the US domain, and the server does not accept Amazon cookies. The server now has 16 tools. Prompts and clients that call the tool need to drop it; `get_amazon_product` still returns the average `rating` and `ratingsTotal`.
 - The plugin manifests (`.claude-plugin/`, `.cursor-plugin/`, `.grok-plugin/`, `.mcp.json`, `plugin.json`, `mcp.json`) and both skills. They moved to [canopy-api/canopy-plugin](https://github.com/canopy-api/canopy-plugin). If you added this repository as a Claude Code marketplace, run `claude plugin marketplace remove canopy-api`, then `claude plugin marketplace add canopy-api/canopy-plugin` and `claude plugin install canopy@canopy-api`.
 
+### Changed
+
+- Updated the MCP server SDK to 2.4.0.
+
 ## [2.2.0] - 2026-11-08
 
 ### Added
