@@ -39,44 +39,14 @@ Claude and other OAuth-capable MCP clients will walk you through sign-in automat
 
 ### Install the plugin
 
-The plugin root is this repository. It points every client at the hosted server `https://mcp.canopyapi.co/mcp` and does not embed an API key. OAuth-capable clients discover sign-in from the server. If a client only supports a static header, set `CANOPY-API-KEY` in that client.
-
-Two skills ship with the plugin: `amazon-product-research` and `amazon-price-and-deals`.
-
-**Cursor Marketplace.** Install **Canopy** from Customize or the [Cursor Marketplace](https://cursor.com/marketplace) after it is listed. The listing manifest is `.cursor-plugin/plugin.json` (name `canopy`, logo `assets/canopy-icon.png`). It points `mcpServers` at `.mcp.json`, a remote `http` server, so Cursor starts OAuth against `https://mcp.canopyapi.co/mcp` without a pasted key. Root `mcp.json` stays the Agent Plugins file and is not the Cursor listing config. To try it before it is listed, copy this repository to `~/.cursor/plugins/local/canopy` (a symlink that points outside that folder is ignored), reload the window, and confirm the Canopy server and both skills in Customize.
-
-**Claude Code, from this repo.** This repository is also a marketplace. In Claude Code:
+For Claude Code, Claude.ai, Cursor, and Grok Build, the Canopy plugin bundles this server with two skills, `amazon-product-research` and `amazon-price-and-deals`. It lives in its own repository: [canopy-api/canopy-plugin](https://github.com/canopy-api/canopy-plugin). In Claude Code:
 
 ```bash
-claude plugin marketplace add canopy-api/canopy-api-mcp
+claude plugin marketplace add canopy-api/canopy-plugin
 claude plugin install canopy@canopy-api
 ```
 
-Or, inside a session: `/plugin marketplace add canopy-api/canopy-api-mcp`, then `/plugin install canopy@canopy-api`. For one session without installing, run `claude --plugin-dir /path/to/canopy-api-mcp`. The manifest is `.claude-plugin/plugin.json`, the marketplace catalog is `.claude-plugin/marketplace.json`, and the server is `.mcp.json` (`type: http`). On first use, approve the Canopy OAuth prompt.
-
-**Claude.ai and Cowork.** After the plugin is listed in Anthropic's directory, add **Canopy** from the directory. Sign in on the plugin's Connectors tab. The plugin uses the same URL as the existing [Canopy connector](https://claude.ai/directory/canopy).
-
-**Grok Build.** After the plugin is in the [xAI plugin marketplace](https://github.com/xai-org/plugin-marketplace), install it from `/marketplace` or:
-
-```bash
-grok plugin install canopy --trust
-```
-
-The first connection opens Canopy's OAuth flow. Skills load from `skills/` and the server from `.mcp.json`.
-
-**Other Agent Plugins clients.** This repository is also an [Agent Plugin](https://agent-plugins.org/specification) (specification 1.0.0). Those clients read root `plugin.json` (name `canopy-api-mcp`) and `mcp.json` (`type: streamable-http`). They need Agent Plugins 1.0.0. There is no archive and no registry protocol in the specification: the package is this directory.
-
-`server.json` is the MCP Registry server card (`co.canopyapi/mcp`), separate from the plugin manifests. `npm install`, `npm run dev`, and `npm run deploy` are unchanged.
-
-Validate the manifests (`npm test` runs the first command too; it checks that every manifest carries the same `version`):
-
-```bash
-npm run validate:plugin
-claude plugin validate . --strict
-grok plugin validate .
-```
-
-Publishing steps for each marketplace are in [`submissions/README.md`](submissions/README.md).
+See the [plugin README](https://github.com/canopy-api/canopy-plugin#install) for the other clients. This repository is the server only.
 
 ### Run it yourself
 
@@ -162,24 +132,7 @@ All 17 tools are read-only (`readOnlyHint: true`) and annotated with a `title`.
 
 ```
 canopy-api-mcp/
-├── .cursor-plugin/plugin.json  # Cursor Marketplace manifest
-├── .claude-plugin/
-│   ├── plugin.json             # Claude Code plugin manifest
-│   └── marketplace.json        # self-hosted Claude Code marketplace
-├── .grok-plugin/plugin.json    # Grok Build plugin manifest
-├── .mcp.json                   # Claude Code, Cursor, and Grok MCP server (HTTP)
-├── plugin.json                 # Agent Plugins 1.0.0 manifest
-├── mcp.json                    # Agent Plugins MCP declaration (Streamable HTTP)
-├── skills/
-│   ├── amazon-product-research/
-│   │   ├── SKILL.md
-│   │   └── references/tools.md
-│   └── amazon-price-and-deals/
-│       └── SKILL.md
-├── submissions/
-│   ├── README.md               # how to publish to each marketplace
-│   └── xai-marketplace-entry.json  # entry to paste into xai-org/plugin-marketplace
-├── server.json                 # MCP Registry server card (separate from plugin.json)
+├── server.json                 # MCP Registry server card (co.canopyapi/mcp)
 ├── LICENSE                     # MIT License
 ├── src/
 │   ├── tools/                  # one file per tool (auto-discovered by xmcp)
@@ -213,7 +166,6 @@ npm run generate
 - `npm run deploy` — build + `wrangler deploy --env production`
 - `npm run delete` — remove the deployed Worker
 - `npm run generate` — regenerate API types from the OpenAPI spec
-- `npm run validate:plugin` — check `plugin.json`, `mcp.json`, and `skills/` against Agent Plugins 1.0.0
 
 ## Migration from v1.x
 
@@ -225,6 +177,7 @@ This project is released under the [MIT License](LICENSE). Copyright (c) 2026 Ca
 
 ## Related
 
+- [Canopy plugin](https://github.com/canopy-api/canopy-plugin) — this server packaged with skills for Claude, Cursor, and Grok
 - [Model Context Protocol](https://modelcontextprotocol.io)
 - [xmcp framework](https://xmcp.dev)
 - [Amazon MCP Server — Canopy](https://canopyapi.co/amazon-mcp-server)

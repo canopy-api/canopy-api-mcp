@@ -6,6 +6,14 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-11-09
+
+The server, its tools, and its auth are unchanged. The major version marks the plugin files leaving this repository.
+
+### Removed
+
+- The plugin manifests (`.claude-plugin/`, `.cursor-plugin/`, `.grok-plugin/`, `.mcp.json`, `plugin.json`, `mcp.json`) and both skills. They moved to [canopy-api/canopy-plugin](https://github.com/canopy-api/canopy-plugin). If you added this repository as a Claude Code marketplace, run `claude plugin marketplace remove canopy-api`, then `claude plugin marketplace add canopy-api/canopy-plugin` and `claude plugin install canopy@canopy-api`.
+
 ## [2.2.0] - 2026-11-08
 
 ### Added
@@ -75,6 +83,7 @@ All notable changes to this project are documented here. The format is based on
 
 - First MCP server, with API-key authentication.
 
-[Unreleased]: https://github.com/canopy-api/canopy-api-mcp/compare/v2.2.0...HEAD
+[Unreleased]: https://github.com/canopy-api/canopy-api-mcp/compare/v3.0.0...HEAD
+[3.0.0]: https://github.com/canopy-api/canopy-api-mcp/compare/v2.2.0...v3.0.0
 [2.2.0]: https://github.com/canopy-api/canopy-api-mcp/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/canopy-api/canopy-api-mcp/releases/tag/v2.1.0

@@ -11,6 +11,8 @@ This file provides guidance to coding agents (Claude Code, Codex, Cursor, and ot
 - `npm run delete` — remove deployed Worker and resources
 - `npm run generate` — regenerate `src/types/api.d.ts` from `https://rest.canopyapi.co/api/v1/openapi.json`
 
+This repository is the server only. The agent plugin (marketplace manifests and skills for Claude, Cursor, and Grok) lives in [canopy-api/canopy-plugin](https://github.com/canopy-api/canopy-plugin) and has its own version. Do not add plugin manifests, `.mcp.json`, or skills here.
+
 ## Project Architecture
 
 MCP server providing Amazon product data through the Canopy API. Built with [xmcp](https://xmcp.dev) and deployed on Cloudflare Workers.
@@ -105,7 +107,7 @@ Connect to `http://localhost:8787/mcp` (development) or the deployed URL. Provid
 
 ## Versioning and changelog
 
-Every PR updates `CHANGELOG.md`. Every PR that changes what users get also bumps the version. Merging to `main` is a release: the plugin marketplaces read `main` directly, and `claude plugin update` only picks up a new release when the version in `.claude-plugin/plugin.json` changes.
+Every PR updates `CHANGELOG.md`. Every PR that changes what users get also bumps the version. Merging to `main` is a release.
 
 ### Changelog
 
@@ -116,13 +118,13 @@ Every PR updates `CHANGELOG.md`. Every PR that changes what users get also bumps
 
 ### Version bump
 
-The project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html). The contract is the tool roster, tool input and output schemas, auth behavior, and the plugin manifests.
+The project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html). The contract is the tool roster, tool input and output schemas, and auth behavior.
 
 - **Major**: anything that can break an existing client or prompt. Examples are removing or renaming a tool, removing or renaming a parameter, making an optional parameter required, removing a field from `outputSchema`, or dropping an auth mode.
-- **Minor**: a backward-compatible addition. Examples are a new tool, a new optional parameter or enum value (such as a new `domain`), a new widget or skill, or a new marketplace listing.
+- **Minor**: a backward-compatible addition. Examples are a new tool, a new optional parameter or enum value (such as a new `domain`), or a new widget.
 - **Patch**: a fix or change that adds nothing new. Examples are bug fixes, dependency updates, and wording changes to descriptions.
 
-A version lives in six files, and the bump must change all six to the same value: `package.json`, `server.json`, `plugin.json`, `.claude-plugin/plugin.json`, `.cursor-plugin/plugin.json`, and `.grok-plugin/plugin.json`. Also update the two `version` fields at the top of `package-lock.json`. Running `npm version X.Y.Z --no-git-tag-version` updates both package files. Then edit the other four by hand. `npm run validate:plugin`, which `npm test` runs too, fails if any of the six files disagree.
+A version lives in two files, and the bump must change both to the same value: `package.json` and `server.json`. Also update the two `version` fields at the top of `package-lock.json`. Running `npm version X.Y.Z --no-git-tag-version` updates both package files. Then edit `server.json` by hand.
 
 If another PR takes your version number first, rebase onto `main` and use the next free number. Then fold your changelog section into the right place.
 

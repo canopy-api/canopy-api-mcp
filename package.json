@@ -1,6 +1,6 @@
 {
   "name": "canopy-api-mcp",
-  "version": "2.2.0",
+  "version": "3.0.0",
   "description": "Canopy MCP server (xmcp + Cloudflare Workers)",
   "license": "MIT",
   "private": true,
@@ -15,8 +15,7 @@
     "deploy": "npm run build && wrangler deploy --env production",
     "delete": "wrangler delete",
     "generate": "openapi-typescript https://rest.canopyapi.co/api/v1/openapi.json --output src/types/api.d.ts",
-    "validate:plugin": "node scripts/validate-plugin.mjs",
-    "test": "npm run validate:plugin && npm run build && node --test \"test/*.test.mjs\""
+    "test": "npm run build && node --test \"test/*.test.mjs\""
   },
   "dependencies": {
     "@modelcontextprotocol/server": "^2.3.1",
