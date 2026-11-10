@@ -8,7 +8,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const WIDGETS = ["product", "search", "offers", "reviews", "bestsellers", "deals"];
+const WIDGETS = ["product", "search", "offers", "bestsellers", "deals"];
 
 const css = readFileSync(join(root, "widgets", "base.css"), "utf8");
 mkdirSync(join(root, "src", "widgets"), { recursive: true });

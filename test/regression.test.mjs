@@ -115,7 +115,6 @@ test("tools/list works statelessly (no mcp-session-id, no prior initialize)", as
     "get_amazon_product_offers",
     "get_amazon_product_sales",
     "get_amazon_product_stock",
-    "get_amazon_product_top_reviews",
     "get_amazon_product_variants",
     "get_amazon_seller",
     "search_amazon_products",

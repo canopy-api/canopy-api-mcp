@@ -20,7 +20,7 @@ MCP server providing Amazon product data through the Canopy API. Built with [xmc
 ### Layout
 
 - **src/tools/** — one file per tool, auto-discovered by xmcp. Each file exports `schema`, `metadata`, and a default async function.
-- **widgets/** — vanilla-TS widget sources (ChatGPT Apps / MCP Apps UI): `bridge.ts` (host bridge: `window.openai` with a JSON-RPC postMessage fallback), `format.ts` (HTML escaping + render helpers), `base.css`, and one entry per widget (`product`, `search`, `offers`, `reviews`, `bestsellers`, `deals`).
+- **widgets/** — vanilla-TS widget sources (ChatGPT Apps / MCP Apps UI): `bridge.ts` (host bridge: `window.openai` with a JSON-RPC postMessage fallback), `format.ts` (HTML escaping + render helpers), `base.css`, and one entry per widget (`product`, `search`, `offers`, `bestsellers`, `deals`).
 - **scripts/build-widgets.mjs** — esbuild-bundles each widget into a self-contained HTML document and emits it as a string module in `src/widgets/` (gitignored) for the resource files to import.
 - **src/resources/(ui)/widget/** — one xmcp resource per widget, served as `ui://widget/<name>.html` with mimeType `text/html;profile=mcp-app`. Handlers return a full `ReadResourceResult` via `widgetResourceResult(...)` — a bare string return would drop the mimeType and CSP `_meta`.
 - **src/lib/widget-meta.ts** — `_meta` builders. Tools use the flat `"ui/resourceUri"` key + `"openai/outputTemplate"` alias. Never use xmcp's nested `_meta.ui` object on tools: it triggers xmcp's built-in widget mode, which auto-registers a `ui://app/<tool>.html` resource backed by the tool handler itself (reading it would call Canopy without an API key and throw). Also lists the Amazon image CDNs allowed by the widget CSP.
@@ -43,20 +43,19 @@ All tools are read-only (`readOnlyHint: true`) and carry an annotation `title` (
 3. `get_amazon_product_offers` — seller offers + Buy Box
 4. `get_amazon_product_stock` — stock estimates
 5. `get_amazon_product_sales` — sales estimates
-6. `get_amazon_product_top_reviews` — top customer reviews
-7. `search_amazon_products` — product search with filters
-8. `get_amazon_autocomplete` — search suggestions
-9. `get_amazon_categories` — root categories
-10. `get_amazon_category` — category details and products
-11. `get_amazon_bestsellers` — best sellers for a category
-12. `get_amazon_bestseller_categories` — best seller category list
-13. `get_amazon_seller` — seller information
-14. `get_amazon_author` — author information and books
-15. `get_amazon_deals` — current Amazon deals, optionally filtered by category
-16. `get_amazon_asin_from_gtin` — ASIN by ISBN/UPC/EAN
-17. `get_amazon_gtin_from_asin` — GTIN by ASIN
+6. `search_amazon_products` — product search with filters
+7. `get_amazon_autocomplete` — search suggestions
+8. `get_amazon_categories` — root categories
+9. `get_amazon_category` — category details and products
+10. `get_amazon_bestsellers` — best sellers for a category
+11. `get_amazon_bestseller_categories` — best seller category list
+12. `get_amazon_seller` — seller information
+13. `get_amazon_author` — author information and books
+14. `get_amazon_deals` — current Amazon deals, optionally filtered by category
+15. `get_amazon_asin_from_gtin` — ASIN by ISBN/UPC/EAN
+16. `get_amazon_gtin_from_asin` — GTIN by ASIN
 
-Six tools render widgets in hosts that support MCP Apps / ChatGPT Apps UI: `get_amazon_product` (card), `search_amazon_products` (carousel), `get_amazon_product_offers` (offers list), `get_amazon_product_top_reviews` (reviews), `get_amazon_bestsellers` (ranked list), `get_amazon_deals` (deals carousel). Widgets are display-only: they render the tool's `structuredContent` (no network calls, links open on Amazon), so tools keep working unchanged in non-UI clients.
+Five tools render widgets in hosts that support MCP Apps / ChatGPT Apps UI: `get_amazon_product` (card), `search_amazon_products` (carousel), `get_amazon_product_offers` (offers list), `get_amazon_bestsellers` (ranked list), `get_amazon_deals` (deals carousel). Widgets are display-only: they render the tool's `structuredContent` (no network calls, links open on Amazon), so tools keep working unchanged in non-UI clients.
 
 ### Adding a tool
 

@@ -44,28 +44,3 @@ export const productResultSchema = z.looseObject({
   isPrime: z.boolean().optional(),
   sponsored: z.boolean().optional(),
 });
-
-export const reviewSchema = z.looseObject({
-  id: z.string().optional(),
-  title: z.string().optional(),
-  body: z.string().optional(),
-  imageUrls: z.array(z.string()).optional(),
-  videos: z
-    .array(
-      z.looseObject({
-        posterImageUrl: z.string().optional(),
-        url: z.string().optional(),
-      }),
-    )
-    .optional(),
-  rating: z.number().optional().describe("Star rating given by the reviewer"),
-  helpfulVotes: z.number().optional(),
-  verifiedPurchase: z.boolean().optional(),
-  reviewer: z
-    .looseObject({
-      id: z.string().optional(),
-      name: z.string().optional(),
-      url: z.string().optional(),
-    })
-    .optional(),
-});
