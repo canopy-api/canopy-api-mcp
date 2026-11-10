@@ -119,7 +119,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Amazon Product Top Reviews */
+        /**
+         * Get Amazon Product Reviews (paginated)
+         * @description Retrieve customer reviews for a product with pagination, filtering, and sorting. Pages beyond the first require an AMAZON_COOKIE header. For a quick, cookie-free snapshot of the most helpful reviews, use the Top Reviews endpoint instead.
+         */
         get: operations["get_AmazonProductReviews"];
         put?: never;
         post?: never;
@@ -136,7 +139,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Amazon Product Top Reviews */
+        /**
+         * Get Amazon Product Top Reviews
+         * @description Retrieve the product page's top (most helpful) reviews in a single request — no pagination, filters, or AMAZON_COOKIE header. For the full paginated review list, use the Reviews endpoint.
+         */
         get: operations["get_AmazonProductTopReviews"];
         put?: never;
         post?: never;
@@ -155,6 +161,57 @@ export interface paths {
         };
         /** Get Amazon Product Offers */
         get: operations["get_AmazonProductOffers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/amazon/product/a-plus-content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Amazon Product A+ Content */
+        get: operations["get_AmazonAPlusContent"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/amazon/product/html": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Amazon Product Page HTML */
+        get: operations["get_AmazonProductHtml"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/amazon/product/markdown": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Amazon Product Page Markdown */
+        get: operations["get_AmazonProductMarkdown"];
         put?: never;
         post?: never;
         delete?: never;
@@ -328,7 +385,21 @@ export interface paths {
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: never;
+    schemas: {
+        AmazonProductPrice: {
+            symbol: string;
+            value: number;
+            currency: string;
+            display: string;
+        };
+        AmazonPageInfo: {
+            currentPage?: number;
+            totalPages?: number;
+            hasNextPage?: boolean;
+            hasPrevPage?: boolean;
+            totalResults?: number;
+        };
+    };
     responses: never;
     parameters: never;
     requestBodies: never;
@@ -347,7 +418,7 @@ export interface operations {
                 /** @description The GTIN (ISBN, UPC or EAN code) for a product */
                 gtin?: string;
                 /** @description The domain for fetching product data, defaults to US. */
-                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE" | "SG" | "NL" | "SE";
             };
             header: {
                 /** @description API key for authentication */
@@ -368,6 +439,7 @@ export interface operations {
                         data: {
                             amazonProduct: {
                                 title?: string;
+                                itemHighlights?: string | null;
                                 subtitle?: string;
                                 brand?: string;
                                 url?: string;
@@ -375,12 +447,7 @@ export interface operations {
                                 isPrime?: boolean;
                                 isNew?: boolean;
                                 isInStock?: boolean;
-                                price?: {
-                                    symbol: string;
-                                    value: number;
-                                    currency: string;
-                                    display: string;
-                                };
+                                price?: components["schemas"]["AmazonProductPrice"] | null;
                                 mainImageUrl?: string;
                                 imageUrls?: string[];
                                 rating?: number;
@@ -398,7 +465,7 @@ export interface operations {
                                 }[];
                                 coupon?: {
                                     label: string;
-                                };
+                                } | null;
                                 seller?: {
                                     sellerId?: string;
                                     name?: string;
@@ -472,7 +539,7 @@ export interface operations {
                 /** @description The ASIN for a product (e.g. B0F7K8DPPT) */
                 asin: string;
                 /** @description The domain for fetching product data, defaults to US. */
-                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE" | "SG" | "NL" | "SE";
             };
             header: {
                 /** @description API key for authentication */
@@ -563,7 +630,7 @@ export interface operations {
                 /** @description The GTIN (ISBN, UPC or EAN code) for a product */
                 gtin: string;
                 /** @description The domain for fetching product data, defaults to US. */
-                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE" | "SG" | "NL" | "SE";
             };
             header: {
                 /** @description API key for authentication */
@@ -658,7 +725,7 @@ export interface operations {
                 /** @description The GTIN (ISBN, UPC or EAN code) for a product */
                 gtin?: string;
                 /** @description The domain for fetching product data, defaults to US. */
-                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE" | "SG" | "NL" | "SE";
             };
             header: {
                 /** @description API key for authentication */
@@ -686,12 +753,7 @@ export interface operations {
                                         name?: string;
                                         value?: string;
                                     }[];
-                                    price?: {
-                                        symbol: string;
-                                        value: number;
-                                        currency: string;
-                                        display: string;
-                                    };
+                                    price?: components["schemas"]["AmazonProductPrice"] | null;
                                 }[];
                             };
                         };
@@ -750,7 +812,7 @@ export interface operations {
                 /** @description The GTIN (ISBN, UPC or EAN code) for a product */
                 gtin?: string;
                 /** @description The domain for fetching product data, defaults to US. */
-                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE" | "SG" | "NL" | "SE";
             };
             header: {
                 /** @description API key for authentication */
@@ -833,7 +895,7 @@ export interface operations {
                 /** @description The GTIN (ISBN, UPC or EAN code) for a product */
                 gtin?: string;
                 /** @description The domain for fetching product data, defaults to US. */
-                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE" | "SG" | "NL" | "SE";
             };
             header: {
                 /** @description API key for authentication */
@@ -915,7 +977,7 @@ export interface operations {
                 /** @description The GTIN (ISBN, UPC or EAN code) for a product */
                 gtin?: string;
                 /** @description The domain for fetching product data, defaults to US. */
-                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE" | "SG" | "NL" | "SE";
                 /** @description Page number for paginated reviews (default 1) */
                 page?: number;
                 /** @description Only include reviews from verified purchasers */
@@ -928,6 +990,8 @@ export interface operations {
             header: {
                 /** @description API key for authentication */
                 "API-KEY": string;
+                /** @description Your signed-in Amazon session cookie string, required for paginated reviews. Sign in to Amazon in Chrome or Safari, open DevTools > Network, filter by "Doc", load a product page, and copy the full value of the request "Cookie" header. The account must match the Amazon domain being queried. The cookie is used only for this request and is never stored. */
+                AMAZON_COOKIE?: string;
             };
             path?: never;
             cookie?: never;
@@ -1045,7 +1109,7 @@ export interface operations {
                 /** @description The GTIN (ISBN, UPC or EAN code) for a product */
                 gtin?: string;
                 /** @description The domain for fetching product data, defaults to US. */
-                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE" | "SG" | "NL" | "SE";
             };
             header: {
                 /** @description API key for authentication */
@@ -1140,7 +1204,7 @@ export interface operations {
                 /** @description The GTIN (ISBN, UPC or EAN code) for a product */
                 gtin?: string;
                 /** @description The domain for fetching product data, defaults to US. */
-                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE" | "SG" | "NL" | "SE";
                 /** @description The page number for offers results */
                 page?: number;
             };
@@ -1165,12 +1229,7 @@ export interface operations {
                                 offersPaginated?: {
                                     offers?: {
                                         id?: string;
-                                        price?: {
-                                            symbol: string;
-                                            value: number;
-                                            currency: string;
-                                            display: string;
-                                        } | null;
+                                        price?: components["schemas"]["AmazonProductPrice"] | null;
                                         minimumOrderQuantity?: number;
                                         maximumOrderQuantity?: number;
                                         conditionIsNew?: boolean;
@@ -1180,12 +1239,7 @@ export interface operations {
                                             shippedFromOutsideCountry?: boolean;
                                             countdown?: string;
                                             comments?: string;
-                                            price?: {
-                                                symbol: string;
-                                                value: number;
-                                                currency: string;
-                                                display: string;
-                                            } | null;
+                                            price?: components["schemas"]["AmazonProductPrice"] | null;
                                             upsell?: {
                                                 name?: string;
                                                 value?: string;
@@ -1203,14 +1257,264 @@ export interface operations {
                                         isPrime?: boolean;
                                         buyboxWinner?: boolean;
                                     }[];
-                                    pageInfo?: {
-                                        currentPage?: number;
-                                        totalPages?: number;
-                                        hasNextPage?: boolean;
-                                        hasPrevPage?: boolean;
-                                        totalResults?: number;
+                                    pageInfo?: components["schemas"]["AmazonPageInfo"] | null;
+                                } | null;
+                            };
+                        };
+                    };
+                };
+            };
+            /** @description Input Validation Error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {boolean} */
+                        success: false;
+                        errors: {
+                            code: number;
+                            message: string;
+                            path: string[];
+                        }[];
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {boolean} */
+                        success: false;
+                        errors: {
+                            code: number;
+                            message: string;
+                        }[];
+                    };
+                };
+            };
+            /** @description Internal Server Error - request failed */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    get_AmazonAPlusContent: {
+        parameters: {
+            query?: {
+                /** @description The ASIN for a product (e.g. B0F7K8DPPT) */
+                asin?: string;
+                /** @description The Amazon URL for a product */
+                url?: string;
+                /** @description The GTIN (ISBN, UPC or EAN code) for a product */
+                gtin?: string;
+                /** @description The domain for fetching product data, defaults to US. */
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE" | "SG" | "NL" | "SE";
+            };
+            header: {
+                /** @description API key for authentication */
+                "API-KEY": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Returns Amazon product A+ Content */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            amazonProduct: {
+                                aPlusContent?: {
+                                    thirdParty?: boolean;
+                                    companyLogo?: string;
+                                    companyDescriptionText?: string;
+                                    html?: string;
+                                    text?: string;
+                                    images?: {
+                                        url?: string;
+                                        alt?: string;
+                                    }[];
+                                    brandStory?: {
+                                        heroImage?: string;
+                                        brandStoreId?: string;
+                                        brandStoreUrl?: string;
+                                        images?: {
+                                            url?: string;
+                                            alt?: string;
+                                        }[];
                                     } | null;
                                 } | null;
+                            };
+                        };
+                    };
+                };
+            };
+            /** @description Input Validation Error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {boolean} */
+                        success: false;
+                        errors: {
+                            code: number;
+                            message: string;
+                            path: string[];
+                        }[];
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {boolean} */
+                        success: false;
+                        errors: {
+                            code: number;
+                            message: string;
+                        }[];
+                    };
+                };
+            };
+            /** @description Internal Server Error - request failed */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    get_AmazonProductHtml: {
+        parameters: {
+            query?: {
+                /** @description The ASIN for a product (e.g. B0F7K8DPPT) */
+                asin?: string;
+                /** @description The Amazon URL for a product */
+                url?: string;
+                /** @description The GTIN (ISBN, UPC or EAN code) for a product */
+                gtin?: string;
+                /** @description The domain for fetching product data, defaults to US. */
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE" | "SG" | "NL" | "SE";
+            };
+            header: {
+                /** @description API key for authentication */
+                "API-KEY": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Returns the raw HTML of the Amazon product page */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            amazonProductPage: {
+                                /** @description The raw HTML of the Amazon product page */
+                                html: string;
+                            };
+                        };
+                    };
+                };
+            };
+            /** @description Input Validation Error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {boolean} */
+                        success: false;
+                        errors: {
+                            code: number;
+                            message: string;
+                            path: string[];
+                        }[];
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {boolean} */
+                        success: false;
+                        errors: {
+                            code: number;
+                            message: string;
+                        }[];
+                    };
+                };
+            };
+            /** @description Internal Server Error - request failed */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    get_AmazonProductMarkdown: {
+        parameters: {
+            query?: {
+                /** @description The ASIN for a product (e.g. B0F7K8DPPT) */
+                asin?: string;
+                /** @description The Amazon URL for a product */
+                url?: string;
+                /** @description The GTIN (ISBN, UPC or EAN code) for a product */
+                gtin?: string;
+                /** @description The domain for fetching product data, defaults to US. */
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE" | "SG" | "NL" | "SE";
+            };
+            header: {
+                /** @description API key for authentication */
+                "API-KEY": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Returns the Amazon product page converted to Markdown. Send `Accept: text/markdown` to get the Markdown document as the raw response body instead of a JSON string. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/markdown": string;
+                    "application/json": {
+                        data: {
+                            amazonProductPage: {
+                                /** @description The Amazon product page converted to Markdown, scoped to the product content (title, price, bullets, A+ Content, product details and description) */
+                                markdown: string;
                             };
                         };
                     };
@@ -1264,8 +1568,8 @@ export interface operations {
                 /** @description The search term for fetching search results */
                 searchTerm: string;
                 /** @description The domain for fetching search results data, defaults to US. */
-                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
-                /** @description An optional category ID used to filter search results */
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE" | "SG" | "NL" | "SE";
+                /** @description An optional Amazon browse-node ID used to filter search results. Any valid browse-node ID for the marketplace is accepted (not limited to the Categories endpoint taxonomy, and not interchangeable with Bestsellers slugs). */
                 categoryId?: string;
                 /** @description The page number requested for product results */
                 page?: number;
@@ -1309,12 +1613,7 @@ export interface operations {
                                         title?: string;
                                         url?: string;
                                         asin?: string;
-                                        price?: {
-                                            symbol: string;
-                                            value: number;
-                                            currency: string;
-                                            display: string;
-                                        };
+                                        price?: components["schemas"]["AmazonProductPrice"] | null;
                                         mainImageUrl?: string;
                                         rating?: number;
                                         ratingsTotal?: number;
@@ -1322,15 +1621,9 @@ export interface operations {
                                         sponsored?: boolean;
                                         coupon?: {
                                             label: string;
-                                        };
+                                        } | null;
                                     }[];
-                                    pageInfo?: {
-                                        currentPage?: number;
-                                        totalPages?: number;
-                                        hasNextPage?: boolean;
-                                        hasPrevPage?: boolean;
-                                        totalResults?: number;
-                                    };
+                                    pageInfo?: components["schemas"]["AmazonPageInfo"] | null;
                                 };
                             };
                         };
@@ -1385,7 +1678,7 @@ export interface operations {
                 /** @description The search term for fetching autocomplete results */
                 searchTerm: string;
                 /** @description The domain for fetching autocomplete data, defaults to US. */
-                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE" | "SG" | "NL" | "SE";
                 /** @description The search autocomplete_alias in the amazon url parameter */
                 category?: string;
             };
@@ -1459,7 +1752,7 @@ export interface operations {
         parameters: {
             query?: {
                 /** @description The domain for fetching product category taxonomy, defaults to US. */
-                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE" | "SG" | "NL" | "SE";
             };
             header: {
                 /** @description API key for authentication */
@@ -1533,10 +1826,10 @@ export interface operations {
     get_AmazonProductCategory: {
         parameters: {
             query: {
-                /** @description The category ID, typically a number but may also be a string in certain cases */
+                /** @description A category ID returned by the Categories endpoint (typically numeric). This endpoint only supports IDs from that taxonomy — other Amazon browse-node IDs return a 400. To filter by an arbitrary browse-node ID, use the Search endpoint's categoryId parameter instead. */
                 categoryId: string;
                 /** @description The domain for fetching product category data, defaults to US. */
-                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE" | "SG" | "NL" | "SE";
                 /** @description The page number requested for product results */
                 page?: number;
                 /** @description Sort order (FEATURED, MOST_RECENT, PRICE_ASCENDING, PRICE_DESCENDING, AVERAGE_CUSTOMER_REVIEW) */
@@ -1575,25 +1868,14 @@ export interface operations {
                                         title?: string;
                                         url?: string;
                                         asin?: string;
-                                        price?: {
-                                            symbol: string;
-                                            value: number;
-                                            currency: string;
-                                            display: string;
-                                        };
+                                        price?: components["schemas"]["AmazonProductPrice"] | null;
                                         mainImageUrl?: string;
                                         rating?: number;
                                         ratingsTotal?: number;
                                         isPrime?: boolean;
                                         sponsored?: boolean;
                                     }[];
-                                    pageInfo?: {
-                                        currentPage?: number;
-                                        totalPages?: number;
-                                        hasNextPage?: boolean;
-                                        hasPrevPage?: boolean;
-                                        totalResults?: number;
-                                    };
+                                    pageInfo?: components["schemas"]["AmazonPageInfo"] | null;
                                 };
                             };
                         };
@@ -1645,10 +1927,10 @@ export interface operations {
     get_AmazonSeller: {
         parameters: {
             query: {
-                /** @description The seller ID for a product (e.g. A34JY1ZNKUG942) */
+                /** @description The Amazon seller ID (e.g. A2L77EE7U53NWQ, Amazon Resale on the US marketplace). Seller IDs are marketplace-specific; obtain a current one from a product response. A seller with no active listings returns seller details with an empty productResults list. */
                 sellerId: string;
                 /** @description The domain for fetching seller data, defaults to US. */
-                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE" | "SG" | "NL" | "SE";
                 /** @description The page number requested for product results */
                 page?: number;
             };
@@ -1681,25 +1963,14 @@ export interface operations {
                                         title?: string;
                                         url?: string;
                                         asin?: string;
-                                        price?: {
-                                            symbol: string;
-                                            value: number;
-                                            currency: string;
-                                            display: string;
-                                        };
+                                        price?: components["schemas"]["AmazonProductPrice"] | null;
                                         mainImageUrl?: string;
                                         rating?: number;
                                         ratingsTotal?: number;
                                         isPrime?: boolean;
                                         sponsored?: boolean;
                                     }[];
-                                    pageInfo?: {
-                                        currentPage?: number;
-                                        totalPages?: number;
-                                        hasNextPage?: boolean;
-                                        hasPrevPage?: boolean;
-                                        totalResults?: number;
-                                    };
+                                    pageInfo?: components["schemas"]["AmazonPageInfo"] | null;
                                 };
                             };
                         };
@@ -1754,7 +2025,7 @@ export interface operations {
                 /** @description The asin ID for the author (e.g. B017M7UJX6) */
                 asin: string;
                 /** @description The domain for fetching author data, defaults to US. */
-                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE" | "SG" | "NL" | "SE";
                 /** @description The page number requested for book results */
                 page?: number;
             };
@@ -1785,12 +2056,7 @@ export interface operations {
                                         title?: string;
                                         url?: string;
                                         asin?: string;
-                                        price?: {
-                                            symbol: string;
-                                            value: number;
-                                            currency: string;
-                                            display: string;
-                                        };
+                                        price?: components["schemas"]["AmazonProductPrice"] | null;
                                         mainImageUrl?: string;
                                         rating?: number;
                                         ratingsTotal?: number;
@@ -1801,13 +2067,7 @@ export interface operations {
                                             url?: string;
                                         }[];
                                     }[];
-                                    pageInfo?: {
-                                        currentPage?: number;
-                                        totalPages?: number;
-                                        hasNextPage?: boolean;
-                                        hasPrevPage?: boolean;
-                                        totalResults?: number;
-                                    };
+                                    pageInfo?: components["schemas"]["AmazonPageInfo"] | null;
                                 };
                             };
                         };
@@ -1860,12 +2120,17 @@ export interface operations {
         parameters: {
             query?: {
                 /** @description The domain for fetching deals data, defaults to US. */
-                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE" | "SG" | "NL" | "SE";
                 /** @description The page number requested for product results */
                 page?: number;
                 /** @description Optionally limit the products results. Typically between 20-40 results will be available per page if no limit is applied. */
                 limit?: number;
-                /** @description Optional comma-separated list of category IDs to filter deals (e.g. "3760911,172282"). Category IDs can be discovered via the Categories API or from the categories array in deals responses. */
+                /** @description Optional category (department) ID to filter deals by (e.g. "172282"). Category IDs can be discovered via the Categories API. */
+                categoryId?: string;
+                /**
+                 * @deprecated
+                 * @description Deprecated: use categoryId. Optional comma-separated list of up to 3 category (department) IDs to filter deals (e.g. "3760911,172282"). With more than one, deals from each category are combined. Can't be combined with categoryId.
+                 */
                 categoryIds?: string;
             };
             header: {
@@ -1891,39 +2156,14 @@ export interface operations {
                                         title?: string;
                                         url?: string;
                                         asin?: string;
-                                        price?: {
-                                            symbol: string;
-                                            value: number;
-                                            currency: string;
-                                            display: string;
-                                        };
-                                        recommendedRetailPrice?: {
-                                            symbol: string;
-                                            value: number;
-                                            currency: string;
-                                            display: string;
-                                        };
+                                        price?: components["schemas"]["AmazonProductPrice"] | null;
+                                        recommendedRetailPrice?: components["schemas"]["AmazonProductPrice"] | null;
                                         mainImageUrl?: string;
                                         dealId?: string;
                                         dealUrl?: string;
-                                        dealPrice?: {
-                                            symbol: string;
-                                            value: number;
-                                            currency: string;
-                                            display: string;
-                                        };
-                                        dealCurrentPrice?: {
-                                            symbol: string;
-                                            value: number;
-                                            currency: string;
-                                            display: string;
-                                        };
-                                        dealListPrice?: {
-                                            symbol: string;
-                                            value: number;
-                                            currency: string;
-                                            display: string;
-                                        };
+                                        dealPrice?: components["schemas"]["AmazonProductPrice"] | null;
+                                        dealCurrentPrice?: components["schemas"]["AmazonProductPrice"] | null;
+                                        dealListPrice?: components["schemas"]["AmazonProductPrice"] | null;
                                         dealPercentOff?: number;
                                         dealType?: string;
                                         dealIsLightningDeal?: boolean;
@@ -1931,13 +2171,7 @@ export interface operations {
                                         dealStartTime?: string;
                                         dealEndTime?: string;
                                     }[];
-                                    pageInfo?: {
-                                        currentPage?: number;
-                                        totalPages?: number;
-                                        hasNextPage?: boolean;
-                                        hasPrevPage?: boolean;
-                                        totalResults?: number;
-                                    };
+                                    pageInfo?: components["schemas"]["AmazonPageInfo"] | null;
                                 };
                             };
                         };
@@ -1990,14 +2224,14 @@ export interface operations {
         parameters: {
             query?: {
                 /** @description The domain for fetching best sellers data, defaults to US. */
-                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE" | "SG" | "NL" | "SE";
                 /** @description The page number requested for product results */
                 page?: number;
                 /** @description Optionally limit the products results. Typically between 20-50 results will be available per page if no limit is applied. */
                 limit?: number;
-                /** @description The category ID for best sellers (required if url is not provided). Category IDs can be discovered via the Categories API. */
+                /** @description A bestseller category slug (e.g. bestsellers_electronics), required if url is not provided. Discover slugs via the Bestseller Categories endpoint. Slugs are marketplace-specific — fetch them separately for each domain; they are not interchangeable with the numeric IDs used by the Category or Search endpoints. */
                 categoryId?: string;
-                /** @description The Amazon URL for a best sellers page (required if categoryId is not provided). */
+                /** @description The Amazon URL of a best sellers page (required if categoryId is not provided), e.g. a url returned by the Bestseller Categories endpoint. The URL determines the marketplace, so the domain parameter is ignored when url is used. */
                 url?: string;
             };
             header: {
@@ -2023,24 +2257,13 @@ export interface operations {
                                         title?: string;
                                         url?: string;
                                         asin?: string;
-                                        price?: {
-                                            symbol: string;
-                                            value: number;
-                                            currency: string;
-                                            display: string;
-                                        };
+                                        price?: components["schemas"]["AmazonProductPrice"] | null;
                                         mainImageUrl?: string;
                                         rating?: number;
                                         ratingsTotal?: number;
                                         bestSellersRank?: number;
                                     }[];
-                                    pageInfo?: {
-                                        currentPage?: number;
-                                        totalPages?: number;
-                                        hasNextPage?: boolean;
-                                        hasPrevPage?: boolean;
-                                        totalResults?: number;
-                                    };
+                                    pageInfo?: components["schemas"]["AmazonPageInfo"] | null;
                                 };
                                 categoryInfo?: {
                                     currentCategory?: {
@@ -2110,7 +2333,7 @@ export interface operations {
         parameters: {
             query?: {
                 /** @description The domain for fetching best seller categories, defaults to US. */
-                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE";
+                domain?: "US" | "UK" | "CA" | "DE" | "FR" | "IT" | "ES" | "AU" | "IN" | "MX" | "BR" | "JP" | "PL" | "AE" | "SG" | "NL" | "SE";
             };
             header: {
                 /** @description API key for authentication */

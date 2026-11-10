@@ -37,7 +37,10 @@ export type JwtVerification =
 // client as an invalid token — that would make clients discard valid tokens
 // and force a re-consent loop during a transient outage.
 const TOKEN_ERRORS = [
-  errors.JWTClaimValidationFailed, // includes JWTExpired
+  errors.JWTClaimValidationFailed,
+  // jose 6 throws JWTExpired for exp / maxTokenAge. It is a sibling of
+  // JWTClaimValidationFailed, so instanceof the claim error does not match.
+  errors.JWTExpired,
   errors.JWTInvalid,
   errors.JWSInvalid,
   errors.JWSSignatureVerificationFailed,

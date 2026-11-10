@@ -1,6 +1,6 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to coding agents (Claude Code, Codex, Cursor, and others) when working with code in this repository.
 
 ## Development Commands
 
@@ -11,6 +11,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run delete` — remove deployed Worker and resources
 - `npm run generate` — regenerate `src/types/api.d.ts` from `https://rest.canopyapi.co/api/v1/openapi.json`
 
+This repository is the server only. The agent plugin (marketplace manifests and skills for Claude, Cursor, and Grok) lives in [canopy-api/canopy-plugin](https://github.com/canopy-api/canopy-plugin) and has its own version. Do not add plugin manifests, `.mcp.json`, or skills here.
+
 ## Project Architecture
 
 MCP server providing Amazon product data through the Canopy API. Built with [xmcp](https://xmcp.dev) and deployed on Cloudflare Workers.
@@ -18,7 +20,7 @@ MCP server providing Amazon product data through the Canopy API. Built with [xmc
 ### Layout
 
 - **src/tools/** — one file per tool, auto-discovered by xmcp. Each file exports `schema`, `metadata`, and a default async function.
-- **widgets/** — vanilla-TS widget sources (ChatGPT Apps / MCP Apps UI): `bridge.ts` (host bridge: `window.openai` with a JSON-RPC postMessage fallback), `format.ts` (HTML escaping + render helpers), `base.css`, and one entry per widget (`product`, `search`, `offers`, `reviews`, `bestsellers`, `deals`).
+- **widgets/** — vanilla-TS widget sources (ChatGPT Apps / MCP Apps UI): `bridge.ts` (host bridge: `window.openai` with a JSON-RPC postMessage fallback), `format.ts` (HTML escaping + render helpers), `base.css`, and one entry per widget (`product`, `search`, `offers`, `bestsellers`, `deals`).
 - **scripts/build-widgets.mjs** — esbuild-bundles each widget into a self-contained HTML document and emits it as a string module in `src/widgets/` (gitignored) for the resource files to import.
 - **src/resources/(ui)/widget/** — one xmcp resource per widget, served as `ui://widget/<name>.html` with mimeType `text/html;profile=mcp-app`. Handlers return a full `ReadResourceResult` via `widgetResourceResult(...)` — a bare string return would drop the mimeType and CSP `_meta`.
 - **src/lib/widget-meta.ts** — `_meta` builders. Tools use the flat `"ui/resourceUri"` key + `"openai/outputTemplate"` alias. Never use xmcp's nested `_meta.ui` object on tools: it triggers xmcp's built-in widget mode, which auto-registers a `ui://app/<tool>.html` resource backed by the tool handler itself (reading it would call Canopy without an API key and throw). Also lists the Amazon image CDNs allowed by the widget CSP.
@@ -41,20 +43,19 @@ All tools are read-only (`readOnlyHint: true`) and carry an annotation `title` (
 3. `get_amazon_product_offers` — seller offers + Buy Box
 4. `get_amazon_product_stock` — stock estimates
 5. `get_amazon_product_sales` — sales estimates
-6. `get_amazon_product_top_reviews` — top customer reviews
-7. `search_amazon_products` — product search with filters
-8. `get_amazon_autocomplete` — search suggestions
-9. `get_amazon_categories` — root categories
-10. `get_amazon_category` — category details and products
-11. `get_amazon_bestsellers` — best sellers for a category
-12. `get_amazon_bestseller_categories` — best seller category list
-13. `get_amazon_seller` — seller information
-14. `get_amazon_author` — author information and books
-15. `get_amazon_deals` — current Amazon deals
-16. `get_amazon_asin_from_gtin` — ASIN by ISBN/UPC/EAN
-17. `get_amazon_gtin_from_asin` — GTIN by ASIN
+6. `search_amazon_products` — product search with filters
+7. `get_amazon_autocomplete` — search suggestions
+8. `get_amazon_categories` — root categories
+9. `get_amazon_category` — category details and products
+10. `get_amazon_bestsellers` — best sellers for a category
+11. `get_amazon_bestseller_categories` — best seller category list
+12. `get_amazon_seller` — seller information
+13. `get_amazon_author` — author information and books
+14. `get_amazon_deals` — current Amazon deals, optionally filtered by category
+15. `get_amazon_asin_from_gtin` — ASIN by ISBN/UPC/EAN
+16. `get_amazon_gtin_from_asin` — GTIN by ASIN
 
-Six tools render widgets in hosts that support MCP Apps / ChatGPT Apps UI: `get_amazon_product` (card), `search_amazon_products` (carousel), `get_amazon_product_offers` (offers list), `get_amazon_product_top_reviews` (reviews), `get_amazon_bestsellers` (ranked list), `get_amazon_deals` (deals carousel). Widgets are display-only: they render the tool's `structuredContent` (no network calls, links open on Amazon), so tools keep working unchanged in non-UI clients.
+Five tools render widgets in hosts that support MCP Apps / ChatGPT Apps UI: `get_amazon_product` (card), `search_amazon_products` (carousel), `get_amazon_product_offers` (offers list), `get_amazon_bestsellers` (ranked list), `get_amazon_deals` (deals carousel). Widgets are display-only: they render the tool's `structuredContent` (no network calls, links open on Amazon), so tools keep working unchanged in non-UI clients.
 
 ### Adding a tool
 
@@ -102,6 +103,34 @@ npx -y @modelcontextprotocol/inspector@latest
 ```
 
 Connect to `http://localhost:8787/mcp` (development) or the deployed URL. Provide the API key as a request header.
+
+## Versioning and changelog
+
+Every PR updates `CHANGELOG.md`. Every PR that changes what users get also bumps the version. Merging to `main` is a release.
+
+### Changelog
+
+- The changelog follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Put each entry under `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, or `Security`.
+- Write for someone who uses the server, not for someone reading the diff. Name the tool, parameter, or client it affects. Leave out refactors, test-only changes, and CI changes unless they change behavior.
+- A PR that bumps the version adds a dated section, `## [X.Y.Z] - YYYY-MM-DD`, below `## [Unreleased]`. Move everything already under `Unreleased` into the new section, and leave `Unreleased` empty. Add a compare link for the new version at the bottom of the file, and point the `[Unreleased]` link at the new tag.
+- A PR that doesn't bump the version (docs, tests, internal tooling) adds its entry under `## [Unreleased]`, if the change is worth an entry. The next version bump releases it.
+
+### Version bump
+
+The project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html). The contract is the tool roster, tool input and output schemas, and auth behavior.
+
+- **Major**: anything that can break an existing client or prompt. Examples are removing or renaming a tool, removing or renaming a parameter, making an optional parameter required, removing a field from `outputSchema`, or dropping an auth mode.
+- **Minor**: a backward-compatible addition. Examples are a new tool, a new optional parameter or enum value (such as a new `domain`), or a new widget.
+- **Patch**: a fix or change that adds nothing new. Examples are bug fixes, dependency updates, and wording changes to descriptions.
+
+A version lives in two files, and the bump must change both to the same value: `package.json` and `server.json`. Also update the two `version` fields at the top of `package-lock.json`. Running `npm version X.Y.Z --no-git-tag-version` updates both package files. Then edit `server.json` by hand.
+
+If another PR takes your version number first, rebase onto `main` and use the next free number. Then fold your changelog section into the right place.
+
+### After merge
+
+- Tag the merge commit `vX.Y.Z` and push the tag, so the changelog compare links work.
+- If `server.json` changed, republish it to the MCP registry. The registry entry is `co.canopyapi/mcp`.
 
 ## Build output
 

@@ -7,6 +7,12 @@ import { widgetToolMeta } from "../lib/widget-meta";
 
 export const schema = {
   domain: domainParam("The domain for fetching deals data, defaults to US"),
+  categoryId: z
+    .string()
+    .optional()
+    .describe(
+      'Optional Amazon category (department) ID to filter deals by, e.g. "172282" for Electronics. Category IDs can be found with get_amazon_categories.',
+    ),
   page: z.number().optional().describe("The page number requested for product results"),
   limit: z
     .number()
@@ -19,7 +25,7 @@ export const schema = {
 export const metadata: ToolMetadata = {
   name: "get_amazon_deals",
   description:
-    "Retrieve current deals from Amazon. Returns a paginated list of products currently on deal, including deal-specific information like discount percentages and deal badges.",
+    "Retrieve current deals from Amazon. Returns a paginated list of products currently on deal, including deal-specific information like discount percentages and deal badges. Optionally filter deals to a single category (department) with categoryId.",
   annotations: {
     title: "Get Amazon Deals",
     readOnlyHint: true,

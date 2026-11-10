@@ -206,7 +206,7 @@ img { display: block; }
 /* Pins price + chips to the card bottom so carousel cards align. */
 .card .foot { margin-top: auto; display: flex; flex-direction: column; gap: 6px; }
 
-/* Stacked row list (offers, reviews, bestsellers) */
+/* Stacked row list (offers, bestsellers) */
 .rows { display: flex; flex-direction: column; }
 .row { display: flex; gap: 12px; padding: 10px 2px; border-top: 1px solid var(--border); }
 .row:first-child { border-top: 0; }
@@ -251,7 +251,7 @@ a.o-seller:hover { color: var(--link); text-decoration: none; }
 .rail-nav button:hover:not(:disabled) { background: var(--chip); }
 .rail-nav button:disabled { opacity: 0.35; cursor: default; }
 
-/* Expand/collapse toggle (review bodies). */
+/* Expand/collapse toggle. */
 .more {
   border: 0; padding: 0; background: none;
   color: var(--link); font: inherit; font-size: 12px; font-weight: 600;

@@ -1,6 +1,6 @@
 # Canopy MCP Server — Amazon Product Data API for AI Agents
 
-An Amazon product data API served over the [Model Context Protocol](https://modelcontextprotocol.io). Connect Claude, ChatGPT, Cursor, or any MCP client to real-time Amazon data — an Amazon search API, reviews API, price tracker, ASIN lookup, best sellers, deals, and sales estimates — powered by the [Canopy API](https://canopyapi.co/). No headless browsers, no brittle HTML scraping: typed JSON over standard MCP tools.
+An Amazon product data API served over the [Model Context Protocol](https://modelcontextprotocol.io). Connect Claude, ChatGPT, Cursor, or any MCP client to real-time Amazon data — an Amazon search API, price tracker, ASIN lookup, best sellers, deals, and sales estimates — powered by the [Canopy API](https://canopyapi.co/). No headless browsers, no brittle HTML scraping: typed JSON over standard MCP tools.
 
 Built with [xmcp](https://xmcp.dev) and deployed on Cloudflare Workers. Use the hosted remote MCP server at `https://mcp.canopyapi.co/mcp` or self-host from this repo. Setup guides and client walkthroughs live on the [Amazon MCP server](https://canopyapi.co/amazon-mcp-server) page.
 
@@ -12,13 +12,12 @@ AI agents and LLM apps increasingly need live e-commerce data. This server gives
 - **Price monitoring & competitive intelligence** — an Amazon price tracker API for prices, stock estimates, and seller offers on any ASIN
 - **Product research & market analysis** — an Amazon product research tool with best seller rankings, sales estimates, and category taxonomies
 - **Catalog enrichment** — ASIN lookup and ASIN ↔ GTIN/UPC/ISBN/EAN conversion, plus images, variants, and specs
-- **Review analysis** — an Amazon reviews API returning top customer reviews with ratings, helpful votes, and media for summarization
 
 Works as a Claude MCP server (Desktop, Code, and the claude.ai connectors directory), a ChatGPT MCP connector (Apps SDK, with rich product widgets), in Cursor and the MCP Inspector, and with any agent built on the MCP SDK, LangChain, or the OpenAI Agents SDK.
 
 ## Features
 
-- **17 Amazon Data Tools** — product info, variants, offers, stock, sales, reviews, search, autocomplete, categories, best sellers, sellers, authors, deals, and ASIN/GTIN lookup
+- **16 Amazon Data Tools** — product info, variants, offers, stock, sales, search, autocomplete, categories, best sellers, sellers, authors, deals, and ASIN/GTIN lookup
 - **Streamable HTTP transport** at `/mcp` (current MCP spec)
 - **File-based tools** — one file per tool under `src/tools/`
 - **Type Safety** — TypeScript types generated from the Canopy OpenAPI spec via `openapi-typescript`
@@ -37,46 +36,16 @@ https://mcp.canopyapi.co/mcp
 
 Claude and other OAuth-capable MCP clients will walk you through sign-in automatically. Get an API key at [canopyapi.co](https://canopyapi.co/), and see the [Amazon MCP server guide](https://canopyapi.co/amazon-mcp-server) for per-client setup instructions.
 
-### Install as an Agent Plugin
+### Install the plugin
 
-This repository is an [Agent Plugin](https://agent-plugins.org/specification) (specification 1.0.0). The plugin root is the repository root. A compatible client reads `plugin.json`, loads skills from `skills/`, and connects to the MCP server declared in `mcp.json`.
-
-```text
-canopy-api-mcp/
-├── plugin.json          # Agent Plugins 1.0.0 manifest
-├── mcp.json             # hosted Streamable HTTP server
-└── skills/
-    └── amazon-product-research/
-        ├── SKILL.md
-        └── references/tools.md
-```
-
-`mcp.json` points at the same hosted endpoint as above:
-
-```json
-{
-  "mcpServers": {
-    "canopy": {
-      "type": "streamable-http",
-      "url": "https://mcp.canopyapi.co/mcp"
-    }
-  }
-}
-```
-
-Authorization stays in the client. OAuth-capable clients discover sign-in from the server. The plugin does not embed an API key: Agent Plugins treats `headers` as public package data, not a place for secrets. If a client only supports a static header, set `CANOPY-API-KEY` in that client.
-
-**Cursor.** After the plugin is listed, install it from Customize or the [Cursor Marketplace](https://cursor.com/marketplace). To try the directory before it is listed, copy this repository to `~/.cursor/plugins/local/canopy-api-mcp` (a symlink that points outside that folder is ignored), reload the window, and confirm the Canopy server and the `amazon-product-research` skill in Customize.
-
-**Other Agent Plugins clients.** Load this directory. The client needs Agent Plugins 1.0.0 and the `streamable-http` transport. There is no archive and no registry protocol in the specification: the package is this directory.
-
-`server.json` is unchanged. It is the MCP Registry server card, a separate format from `plugin.json`. `npm install`, `npm run dev`, and `npm run deploy` are unchanged.
-
-Validate the package against the published schemas:
+For Claude Code, Claude.ai, Cursor, and Grok Build, the Canopy plugin bundles this server with two skills, `amazon-product-research` and `amazon-price-and-deals`. It lives in its own repository: [canopy-api/canopy-plugin](https://github.com/canopy-api/canopy-plugin). In Claude Code:
 
 ```bash
-npm run validate:plugin
+claude plugin marketplace add canopy-api/canopy-plugin
+claude plugin install canopy@canopy-api
 ```
+
+See the [plugin README](https://github.com/canopy-api/canopy-plugin#install) for the other clients. This repository is the server only.
 
 ### Run it yourself
 
@@ -129,7 +98,7 @@ A missing or invalid credential returns HTTP 401 with a JSON-RPC error before th
 
 ## Available Tools
 
-All 17 tools are read-only (`readOnlyHint: true`) and annotated with a `title`.
+All 16 tools are read-only (`readOnlyHint: true`) and annotated with a `title`.
 
 ### Product Information
 - `get_amazon_product` — product details by ASIN, URL, or GTIN
@@ -137,12 +106,11 @@ All 17 tools are read-only (`readOnlyHint: true`) and annotated with a `title`.
 - `get_amazon_product_offers` — seller offers and Buy Box info
 - `get_amazon_product_stock` — stock level estimates
 - `get_amazon_product_sales` — sales estimates (weekly, monthly, annual)
-- `get_amazon_product_top_reviews` — top customer reviews (title, body, rating, helpful votes, images/videos)
 
 ### Search & Discovery
 - `search_amazon_products` — search with filters and sorting
 - `get_amazon_autocomplete` — search term suggestions
-- `get_amazon_deals` — current deals
+- `get_amazon_deals` — current deals, optionally filtered by category
 - `get_amazon_bestsellers` — best-selling products for a category
 - `get_amazon_bestseller_categories` — best seller category list
 
@@ -162,13 +130,7 @@ All 17 tools are read-only (`readOnlyHint: true`) and annotated with a `title`.
 
 ```
 canopy-api-mcp/
-├── plugin.json                 # Agent Plugins 1.0.0 manifest
-├── mcp.json                    # MCP server declaration (Streamable HTTP)
-├── skills/
-│   └── amazon-product-research/
-│       ├── SKILL.md
-│       └── references/tools.md
-├── server.json                 # MCP Registry server card (separate from plugin.json)
+├── server.json                 # MCP Registry server card (co.canopyapi/mcp)
 ├── LICENSE                     # MIT License
 ├── src/
 │   ├── tools/                  # one file per tool (auto-discovered by xmcp)
@@ -202,7 +164,6 @@ npm run generate
 - `npm run deploy` — build + `wrangler deploy --env production`
 - `npm run delete` — remove the deployed Worker
 - `npm run generate` — regenerate API types from the OpenAPI spec
-- `npm run validate:plugin` — check `plugin.json`, `mcp.json`, and `skills/` against Agent Plugins 1.0.0
 
 ## Migration from v1.x
 
@@ -214,8 +175,9 @@ This project is released under the [MIT License](LICENSE). Copyright (c) 2026 Ca
 
 ## Related
 
+- [Canopy plugin](https://github.com/canopy-api/canopy-plugin) — this server packaged with skills for Claude, Cursor, and Grok
 - [Model Context Protocol](https://modelcontextprotocol.io)
 - [xmcp framework](https://xmcp.dev)
 - [Amazon MCP Server — Canopy](https://canopyapi.co/amazon-mcp-server)
-- [Canopy API](https://canopyapi.co/docs)
+- [Canopy API](https://docs.canopyapi.co)
 - [Cloudflare Workers](https://workers.cloudflare.com/)
