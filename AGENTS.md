@@ -20,7 +20,7 @@ MCP server providing Amazon product data through the Canopy API. Built with [xmc
 ### Layout
 
 - **src/tools/** — one file per tool, auto-discovered by xmcp. Each file exports `schema`, `metadata`, and a default async function.
-- **widgets/** — vanilla-TS widget sources (ChatGPT Apps / MCP Apps UI): `bridge.ts` (host bridge: `window.openai` with a JSON-RPC postMessage fallback), `format.ts` (HTML escaping + render helpers), `base.css`, and one entry per widget (`product`, `search`, `offers`, `bestsellers`, `deals`).
+- **widgets/** — vanilla-TS widget sources (ChatGPT Apps / MCP Apps UI): `bridge.ts` (host bridge: `window.openai` with a JSON-RPC postMessage fallback; applies the host's theme, style variables, fonts, locale, and safe-area insets), `format.ts` (HTML escaping + render helpers), `base.css` (surface colors and the font read the MCP Apps host style variables first and fall back to the built-in `--p-*` palette), and one entry per widget (`product`, `search`, `offers`, `bestsellers`, `deals`).
 - **scripts/build-widgets.mjs** — esbuild-bundles each widget into a self-contained HTML document and emits it as a string module in `src/widgets/` (gitignored) for the resource files to import.
 - **src/resources/(ui)/widget/** — one xmcp resource per widget, served as `ui://widget/<name>.html` with mimeType `text/html;profile=mcp-app`. Handlers return a full `ReadResourceResult` via `widgetResourceResult(...)` — a bare string return would drop the mimeType and CSP `_meta`.
 - **src/lib/widget-meta.ts** — `_meta` builders. Tools use the flat `"ui/resourceUri"` key + `"openai/outputTemplate"` alias. Never use xmcp's nested `_meta.ui` object on tools: it triggers xmcp's built-in widget mode, which auto-registers a `ui://app/<tool>.html` resource backed by the tool handler itself (reading it would call Canopy without an API key and throw). Also lists the Amazon image CDNs allowed by the widget CSP.
@@ -96,7 +96,7 @@ CORS is configured in `xmcp.config.ts` under `http.cors`:
 
 `npm test` builds `worker.js` and runs `test/regression.test.mjs` (node:test + wrangler `unstable_dev`) against the built worker. It covers the client-facing contract: 401 without a key, all four API key header formats, stateless `tools/list` (no `mcp-session-id`), the full tool roster, input-schema conversion, per-request key forwarding to Canopy (skips if offline), CORS preflight headers, and notification handling.
 
-`test/widget-bridge.test.mjs` unit-tests the widget host bridge (`widgets/bridge.ts`) against a stubbed iframe environment: a fake parent frame records what the widget posts and replays host messages to it.
+`test/widget-bridge.test.mjs` unit-tests the widget host bridge (`widgets/bridge.ts`) against a stubbed iframe environment: a fake parent frame records what the widget posts and replays host messages to it. `test/widget-format.test.mjs` covers the locale-aware number helpers in `widgets/format.ts`.
 
 For interactive testing:
 

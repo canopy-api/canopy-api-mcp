@@ -6,6 +6,14 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+## [3.0.2] - 2026-11-18
+
+### Changed
+
+- The five widgets (product, search, offers, best sellers, deals) now take their look from the host on MCP Apps clients, where the host describes one. They use the host's text, background and border colors, its sans-serif font and its focus-ring color, and they update when the host changes them. A host that sends no styling gets the same built-in light and dark palettes as before.
+- Rating and result counts in the widgets are formatted for the host's locale (for example `49.280` in German) on MCP Apps clients and ChatGPT. Prices are unchanged: they are shown as Amazon formats them.
+- The widgets keep their content clear of the host's safe-area insets, such as a phone's home indicator.
+
 ## [3.0.1] - 2026-11-18
 
 ### Fixed
@@ -94,7 +102,8 @@ The major version marks two removals: the top reviews tool, and the plugin files
 
 - First MCP server, with API-key authentication.
 
-[Unreleased]: https://github.com/canopy-api/canopy-api-mcp/compare/v3.0.1...HEAD
+[Unreleased]: https://github.com/canopy-api/canopy-api-mcp/compare/v3.0.2...HEAD
+[3.0.2]: https://github.com/canopy-api/canopy-api-mcp/compare/v3.0.1...v3.0.2
 [3.0.1]: https://github.com/canopy-api/canopy-api-mcp/compare/v3.0.0...v3.0.1
 [3.0.0]: https://github.com/canopy-api/canopy-api-mcp/compare/v2.2.0...v3.0.0
 [2.2.0]: https://github.com/canopy-api/canopy-api-mcp/compare/v2.1.0...v2.2.0

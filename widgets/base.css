@@ -1,14 +1,26 @@
 /* Shared widget styles, inlined into every widget document by scripts/build-widgets.mjs.
    Theming: the host's theme (ChatGPT `window.openai.theme`, MCP Apps hostContext) is
    applied by bridge.ts as html[data-theme]; prefers-color-scheme is only the fallback
-   when the host doesn't say. The dark palette therefore appears twice below. */
+   when the host doesn't say. The dark palette therefore appears twice below.
+   Host styling: MCP Apps hosts can send standardized style variables
+   (--color-text-primary, --font-sans, …), which bridge.ts sets on <html>. The
+   surface tokens below read those first and fall back to the built-in palette
+   (--p-*), so the widget matches the host's look when it describes one. Hosts
+   send theme-aware values as light-dark(), which resolves through color-scheme. */
+:root {
+  --fg: var(--color-text-primary, var(--p-fg));
+  --muted: var(--color-text-secondary, var(--p-muted));
+  --border: var(--color-border-primary, var(--p-border));
+  --card: var(--color-background-primary, var(--p-card));
+  --chip: var(--color-background-secondary, var(--p-chip));
+}
 :root {
   color-scheme: light dark;
-  --fg: #191919;
-  --muted: #6f7780;
-  --border: #e4e6e9;
-  --card: #ffffff;
-  --chip: #f2f3f5;
+  --p-fg: #191919;
+  --p-muted: #6f7780;
+  --p-border: #e4e6e9;
+  --p-card: #ffffff;
+  --p-chip: #f2f3f5;
   --star: #e88a00;
   --prime: #0f7fae;
   --deal: #cc0c39;
@@ -19,11 +31,11 @@
 :root[data-theme="light"] { color-scheme: light; }
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --fg: #ececec;
-  --muted: #9aa1a9;
-  --border: #3b3d40;
-  --card: #202123;
-  --chip: #2e2f32;
+  --p-fg: #ececec;
+  --p-muted: #9aa1a9;
+  --p-border: #3b3d40;
+  --p-card: #202123;
+  --p-chip: #2e2f32;
   --star: #f0a13c;
   --prime: #4fb3dc;
   --deal: #ff5a6e;
@@ -33,11 +45,11 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --fg: #ececec;
-    --muted: #9aa1a9;
-    --border: #3b3d40;
-    --card: #202123;
-    --chip: #2e2f32;
+    --p-fg: #ececec;
+    --p-muted: #9aa1a9;
+    --p-border: #3b3d40;
+    --p-card: #202123;
+    --p-chip: #2e2f32;
     --star: #f0a13c;
     --prime: #4fb3dc;
     --deal: #ff5a6e;
@@ -51,18 +63,23 @@ html, body { margin: 0; padding: 0; background: transparent; }
 body {
   color: var(--fg);
   font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif);
   -webkit-font-smoothing: antialiased;
 }
 a { color: var(--link); text-decoration: none; }
 a:hover { text-decoration: underline; }
 a:focus-visible, button:focus-visible {
-  outline: 2px solid var(--link);
+  outline: 2px solid var(--color-ring-primary, var(--link));
   outline-offset: 2px;
   border-radius: 4px;
 }
 img { display: block; }
 /* Hosts (Claude, ChatGPT) frame the widget iframe without inner padding. */
-#root { padding: 10px 12px; }
+#root {
+  padding:
+    calc(10px + var(--safe-top, 0px)) calc(12px + var(--safe-right, 0px))
+    calc(10px + var(--safe-bottom, 0px)) calc(12px + var(--safe-left, 0px));
+}
 
 .muted { color: var(--muted); }
 .small { font-size: 12px; }
