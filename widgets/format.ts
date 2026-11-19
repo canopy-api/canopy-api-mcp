@@ -18,14 +18,31 @@ export function esc(value: unknown): string {
     .replace(/'/g, "&#39;");
 }
 
+/** Host-reported locale for number formatting; undefined = the iframe's default. */
+let locale: string | undefined;
+
+/**
+ * Use the host's locale (BCP 47, e.g. "de-DE") for number formatting. Tags the
+ * runtime doesn't recognize are ignored, since passing one to toLocaleString
+ * would throw.
+ */
+export function setLocale(tag: unknown): void {
+  if (typeof tag !== "string") return;
+  try {
+    locale = Intl.NumberFormat.supportedLocalesOf(tag.replace(/_/g, "-"))[0] ?? locale;
+  } catch {
+    // Malformed tag: keep the current locale.
+  }
+}
+
 export function num(value: number | undefined): string {
-  return typeof value === "number" ? value.toLocaleString() : "";
+  return typeof value === "number" ? value.toLocaleString(locale) : "";
 }
 
 /** 49,280 → "49.3K" for tight layouts (search cards, bestseller rows). */
 export function compactNum(value: number | undefined): string {
   if (typeof value !== "number") return "";
-  if (value < 10_000) return value.toLocaleString();
+  if (value < 10_000) return value.toLocaleString(locale);
   if (value < 1_000_000) return `${(value / 1_000).toFixed(value < 100_000 ? 1 : 0)}K`;
   return `${(value / 1_000_000).toFixed(1)}M`;
 }

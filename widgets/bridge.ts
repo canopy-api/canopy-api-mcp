@@ -2,9 +2,13 @@
 // (window.openai globals) and falls back to the open MCP Apps JSON-RPC
 // postMessage bridge for other hosts.
 
+import { setLocale } from "./format";
+
 type OpenAiGlobals = {
   toolOutput?: unknown;
   theme?: string;
+  locale?: string;
+  safeArea?: { insets?: unknown };
   openExternal?: (opts: { href: string }) => void;
 };
 
@@ -36,11 +40,80 @@ let nextRequestId = INIT_ID + 1;
  */
 let hostOpensLinks = false;
 
-/** Pull a theme string out of loosely-shaped host payloads. */
-function themeOf(value: unknown): unknown {
-  if (value == null || typeof value !== "object") return undefined;
-  const obj = value as { theme?: unknown; hostContext?: { theme?: unknown } };
-  return obj.theme ?? obj.hostContext?.theme;
+/** The parts of the MCP Apps `HostContext` the widgets use. All optional. */
+type HostContext = {
+  theme?: unknown;
+  styles?: { variables?: unknown; css?: { fonts?: unknown } };
+  locale?: unknown;
+  safeAreaInsets?: unknown;
+};
+
+/**
+ * Pull the host context out of a host payload: the `ui/initialize` result
+ * nests it under `hostContext`, while `host-context-changed` params are a
+ * partial context themselves.
+ */
+function contextOf(value: unknown): HostContext {
+  if (value == null || typeof value !== "object") return {};
+  const obj = value as HostContext & { hostContext?: HostContext };
+  return obj.hostContext && typeof obj.hostContext === "object" ? obj.hostContext : obj;
+}
+
+/**
+ * Apply the host's standardized style variables (`--color-text-primary`,
+ * `--font-sans`, …) to the document root. base.css reads them with the built-in
+ * palette as the fallback, so a host that sends none changes nothing.
+ */
+function applyStyleVariables(variables: unknown): void {
+  if (variables == null || typeof variables !== "object") return;
+  for (const [name, value] of Object.entries(variables)) {
+    if (typeof value === "string" && /^--[a-z0-9-]+$/.test(name)) {
+      document.documentElement.style.setProperty(name, value);
+    }
+  }
+}
+
+/** Install the host's font CSS (`@font-face` / `@import` rules) so `--font-sans` resolves. */
+function applyFonts(css: unknown): void {
+  if (typeof css !== "string" || !css) return;
+  let style = document.head.querySelector<HTMLStyleElement>("style[data-host-fonts]");
+  if (!style) {
+    style = document.createElement("style");
+    style.setAttribute("data-host-fonts", "");
+    document.head.appendChild(style);
+  }
+  style.textContent = css;
+}
+
+/** Expose safe-area insets (pixels) as `--safe-*` variables; base.css pads #root with them. */
+function applySafeArea(insets: unknown): void {
+  if (insets == null || typeof insets !== "object") return;
+  for (const side of ["top", "right", "bottom", "left"] as const) {
+    const px = (insets as Record<string, unknown>)[side];
+    if (typeof px === "number" && px >= 0) {
+      document.documentElement.style.setProperty(`--safe-${side}`, `${px}px`);
+    }
+  }
+}
+
+/**
+ * Apply a (possibly partial) host context: theme, style variables, fonts,
+ * locale and safe-area insets. Fields the host left out are left as they are.
+ */
+function applyHostContext(context: HostContext): void {
+  applyTheme(context.theme);
+  applyStyleVariables(context.styles?.variables);
+  applyFonts(context.styles?.css?.fonts);
+  applySafeArea(context.safeAreaInsets);
+  if (typeof context.locale === "string") {
+    setLocale(context.locale);
+    document.documentElement.lang = context.locale;
+  }
+}
+
+/** The ChatGPT globals that correspond to host-context fields. */
+function openaiContext(globals: OpenAiGlobals): HostContext {
+  return { theme: globals.theme, locale: globals.locale, safeAreaInsets: globals.safeArea?.insets };
 }
 
 /**
@@ -60,12 +133,12 @@ export function boot(renderOutput: (output: unknown) => void): void {
   };
   const host = openai();
   if (host) {
-    applyTheme(host.theme);
+    applyHostContext(openaiContext(host));
     if (host.toolOutput != null) render(host.toolOutput);
     window.addEventListener("openai:set_globals", (event) => {
       const globals = (event as CustomEvent<{ globals?: OpenAiGlobals }>).detail?.globals;
       if (!globals) return;
-      applyTheme(globals.theme);
+      applyHostContext(openaiContext(globals));
       if (globals.toolOutput != null) render(globals.toolOutput);
     });
     return;
@@ -89,7 +162,7 @@ export function boot(renderOutput: (output: unknown) => void): void {
     const data = event.data as { id?: number; result?: unknown; method?: string; params?: unknown } | undefined;
     if (!data) return;
     if (data.id === INIT_ID && data.result != null) {
-      applyTheme(themeOf(data.result));
+      applyHostContext(contextOf(data.result));
       const capabilities = (data.result as { hostCapabilities?: { openLinks?: unknown } }).hostCapabilities;
       hostOpensLinks = capabilities?.openLinks != null;
       post({ method: "ui/notifications/initialized", params: {} });
@@ -106,9 +179,9 @@ export function boot(renderOutput: (output: unknown) => void): void {
       if (output != null) render(output);
       return;
     }
-    // Theme changes arrive as host-context notifications.
-    if (typeof data.method === "string" && data.method.startsWith("ui/notifications/")) {
-      applyTheme(themeOf(data.params));
+    // Later changes (theme switch, new style variables) arrive as a partial context.
+    if (data.method === "ui/notifications/host-context-changed") {
+      applyHostContext(contextOf(data.params));
     }
   });
   // Report content height so hosts size the iframe to fit instead of leaving

@@ -33,20 +33,36 @@ async function loadBridge({ openai } = {}) {
     open: (url) => opened.push(url),
     addEventListener: (type, fn) => ((listeners[type] ??= []).push(fn)),
   };
-  globalThis.document = { documentElement: { dataset: {}, scrollHeight: 100 }, body: {} };
+  const vars = {};
+  const styles = [];
+  globalThis.document = {
+    documentElement: {
+      dataset: {},
+      scrollHeight: 100,
+      lang: "",
+      style: { setProperty: (name, value) => (vars[name] = value) },
+    },
+    body: {},
+    head: {
+      querySelector: () => styles[0] ?? null,
+      appendChild: (el) => styles.push(el),
+    },
+    createElement: () => ({ textContent: "", setAttribute() {} }),
+  };
   const bridge = await import(`${pathToFileURL(bundlePath).href}?instance=${instance++}`);
   /** Deliver a message from the host (the parent frame) to the widget. */
   const fromHost = (data) => listeners.message?.forEach((fn) => fn({ source: parent, data }));
-  return { bridge, posted, opened, fromHost };
+  const dispatch = (type, event) => listeners[type]?.forEach((fn) => fn(event));
+  return { bridge, posted, opened, fromHost, dispatch, vars, styles, html: document.documentElement };
 }
 
 /** Boot the widget and complete the MCP Apps handshake with the given capabilities. */
-async function bootWithHost(hostCapabilities) {
+async function bootWithHost(hostCapabilities, hostContext) {
   const env = await loadBridge();
   env.bridge.boot(() => {});
   const init = env.posted.find((msg) => msg.method === "ui/initialize");
   assert.ok(init, "widget sends ui/initialize");
-  env.fromHost({ jsonrpc: "2.0", id: init.id, result: { protocolVersion: "2026-01-26", hostCapabilities } });
+  env.fromHost({ jsonrpc: "2.0", id: init.id, result: { protocolVersion: "2026-01-26", hostCapabilities, hostContext } });
   return env;
 }
 
@@ -94,4 +110,72 @@ test("openLink uses ChatGPT's openExternal when window.openai provides it", asyn
   assert.deepEqual(external, [{ href: "https://www.amazon.com/dp/B0TEST" }]);
   assert.deepEqual(posted, []);
   assert.deepEqual(opened, []);
+});
+
+test("host context from ui/initialize sets theme, style variables, fonts, locale and safe area", async () => {
+  const { vars, styles, html } = await bootWithHost({}, {
+    theme: "dark",
+    styles: {
+      variables: {
+        "--color-text-primary": "light-dark(#171717, #fafafa)",
+        "--font-sans": "Inter, sans-serif",
+        "--color-border-primary": undefined,
+        "color; background:url(x)": "red",
+      },
+      css: { fonts: "@font-face { font-family: Inter; src: url(https://example.com/inter.woff2); }" },
+    },
+    locale: "de-DE",
+    safeAreaInsets: { top: 0, right: 8, bottom: 20, left: 8 },
+  });
+  assert.equal(html.dataset.theme, "dark");
+  assert.equal(html.lang, "de-DE");
+  assert.deepEqual(vars, {
+    "--color-text-primary": "light-dark(#171717, #fafafa)",
+    "--font-sans": "Inter, sans-serif",
+    "--safe-top": "0px",
+    "--safe-right": "8px",
+    "--safe-bottom": "20px",
+    "--safe-left": "8px",
+  });
+  assert.equal(styles.length, 1);
+  assert.match(styles[0].textContent, /font-family: Inter/);
+});
+
+test("host-context-changed merges a partial context without clearing the rest", async () => {
+  const { vars, html, fromHost } = await bootWithHost({}, {
+    theme: "light",
+    styles: { variables: { "--color-text-primary": "#111111", "--font-sans": "Inter, sans-serif" } },
+  });
+  fromHost({ jsonrpc: "2.0", method: "ui/notifications/host-context-changed", params: { theme: "dark" } });
+  assert.equal(html.dataset.theme, "dark");
+  assert.equal(vars["--color-text-primary"], "#111111", "variables survive a theme-only change");
+  fromHost({
+    jsonrpc: "2.0",
+    method: "ui/notifications/host-context-changed",
+    params: { styles: { variables: { "--color-text-primary": "#eeeeee" } } },
+  });
+  assert.equal(vars["--color-text-primary"], "#eeeeee");
+  assert.equal(vars["--font-sans"], "Inter, sans-serif");
+  assert.equal(html.dataset.theme, "dark", "theme survives a styles-only change");
+});
+
+test("a host that sends no context leaves the built-in look untouched", async () => {
+  const { vars, styles, html } = await bootWithHost({});
+  assert.deepEqual(vars, {});
+  assert.equal(styles.length, 0);
+  assert.equal(html.dataset.theme, undefined);
+  assert.equal(html.lang, "");
+});
+
+test("ChatGPT globals supply theme, locale and safe area", async () => {
+  const { bridge, vars, html, dispatch } = await loadBridge({
+    openai: { theme: "dark", locale: "fr-FR", safeArea: { insets: { top: 0, right: 0, bottom: 34, left: 0 } } },
+  });
+  bridge.boot(() => {});
+  assert.equal(html.dataset.theme, "dark");
+  assert.equal(html.lang, "fr-FR");
+  assert.equal(vars["--safe-bottom"], "34px");
+  dispatch("openai:set_globals", { detail: { globals: { theme: "light" } } });
+  assert.equal(html.dataset.theme, "light");
+  assert.equal(html.lang, "fr-FR", "locale survives a theme-only update");
 });
