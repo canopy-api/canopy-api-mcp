@@ -22,6 +22,20 @@ function applyTheme(theme: unknown): void {
   document.documentElement.dataset.theme = theme;
 }
 
+/** Send a JSON-RPC message to the MCP Apps host (the parent frame). */
+function post(msg: Record<string, unknown>): void {
+  window.parent.postMessage({ jsonrpc: "2.0", ...msg }, "*");
+}
+
+const INIT_ID = 1;
+let nextRequestId = INIT_ID + 1;
+
+/**
+ * True once an MCP Apps host has advertised `hostCapabilities.openLinks` in
+ * its `ui/initialize` result, i.e. it accepts `ui/open-link` requests.
+ */
+let hostOpensLinks = false;
+
 /** Pull a theme string out of loosely-shaped host payloads. */
 function themeOf(value: unknown): unknown {
   if (value == null || typeof value !== "object") return undefined;
@@ -58,8 +72,6 @@ export function boot(renderOutput: (output: unknown) => void): void {
   }
 
   // MCP Apps standard bridge (JSON-RPC over postMessage with the parent frame).
-  const INIT_ID = 1;
-  const post = (msg: Record<string, unknown>) => window.parent.postMessage({ jsonrpc: "2.0", ...msg }, "*");
   const extract = (value: unknown): unknown => {
     if (value == null || typeof value !== "object") return undefined;
     const obj = value as Record<string, unknown>;
@@ -78,6 +90,8 @@ export function boot(renderOutput: (output: unknown) => void): void {
     if (!data) return;
     if (data.id === INIT_ID && data.result != null) {
       applyTheme(themeOf(data.result));
+      const capabilities = (data.result as { hostCapabilities?: { openLinks?: unknown } }).hostCapabilities;
+      hostOpensLinks = capabilities?.openLinks != null;
       post({ method: "ui/notifications/initialized", params: {} });
       // Hosts may drop size reports sent before the handshake completes (the
       // skeleton's first report), leaving a default-height iframe that scrolls.
@@ -114,11 +128,22 @@ export function boot(renderOutput: (output: unknown) => void): void {
   });
 }
 
-/** Open an external URL through the host when possible. */
+/**
+ * Open an external URL through the host when possible: ChatGPT's
+ * `openExternal`, or an MCP Apps `ui/open-link` request when the host
+ * advertised support for it. `window.open` is only the last resort — it
+ * depends on the host's iframe sandbox allowing popups.
+ */
 export function openLink(url: string): void {
   const host = openai();
   if (host?.openExternal) {
     host.openExternal({ href: url });
+    return;
+  }
+  if (hostOpensLinks) {
+    // The host may refuse (user denial, policy) with a JSON-RPC error. That
+    // is its decision, so the reply is not awaited and there is no fallback.
+    post({ id: nextRequestId++, method: "ui/open-link", params: { url } });
     return;
   }
   window.open(url, "_blank", "noopener");
