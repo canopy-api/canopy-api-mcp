@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+### Changed
+
+- Updated xmcp and `@xmcp-dev/compiler` to 1.13.2. Building the server requires Node.js 22.12 or later.
+
 ## [3.0.0] - 2026-11-09
 
 The major version marks two removals: the top reviews tool, and the plugin files leaving this repository. The other 16 tools and auth are unchanged.
