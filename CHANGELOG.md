@@ -6,6 +6,16 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+### Changed
+
+- Updated wrangler to 4.166.0 for local development, tests, and deploys. It requires Node.js 22.12 or later, so `engines` is `>=22.12.0` and `.nvmrc` is `v22.23.5`.
+- Updated `@cloudflare/workers-types` to 5.20261123.1, the current 5.x release, so the installed types satisfy wrangler 4.166.0.
+- Wrangler no longer copies large multipart upload bodies when debug logs are off, so uploads of large static-asset batches use less memory.
+
+### Security
+
+- Wrangler's HTTP client and the local Workers runtime now use undici 7.30.2. That release fixes cache poisoning, redirect credential handling, and Subresource Integrity checks in undici 7.30.1.
+
 ## [3.0.0] - 2026-11-09
 
 The major version marks two removals: the top reviews tool, and the plugin files leaving this repository. The other 16 tools and auth are unchanged.
