@@ -96,6 +96,8 @@ CORS is configured in `xmcp.config.ts` under `http.cors`:
 
 `npm test` builds `worker.js` and runs `test/regression.test.mjs` (node:test + wrangler `unstable_dev`) against the built worker. It covers the client-facing contract: 401 without a key, all four API key header formats, stateless `tools/list` (no `mcp-session-id`), the full tool roster, input-schema conversion, per-request key forwarding to Canopy (skips if offline), CORS preflight headers, and notification handling.
 
+`test/widget-bridge.test.mjs` unit-tests the widget host bridge (`widgets/bridge.ts`) against a stubbed iframe environment: a fake parent frame records what the widget posts and replays host messages to it.
+
 For interactive testing:
 
 ```bash

@@ -6,6 +6,12 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+## [3.0.1] - 2026-11-18
+
+### Fixed
+
+- Links in the five widgets (product, search, offers, best sellers, deals) now open through the host on MCP Apps clients such as Claude. The widgets send a `ui/open-link` request when the host advertises support for it. Before, they called `window.open` everywhere except ChatGPT, which fails silently when the host's iframe sandbox blocks popups.
+
 ## [3.0.0] - 2026-11-09
 
 The major version marks two removals: the top reviews tool, and the plugin files leaving this repository. The other 16 tools and auth are unchanged.
@@ -88,7 +94,8 @@ The major version marks two removals: the top reviews tool, and the plugin files
 
 - First MCP server, with API-key authentication.
 
-[Unreleased]: https://github.com/canopy-api/canopy-api-mcp/compare/v3.0.0...HEAD
+[Unreleased]: https://github.com/canopy-api/canopy-api-mcp/compare/v3.0.1...HEAD
+[3.0.1]: https://github.com/canopy-api/canopy-api-mcp/compare/v3.0.0...v3.0.1
 [3.0.0]: https://github.com/canopy-api/canopy-api-mcp/compare/v2.2.0...v3.0.0
 [2.2.0]: https://github.com/canopy-api/canopy-api-mcp/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/canopy-api/canopy-api-mcp/releases/tag/v2.1.0

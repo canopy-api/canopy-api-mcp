@@ -7,7 +7,7 @@
     "url": "https://github.com/canopy-api/canopy-api-mcp",
     "source": "github"
   },
-  "version": "3.0.0",
+  "version": "3.0.1",
   "websiteUrl": "https://canopyapi.co/amazon-mcp-server",
   "remotes": [
     {
