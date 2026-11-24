@@ -1,5 +1,7 @@
 # Canopy MCP Server — Amazon Product Data API for AI Agents
 
+[![canopy-api/canopy-api-mcp MCP server](https://glama.ai/mcp/servers/canopy-api/canopy-api-mcp/badges/score.svg)](https://glama.ai/mcp/servers/canopy-api/canopy-api-mcp)
+
 An Amazon product data API served over the [Model Context Protocol](https://modelcontextprotocol.io). Connect Claude, ChatGPT, Cursor, or any MCP client to real-time Amazon data — an Amazon search API, price tracker, ASIN lookup, best sellers, deals, and sales estimates — powered by the [Canopy API](https://canopyapi.co/). No headless browsers, no brittle HTML scraping: typed JSON over standard MCP tools.
 
 Built with [xmcp](https://xmcp.dev) and deployed on Cloudflare Workers. Use the hosted remote MCP server at `https://mcp.canopyapi.co/mcp` or self-host from this repo. Setup guides and client walkthroughs live on the [Amazon MCP server](https://canopyapi.co/amazon-mcp-server) page.
